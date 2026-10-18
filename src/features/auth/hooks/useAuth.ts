@@ -34,7 +34,7 @@ export function useLogout() {
 }
 
 export function useCurrentUserEmail(): string {
-  const [email, setEmail] = useState<string>("vannchhai.dev@gmail.com");
+  const [email, setEmail] = useState<string>("");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -59,7 +59,6 @@ export function useCurrentUserEmail(): string {
         // ignore
       }
     }
-    setEmail("vannchhai.dev@gmail.com");
   }, []);
 
   return email;

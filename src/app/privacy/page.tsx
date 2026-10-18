@@ -3,17 +3,17 @@ import { ArrowLeft, ShieldCheck } from "lucide-react";
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="min-h-screen bg-background text-foreground py-12 px-6 max-w-4xl mx-auto">
+    <div className="mx-auto min-h-screen max-w-4xl bg-background px-6 py-12 text-foreground">
       <Link
         href="/"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8"
+        className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-4" /> Back to ClipFlow
       </Link>
 
       <div className="space-y-6">
         <div className="flex items-center gap-3">
-          <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+          <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
             <ShieldCheck className="size-6" />
           </div>
           <div>
@@ -22,43 +22,51 @@ export default function PrivacyPolicyPage() {
           </div>
         </div>
 
-        <section className="space-y-3 text-sm text-muted-foreground leading-relaxed">
+        <section className="space-y-3 text-sm leading-relaxed text-muted-foreground">
           <h2 className="text-lg font-semibold text-foreground">1. Overview</h2>
           <p>
-            ClipFlow ("we", "our", or "us") provides a multi-platform video publishing, scheduling, and
-            analytics platform. This Privacy Policy explains how we collect, store, protect, and use
-            information when you connect social media accounts and use our services.
+            ClipFlow ("we", "our", or "us") provides a multi-platform video publishing,
+            scheduling, and analytics platform. This Privacy Policy explains how we
+            collect, store, protect, and use information when you connect social media
+            accounts and use our services.
           </p>
         </section>
 
-        <section className="space-y-3 text-sm text-muted-foreground leading-relaxed">
-          <h2 className="text-lg font-semibold text-foreground">2. Social Media Account Permissions</h2>
+        <section className="space-y-3 text-sm leading-relaxed text-muted-foreground">
+          <h2 className="text-lg font-semibold text-foreground">
+            2. Social Media Account Permissions
+          </h2>
           <p>
-            When you connect a social media account (such as YouTube, TikTok, Instagram, Facebook, or
-            LinkedIn), we use industry-standard OAuth 2.0 authorization. ClipFlow never receives or
-            stores your social media account passwords.
+            When you connect a social media account (such as YouTube, TikTok, Instagram,
+            Facebook, or LinkedIn), we use industry-standard OAuth 2.0 authorization.
+            ClipFlow never receives or stores your social media account passwords.
           </p>
           <p>
-            We only access the permissions necessary to provide our core publishing services:
-            uploading video content on your behalf, scheduling publications, and displaying channel
-            performance analytics (such as subscriber counts and video views).
-          </p>
-        </section>
-
-        <section className="space-y-3 text-sm text-muted-foreground leading-relaxed">
-          <h2 className="text-lg font-semibold text-foreground">3. Data Retention and Security</h2>
-          <p>
-            All OAuth tokens are securely encrypted. You may disconnect your social accounts at any
-            time through the Settings &gt; Accounts page, which permanently revokes and deletes the
-            associated authentication tokens.
+            We only access the permissions necessary to provide our core publishing
+            services: uploading video content on your behalf, scheduling publications, and
+            displaying channel performance analytics (such as subscriber counts and video
+            views).
           </p>
         </section>
 
-        <section className="space-y-3 text-sm text-muted-foreground leading-relaxed">
-          <h2 className="text-lg font-semibold text-foreground">4. Contact Information</h2>
+        <section className="space-y-3 text-sm leading-relaxed text-muted-foreground">
+          <h2 className="text-lg font-semibold text-foreground">
+            3. Data Retention and Security
+          </h2>
           <p>
-            If you have questions regarding this Privacy Policy or your data, please contact our
-            developer team at support@clipflow.app.
+            All OAuth tokens are securely encrypted. You may disconnect your social
+            accounts at any time through the Settings &gt; Accounts page, which
+            permanently revokes and deletes the associated authentication tokens.
+          </p>
+        </section>
+
+        <section className="space-y-3 text-sm leading-relaxed text-muted-foreground">
+          <h2 className="text-lg font-semibold text-foreground">
+            4. Contact Information
+          </h2>
+          <p>
+            If you have questions regarding this Privacy Policy or your data, please
+            contact our developer team at support@clipflow.app.
           </p>
         </section>
       </div>

@@ -33,7 +33,9 @@ export function LoginForm() {
   return (
     <div className="w-full max-w-sm">
       <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Sign in to your account to continue</p>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Sign in to your account to continue
+      </p>
 
       <form
         onSubmit={handleSubmit((v) => login.mutate(v))}

@@ -43,8 +43,7 @@ export interface AnalyticsSummaryResponse {
 }
 
 export const publishingApi = {
-  listAccounts: () =>
-    apiClient.get<SocialAccountDto[]>("/accounts"),
+  listAccounts: () => apiClient.get<SocialAccountDto[]>("/accounts"),
 
   connectAccount: (platform: Platform) =>
     apiClient.post<{ authorizationUrl: string }>(`/accounts/connect/${platform}`),
@@ -52,8 +51,7 @@ export const publishingApi = {
   reconnectAccount: (id: string) =>
     apiClient.post<SocialAccountDto>(`/accounts/${id}/reconnect`),
 
-  disconnectAccount: (id: string) =>
-    apiClient.delete(`/accounts/${id}`),
+  disconnectAccount: (id: string) => apiClient.delete(`/accounts/${id}`),
 
   schedulePost: (body: SchedulePostRequest) =>
     apiClient.post<PublishingTask[], SchedulePostRequest>("/posts/schedule", body),
@@ -61,17 +59,22 @@ export const publishingApi = {
   publishNow: (body: SchedulePostRequest) =>
     apiClient.post<PublishingTask[], SchedulePostRequest>("/posts/publish-now", body),
 
-  listScheduled: () =>
-    apiClient.get<PublishingTask[]>("/posts/scheduled"),
+  listScheduled: () => apiClient.get<PublishingTask[]>("/posts/scheduled"),
 
-  cancelTask: (id: string) =>
-    apiClient.delete(`/posts/${id}`),
+  cancelTask: (id: string) => apiClient.delete(`/posts/${id}`),
 
   getAnalyticsSummary: () =>
     apiClient.get<AnalyticsSummaryResponse>("/posts/analytics/summary"),
 
-  configureCredentials: (body: { platform: string; clientId: string; clientSecret: string }) =>
-    apiClient.post<{ success: boolean; configured: boolean }>("/accounts/config/credentials", body),
+  configureCredentials: (body: {
+    platform: string;
+    clientId: string;
+    clientSecret: string;
+  }) =>
+    apiClient.post<{ success: boolean; configured: boolean }>(
+      "/accounts/config/credentials",
+      body,
+    ),
 
   connectDemoAccount: (platform: Platform) =>
     apiClient.post<SocialAccountDto>(`/accounts/connect-demo/${platform}`),

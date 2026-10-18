@@ -64,7 +64,13 @@ import { cn } from "@/lib/utils";
 
 /* ----------------------------- Helpers & Brand Icons ----------------------------- */
 
-function PlatformIcon({ platform, className }: { platform: Platform; className?: string }) {
+function PlatformIcon({
+  platform,
+  className,
+}: {
+  platform: Platform;
+  className?: string;
+}) {
   if (platform === "YOUTUBE_SHORTS") {
     return (
       <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden>
@@ -157,9 +163,21 @@ function formatDate(dateStr?: string): string {
 
 // Priority social platforms per user instructions (Facebook, YouTube, TikTok)
 const PRIORITY_PLATFORMS: { platform: Platform; label: string; color: string }[] = [
-  { platform: "FACEBOOK", label: "Facebook", color: "text-blue-600 bg-blue-50 dark:bg-blue-950/40" },
-  { platform: "YOUTUBE_SHORTS", label: "YouTube Shorts", color: "text-red-600 bg-red-50 dark:bg-red-950/40" },
-  { platform: "TIKTOK", label: "TikTok", color: "text-cyan-500 bg-cyan-50 dark:bg-cyan-950/40" },
+  {
+    platform: "FACEBOOK",
+    label: "Facebook",
+    color: "text-blue-600 bg-blue-50 dark:bg-blue-950/40",
+  },
+  {
+    platform: "YOUTUBE_SHORTS",
+    label: "YouTube Shorts",
+    color: "text-red-600 bg-red-50 dark:bg-red-950/40",
+  },
+  {
+    platform: "TIKTOK",
+    label: "TikTok",
+    color: "text-cyan-500 bg-cyan-50 dark:bg-cyan-950/40",
+  },
 ];
 
 const STARTERS = [
@@ -183,15 +201,15 @@ function StatusBadge({ status }: { status: string }) {
   const config = isReady
     ? { dot: "bg-emerald-500", text: "Ready to Publish" }
     : isRendering
-    ? { dot: "bg-amber-500 animate-pulse", text: "Rendering…" }
-    : isFailed
-    ? { dot: "bg-rose-500", text: "Failed" }
-    : { dot: "bg-neutral-400", text: "Draft" };
+      ? { dot: "bg-amber-500 animate-pulse", text: "Rendering…" }
+      : isFailed
+        ? { dot: "bg-rose-500", text: "Failed" }
+        : { dot: "bg-neutral-400", text: "Draft" };
 
   return (
     <Badge
       variant="outline"
-      className="h-6 gap-1.5 border-white/20 bg-white/90 text-neutral-900 backdrop-blur shadow-xs"
+      className="h-6 gap-1.5 border-white/20 bg-white/90 text-neutral-900 shadow-xs backdrop-blur"
     >
       <span className={cn("size-1.5 rounded-full", config.dot)} />
       {config.text}
@@ -232,7 +250,9 @@ export default function DashboardPage() {
   const [previewProject, setPreviewProject] = useState<VideoProjectResponse | null>(null);
 
   // Project display filter (default to POSTING per user request)
-  const [projectFilter, setProjectFilter] = useState<"POSTING" | "READY" | "ALL">("POSTING");
+  const [projectFilter, setProjectFilter] = useState<"POSTING" | "READY" | "ALL">(
+    "POSTING",
+  );
 
   // Fetch real data on mount
   useEffect(() => {
@@ -439,7 +459,9 @@ export default function DashboardPage() {
           caption: task.caption,
           outputUrl: vp?.outputUrl,
           thumbnailUrl: vp?.outputUrl
-            ? vp.outputUrl.replace("/storage/videos/", "/storage/thumbnails/").replace(/\.mp4(\?.*)?$/i, ".jpg")
+            ? vp.outputUrl
+                .replace("/storage/videos/", "/storage/thumbnails/")
+                .replace(/\.mp4(\?.*)?$/i, ".jpg")
             : undefined,
           durationSeconds: vp?.durationSeconds,
           aspectRatio: vp?.aspectRatio,
@@ -455,7 +477,7 @@ export default function DashboardPage() {
 
   const readyVideos = useMemo(
     () => projects.filter((p) => p.status === "COMPLETED"),
-    [projects]
+    [projects],
   );
 
   const renderingCount = projects.filter((p) => p.status === "PROCESSING").length;
@@ -489,7 +511,7 @@ export default function DashboardPage() {
               className="h-11 border-0 bg-transparent pl-9 shadow-none focus-visible:ring-0"
             />
           </div>
-          <Button type="submit" size="lg" className="h-11 px-5 cursor-pointer">
+          <Button type="submit" size="lg" className="h-11 cursor-pointer px-5">
             Generate Video <Zap className="size-4" />
           </Button>
         </form>
@@ -500,7 +522,7 @@ export default function DashboardPage() {
               key={s.label}
               type="button"
               onClick={() => setPrompt(s.prompt)}
-              className="rounded-full border bg-background px-3 py-1.5 text-sm transition hover:border-foreground/30 hover:bg-muted cursor-pointer"
+              className="cursor-pointer rounded-full border bg-background px-3 py-1.5 text-sm transition hover:border-foreground/30 hover:bg-muted"
             >
               {s.emoji} {s.label}
             </button>
@@ -522,7 +544,9 @@ export default function DashboardPage() {
                 {loadingProjects ? "…" : totalVideosCount}
               </div>
               <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                {readyCount > 0 ? `${readyCount} ready to publish` : "All rendered videos"}
+                {readyCount > 0
+                  ? `${readyCount} ready to publish`
+                  : "All rendered videos"}
               </p>
             </div>
           </CardContent>
@@ -599,30 +623,33 @@ export default function DashboardPage() {
       <div className="grid gap-6 lg:grid-cols-[minmax(0,13fr)_minmax(0,7fr)]">
         {/* Left: Recent Projects (Default: Posting Videos) */}
         <section aria-labelledby="recent-projects" className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
               <h2 id="recent-projects" className="text-lg font-semibold">
                 Recent Projects
               </h2>
-              <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
+              <Badge
+                variant="outline"
+                className="border-primary/20 bg-primary/10 text-xs text-primary"
+              >
                 {projectFilter === "POSTING"
                   ? `${postingVideos.length} Posting`
                   : projectFilter === "READY"
-                  ? `${readyVideos.length} Ready`
-                  : `${projects.length} Total`}
+                    ? `${readyVideos.length} Ready`
+                    : `${projects.length} Total`}
               </Badge>
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <div className="flex items-center gap-1 bg-muted/60 p-1 rounded-lg border">
+              <div className="flex items-center gap-1 rounded-lg border bg-muted/60 p-1">
                 <button
                   type="button"
                   onClick={() => setProjectFilter("POSTING")}
                   className={cn(
-                    "px-2.5 py-1 text-xs font-medium rounded-md transition cursor-pointer flex items-center gap-1",
+                    "flex cursor-pointer items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium transition",
                     projectFilter === "POSTING"
-                      ? "bg-background text-foreground shadow-xs font-semibold"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "bg-background font-semibold text-foreground shadow-xs"
+                      : "text-muted-foreground hover:text-foreground",
                   )}
                 >
                   <Send className="size-3" /> Posting Videos ({postingVideos.length})
@@ -631,10 +658,10 @@ export default function DashboardPage() {
                   type="button"
                   onClick={() => setProjectFilter("READY")}
                   className={cn(
-                    "px-2.5 py-1 text-xs font-medium rounded-md transition cursor-pointer",
+                    "cursor-pointer rounded-md px-2.5 py-1 text-xs font-medium transition",
                     projectFilter === "READY"
-                      ? "bg-background text-foreground shadow-xs font-semibold"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "bg-background font-semibold text-foreground shadow-xs"
+                      : "text-muted-foreground hover:text-foreground",
                   )}
                 >
                   Ready to Post ({readyVideos.length})
@@ -643,10 +670,10 @@ export default function DashboardPage() {
                   type="button"
                   onClick={() => setProjectFilter("ALL")}
                   className={cn(
-                    "px-2.5 py-1 text-xs font-medium rounded-md transition cursor-pointer",
+                    "cursor-pointer rounded-md px-2.5 py-1 text-xs font-medium transition",
                     projectFilter === "ALL"
-                      ? "bg-background text-foreground shadow-xs font-semibold"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "bg-background font-semibold text-foreground shadow-xs"
+                      : "text-muted-foreground hover:text-foreground",
                   )}
                 >
                   All ({projects.length})
@@ -655,7 +682,7 @@ export default function DashboardPage() {
 
               <Link
                 href="/projects"
-                className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors shrink-0"
+                className="shrink-0 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
               >
                 View All →
               </Link>
@@ -673,20 +700,25 @@ export default function DashboardPage() {
             </div>
           ) : projectFilter === "POSTING" ? (
             postingVideos.length === 0 ? (
-              <Card className="p-8 text-center space-y-3">
+              <Card className="space-y-3 p-8 text-center">
                 <div className="mx-auto grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary">
                   <Send className="size-6" />
                 </div>
                 <div className="space-y-1">
                   <h3 className="text-base font-semibold">No posting videos yet</h3>
-                  <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                    You haven&apos;t scheduled or published any videos to Facebook, YouTube, or TikTok yet. Pick a ready video from your studio to start posting.
+                  <p className="mx-auto max-w-sm text-xs text-muted-foreground">
+                    You haven&apos;t scheduled or published any videos to Facebook,
+                    YouTube, or TikTok yet. Pick a ready video from your studio to start
+                    posting.
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
                   <Link
                     href="/composer"
-                    className={cn(buttonVariants({ size: "sm" }), "gap-1.5 cursor-pointer")}
+                    className={cn(
+                      buttonVariants({ size: "sm" }),
+                      "cursor-pointer gap-1.5",
+                    )}
                   >
                     <Send className="size-3.5" /> Schedule / Post a Video
                   </Link>
@@ -701,7 +733,7 @@ export default function DashboardPage() {
                 </div>
               </Card>
             ) : (
-              <div className="grid grid-cols-2 gap-4 xl:grid-cols-4 items-stretch">
+              <div className="grid grid-cols-2 items-stretch gap-4 xl:grid-cols-4">
                 {postingVideos.map((item) => {
                   const isPublished = item.status === "PUBLISHED";
                   const isPosting = item.status === "IN_PROGRESS";
@@ -724,47 +756,47 @@ export default function DashboardPage() {
                   return (
                     <Card
                       key={item.id}
-                      className="gap-0 overflow-hidden py-0 group transition hover:shadow-md h-full flex flex-col justify-between"
+                      className="group flex h-full flex-col justify-between gap-0 overflow-hidden py-0 transition hover:shadow-md"
                     >
                       <HoverVideoPreview
                         src={item.outputUrl}
                         thumbnailUrl={item.thumbnailUrl}
                         gradient={item.gradient}
                         onClick={() => setPreviewProject(previewProj)}
-                        className="aspect-[9/16] shrink-0 flex flex-col justify-between p-2"
+                        className="flex aspect-[9/16] shrink-0 flex-col justify-between p-2"
                       >
                         {/* Top bar: Status & Menu */}
-                        <div className="flex items-start justify-between z-10">
-                          <div className="flex flex-col gap-1 items-start">
+                        <div className="z-10 flex items-start justify-between">
+                          <div className="flex flex-col items-start gap-1">
                             <Badge
                               variant="outline"
                               className={cn(
-                                "h-5 gap-1 text-[10px] font-semibold border-white/20 backdrop-blur shadow-xs",
+                                "h-5 gap-1 border-white/20 text-[10px] font-semibold shadow-xs backdrop-blur",
                                 isPublished
                                   ? "bg-violet-500/90 text-white"
                                   : isPosting
-                                  ? "bg-amber-500/90 text-white animate-pulse"
-                                  : isScheduled
-                                  ? "bg-sky-500/90 text-white"
-                                  : "bg-rose-500/90 text-white"
+                                    ? "animate-pulse bg-amber-500/90 text-white"
+                                    : isScheduled
+                                      ? "bg-sky-500/90 text-white"
+                                      : "bg-rose-500/90 text-white",
                               )}
                             >
                               <span
                                 className={cn(
                                   "size-1.5 rounded-full bg-white",
-                                  isPosting && "animate-ping"
+                                  isPosting && "animate-ping",
                                 )}
                               />
                               {isPublished
                                 ? "Published"
                                 : isPosting
-                                ? "Posting…"
-                                : isScheduled
-                                ? "Scheduled"
-                                : "Failed"}
+                                  ? "Posting…"
+                                  : isScheduled
+                                    ? "Scheduled"
+                                    : "Failed"}
                             </Badge>
 
-                            <Badge className="bg-cyan-500/90 text-white border-0 gap-1 text-[9px] h-4 shadow-xs font-medium">
+                            <Badge className="h-4 gap-1 border-0 bg-cyan-500/90 text-[9px] font-medium text-white shadow-xs">
                               {isShort ? (
                                 <>
                                   <Smartphone className="size-2.5" /> Short
@@ -780,7 +812,7 @@ export default function DashboardPage() {
                           <DropdownMenu>
                             <DropdownMenuTrigger
                               aria-label={`Actions for ${item.title}`}
-                              className="grid size-7 place-items-center rounded-full bg-white/90 text-neutral-900 backdrop-blur transition hover:bg-white cursor-pointer shadow-xs"
+                              className="grid size-7 cursor-pointer place-items-center rounded-full bg-white/90 text-neutral-900 shadow-xs backdrop-blur transition hover:bg-white"
                             >
                               <MoreVertical className="size-4" />
                             </DropdownMenuTrigger>
@@ -790,22 +822,27 @@ export default function DashboardPage() {
                                   onClick={() => setPreviewProject(previewProj)}
                                   className="cursor-pointer"
                                 >
-                                  <Play className="size-4 text-emerald-500" /> Preview Video
+                                  <Play className="size-4 text-emerald-500" /> Preview
+                                  Video
                                 </DropdownMenuItem>
                               )}
                               {isPublished && item.publicPostUrl && (
                                 <DropdownMenuItem
                                   onClick={() => {
-                                    if (item.publicPostUrl) window.open(item.publicPostUrl, "_blank");
+                                    if (item.publicPostUrl)
+                                      window.open(item.publicPostUrl, "_blank");
                                   }}
                                   className="cursor-pointer"
                                 >
-                                  <ExternalLink className="size-4 text-primary" /> View Live Post
+                                  <ExternalLink className="size-4 text-primary" /> View
+                                  Live Post
                                 </DropdownMenuItem>
                               )}
                               <DropdownMenuItem
                                 onClick={() =>
-                                  router.push(`/composer?projectId=${item.videoProjectId}`)
+                                  router.push(
+                                    `/composer?projectId=${item.videoProjectId}`,
+                                  )
                                 }
                                 className="cursor-pointer"
                               >
@@ -837,14 +874,14 @@ export default function DashboardPage() {
                             type="button"
                             aria-label="Preview video"
                             onClick={() => setPreviewProject(previewProj)}
-                            className="absolute top-1/2 left-1/2 grid size-12 -translate-x-1/2 -translate-y-1/2 scale-90 place-items-center rounded-full bg-white/95 text-neutral-900 opacity-0 shadow-lg transition-all group-hover:scale-100 group-hover:opacity-100 focus-visible:opacity-100 hover:bg-white cursor-pointer z-10"
+                            className="absolute top-1/2 left-1/2 z-10 grid size-12 -translate-x-1/2 -translate-y-1/2 scale-90 cursor-pointer place-items-center rounded-full bg-white/95 text-neutral-900 opacity-0 shadow-lg transition-all group-hover:scale-100 group-hover:opacity-100 hover:bg-white focus-visible:opacity-100"
                           >
                             <Play className="ml-0.5 size-5 fill-current" />
                           </button>
                         )}
 
                         {/* Bottom duration & platforms indicator */}
-                        <div className="flex items-center justify-between z-10">
+                        <div className="z-10 flex items-center justify-between">
                           <div className="flex items-center gap-1">
                             {item.platforms.map((p) => (
                               <span
@@ -864,33 +901,34 @@ export default function DashboardPage() {
                         </div>
                       </HoverVideoPreview>
 
-                      <CardContent className="flex flex-1 flex-col justify-between p-3 gap-2.5">
+                      <CardContent className="flex flex-1 flex-col justify-between gap-2.5 p-3">
                         <div className="space-y-1">
-                          <div className="h-4 flex items-center gap-1 text-[11px] text-muted-foreground">
+                          <div className="flex h-4 items-center gap-1 text-[11px] text-muted-foreground">
                             {isScheduled ? (
-                              <span className="flex items-center gap-1 text-sky-600 dark:text-sky-400 font-medium truncate">
+                              <span className="flex items-center gap-1 truncate font-medium text-sky-600 dark:text-sky-400">
                                 <Clock className="size-3 shrink-0" />
                                 {item.scheduledTime
                                   ? formatDate(item.scheduledTime)
                                   : "Scheduled"}
                               </span>
                             ) : isPublished ? (
-                              <span className="flex items-center gap-1 text-violet-600 dark:text-violet-400 font-medium truncate">
+                              <span className="flex items-center gap-1 truncate font-medium text-violet-600 dark:text-violet-400">
                                 <CheckCircle2 className="size-3 shrink-0" />
                                 {item.publishedAt
                                   ? formatDate(item.publishedAt)
                                   : "Published"}
                               </span>
                             ) : (
-                              <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium">
-                                <Loader2 className="size-3 animate-spin shrink-0" /> Dispatching…
+                              <span className="flex items-center gap-1 font-medium text-amber-600 dark:text-amber-400">
+                                <Loader2 className="size-3 shrink-0 animate-spin" />{" "}
+                                Dispatching…
                               </span>
                             )}
                           </div>
-                          <div className="h-11 flex items-start overflow-hidden">
+                          <div className="flex h-11 items-start overflow-hidden">
                             <h3
                               onClick={() => setPreviewProject(previewProj)}
-                              className="line-clamp-2 text-sm leading-snug font-medium cursor-pointer hover:text-primary transition-colors"
+                              className="line-clamp-2 cursor-pointer text-sm leading-snug font-medium transition-colors hover:text-primary"
                               title={item.title}
                             >
                               {item.title}
@@ -898,7 +936,7 @@ export default function DashboardPage() {
                           </div>
                         </div>
 
-                        <div className="pt-2 mt-auto flex gap-2">
+                        <div className="mt-auto flex gap-2 pt-2">
                           {isScheduled ? (
                             <Button
                               size="sm"
@@ -908,7 +946,7 @@ export default function DashboardPage() {
                                 if (foundTask) handlePublishNow(foundTask);
                               }}
                             >
-                              <Send className="size-3.5 mr-1" /> Post Now
+                              <Send className="mr-1 size-3.5" /> Post Now
                             </Button>
                           ) : isPublished && item.publicPostUrl ? (
                             <a
@@ -917,7 +955,7 @@ export default function DashboardPage() {
                               rel="noreferrer"
                               className={cn(
                                 buttonVariants({ size: "sm" }),
-                                "flex-1 cursor-pointer text-xs gap-1"
+                                "flex-1 cursor-pointer gap-1 text-xs",
                               )}
                             >
                               <ExternalLink className="size-3.5" /> View Post
@@ -929,14 +967,14 @@ export default function DashboardPage() {
                               className="flex-1 cursor-pointer text-xs"
                               onClick={() => setPreviewProject(previewProj)}
                             >
-                              <Play className="size-3.5 mr-1" /> Preview
+                              <Play className="mr-1 size-3.5" /> Preview
                             </Button>
                           )}
 
                           <Button
                             size="sm"
                             variant="outline"
-                            className="px-2.5 cursor-pointer text-xs"
+                            className="cursor-pointer px-2.5 text-xs"
                             title="Edit in Composer"
                             onClick={() =>
                               router.push(`/composer?projectId=${item.videoProjectId}`)
@@ -951,192 +989,192 @@ export default function DashboardPage() {
                 })}
               </div>
             )
+          ) : // Ready or All filter view
+          (projectFilter === "READY" ? readyVideos : projects).length === 0 ? (
+            <Card className="p-8 text-center">
+              <Film className="mx-auto size-12 text-muted-foreground/40" />
+              <h3 className="mt-3 text-base font-medium">No videos found</h3>
+              <p className="mx-auto mt-1 max-w-sm text-xs text-muted-foreground">
+                Generate your first AI video using the prompt bar above or open the
+                creator studio.
+              </p>
+              <div className="mt-4">
+                <Link href="/create" className={cn(buttonVariants({ size: "sm" }))}>
+                  <Plus className="size-4" /> Create First Video
+                </Link>
+              </div>
+            </Card>
           ) : (
-            // Ready or All filter view
-            (projectFilter === "READY" ? readyVideos : projects).length === 0 ? (
-              <Card className="p-8 text-center">
-                <Film className="mx-auto size-12 text-muted-foreground/40" />
-                <h3 className="mt-3 text-base font-medium">No videos found</h3>
-                <p className="mt-1 text-xs text-muted-foreground max-w-sm mx-auto">
-                  Generate your first AI video using the prompt bar above or open the creator studio.
-                </p>
-                <div className="mt-4">
-                  <Link href="/create" className={cn(buttonVariants({ size: "sm" }))}>
-                    <Plus className="size-4" /> Create First Video
-                  </Link>
-                </div>
-              </Card>
-            ) : (
-              <div className="grid grid-cols-2 gap-4 xl:grid-cols-4 items-stretch">
-                {(projectFilter === "READY" ? readyVideos : projects).map((project) => {
-                  const gradient = getProjectGradient(project.id);
-                  const isReady = project.status === "COMPLETED";
-                  const isRendering = project.status === "PROCESSING";
+            <div className="grid grid-cols-2 items-stretch gap-4 xl:grid-cols-4">
+              {(projectFilter === "READY" ? readyVideos : projects).map((project) => {
+                const gradient = getProjectGradient(project.id);
+                const isReady = project.status === "COMPLETED";
+                const isRendering = project.status === "PROCESSING";
 
-                  return (
-                    <Card
-                      key={project.id}
-                      className="gap-0 overflow-hidden py-0 group transition hover:shadow-md h-full flex flex-col justify-between"
+                return (
+                  <Card
+                    key={project.id}
+                    className="group flex h-full flex-col justify-between gap-0 overflow-hidden py-0 transition hover:shadow-md"
+                  >
+                    <HoverVideoPreview
+                      src={project.outputUrl}
+                      thumbnailUrl={
+                        project.outputUrl
+                          ? project.outputUrl
+                              .replace("/storage/videos/", "/storage/thumbnails/")
+                              .replace(/\.mp4(\?.*)?$/i, ".jpg")
+                          : undefined
+                      }
+                      gradient={gradient}
+                      onClick={() => setPreviewProject(project)}
+                      className="flex aspect-[9/16] shrink-0 flex-col justify-between p-2"
                     >
-                      <HoverVideoPreview
-                        src={project.outputUrl}
-                        thumbnailUrl={
-                          project.outputUrl
-                            ? project.outputUrl
-                                .replace("/storage/videos/", "/storage/thumbnails/")
-                                .replace(/\.mp4(\?.*)?$/i, ".jpg")
-                            : undefined
-                        }
-                        gradient={gradient}
-                        onClick={() => setPreviewProject(project)}
-                        className="aspect-[9/16] shrink-0 flex flex-col justify-between p-2"
-                      >
-                        {/* Top bar: Status & Menu */}
-                        <div className="flex items-start justify-between z-10">
-                          <StatusBadge status={project.status} />
+                      {/* Top bar: Status & Menu */}
+                      <div className="z-10 flex items-start justify-between">
+                        <StatusBadge status={project.status} />
 
-                          <DropdownMenu>
-                            <DropdownMenuTrigger
-                              aria-label={`Actions for ${project.title}`}
-                              className="grid size-7 place-items-center rounded-full bg-white/90 text-neutral-900 backdrop-blur transition hover:bg-white cursor-pointer shadow-xs"
-                            >
-                              <MoreVertical className="size-4" />
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-48">
-                              <DropdownMenuItem
-                                onClick={() => setPreviewProject(project)}
-                                className="cursor-pointer"
-                              >
-                                <Play className="size-4 text-emerald-500" /> Preview Video
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() =>
-                                  router.push(`/composer?projectId=${project.id}`)
-                                }
-                                className="cursor-pointer"
-                              >
-                                <Send className="size-4 text-sky-500" /> Compose &amp; Post
-                              </DropdownMenuItem>
-                              {project.outputUrl && (
-                                <DropdownMenuItem
-                                  onClick={() => window.open(project.outputUrl, "_blank")}
-                                  className="cursor-pointer"
-                                >
-                                  <Download className="size-4" /> Download MP4
-                                </DropdownMenuItem>
-                              )}
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                variant="destructive"
-                                onClick={() =>
-                                  handleDeleteProject(project.id, project.title)
-                                }
-                                className="cursor-pointer text-destructive focus:text-destructive"
-                              >
-                                <Trash2 className="size-4" /> Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-
-                        {/* Center Play Button for Ready Videos */}
-                        {isReady && (
-                          <button
-                            type="button"
-                            aria-label="Preview video"
-                            onClick={() => setPreviewProject(project)}
-                            className="absolute top-1/2 left-1/2 grid size-12 -translate-x-1/2 -translate-y-1/2 scale-90 place-items-center rounded-full bg-white/95 text-neutral-900 opacity-0 shadow-lg transition-all group-hover:scale-100 group-hover:opacity-100 focus-visible:opacity-100 hover:bg-white cursor-pointer z-10"
+                        <DropdownMenu>
+                          <DropdownMenuTrigger
+                            aria-label={`Actions for ${project.title}`}
+                            className="grid size-7 cursor-pointer place-items-center rounded-full bg-white/90 text-neutral-900 shadow-xs backdrop-blur transition hover:bg-white"
                           >
-                            <Play className="ml-0.5 size-5 fill-current" />
-                          </button>
-                        )}
-
-                        {/* Rendering Spinner */}
-                        {isRendering && (
-                          <div className="absolute inset-x-3 top-1/2 -translate-y-1/2 space-y-2 rounded-lg bg-black/60 p-3 text-white backdrop-blur z-10">
-                            <div className="flex items-center gap-2 text-xs font-medium">
-                              <Loader2 className="size-3.5 animate-spin text-amber-400" /> Rendering…
-                            </div>
-                            <Progress
-                              value={65}
-                              className="gap-0 [&_[data-slot=progress-indicator]]:bg-amber-400 [&_[data-slot=progress-track]]:bg-white/20"
-                            />
-                          </div>
-                        )}
-
-                        {/* Bottom duration indicator */}
-                        <div className="flex justify-end z-10">
-                          <span className="rounded bg-black/75 px-1.5 py-0.5 text-xs font-medium text-white tabular-nums">
-                            {formatDuration(project.durationSeconds)}
-                          </span>
-                        </div>
-                      </HoverVideoPreview>
-
-                      <CardContent className="flex flex-1 flex-col justify-between p-3 gap-2.5">
-                        <div className="space-y-1">
-                          <div className="h-11 flex items-start overflow-hidden">
-                            <h3
+                            <MoreVertical className="size-4" />
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuItem
                               onClick={() => setPreviewProject(project)}
-                              className="line-clamp-2 text-sm leading-snug font-medium cursor-pointer hover:text-primary transition-colors"
-                              title={project.title}
+                              className="cursor-pointer"
                             >
-                              {project.title}
-                            </h3>
-                          </div>
-                          <p className="h-4 flex items-center text-xs text-muted-foreground">
-                            {formatDate(project.createdAt)}
-                          </p>
-                        </div>
-
-                        <div className="pt-2 mt-auto">
-                          {isReady && (
-                            <div className="flex gap-2">
-                              <Link
-                                href={`/composer?projectId=${project.id}`}
-                                className={cn(
-                                  buttonVariants({ size: "sm" }),
-                                  "flex-1 cursor-pointer text-xs"
-                                )}
-                              >
-                                <Send className="size-3.5 mr-1" /> Post Video
-                              </Link>
-                              {project.outputUrl && (
-                                <a
-                                  href={project.outputUrl}
-                                  download
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className={cn(
-                                    buttonVariants({ size: "sm", variant: "outline" }),
-                                    "px-2.5"
-                                  )}
-                                  title="Download MP4"
-                                >
-                                  <Download className="size-3.5" />
-                                </a>
-                              )}
-                            </div>
-                          )}
-
-                          {!isReady && !isRendering && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="w-full cursor-pointer text-xs"
+                              <Play className="size-4 text-emerald-500" /> Preview Video
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
                               onClick={() =>
                                 router.push(`/composer?projectId=${project.id}`)
                               }
+                              className="cursor-pointer"
                             >
-                              <Pencil className="size-3.5 mr-1" /> Open Editor
-                            </Button>
-                          )}
+                              <Send className="size-4 text-sky-500" /> Compose &amp; Post
+                            </DropdownMenuItem>
+                            {project.outputUrl && (
+                              <DropdownMenuItem
+                                onClick={() => window.open(project.outputUrl, "_blank")}
+                                className="cursor-pointer"
+                              >
+                                <Download className="size-4" /> Download MP4
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              variant="destructive"
+                              onClick={() =>
+                                handleDeleteProject(project.id, project.title)
+                              }
+                              className="cursor-pointer text-destructive focus:text-destructive"
+                            >
+                              <Trash2 className="size-4" /> Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+
+                      {/* Center Play Button for Ready Videos */}
+                      {isReady && (
+                        <button
+                          type="button"
+                          aria-label="Preview video"
+                          onClick={() => setPreviewProject(project)}
+                          className="absolute top-1/2 left-1/2 z-10 grid size-12 -translate-x-1/2 -translate-y-1/2 scale-90 cursor-pointer place-items-center rounded-full bg-white/95 text-neutral-900 opacity-0 shadow-lg transition-all group-hover:scale-100 group-hover:opacity-100 hover:bg-white focus-visible:opacity-100"
+                        >
+                          <Play className="ml-0.5 size-5 fill-current" />
+                        </button>
+                      )}
+
+                      {/* Rendering Spinner */}
+                      {isRendering && (
+                        <div className="absolute inset-x-3 top-1/2 z-10 -translate-y-1/2 space-y-2 rounded-lg bg-black/60 p-3 text-white backdrop-blur">
+                          <div className="flex items-center gap-2 text-xs font-medium">
+                            <Loader2 className="size-3.5 animate-spin text-amber-400" />{" "}
+                            Rendering…
+                          </div>
+                          <Progress
+                            value={65}
+                            className="gap-0 [&_[data-slot=progress-indicator]]:bg-amber-400 [&_[data-slot=progress-track]]:bg-white/20"
+                          />
                         </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            )
+                      )}
+
+                      {/* Bottom duration indicator */}
+                      <div className="z-10 flex justify-end">
+                        <span className="rounded bg-black/75 px-1.5 py-0.5 text-xs font-medium text-white tabular-nums">
+                          {formatDuration(project.durationSeconds)}
+                        </span>
+                      </div>
+                    </HoverVideoPreview>
+
+                    <CardContent className="flex flex-1 flex-col justify-between gap-2.5 p-3">
+                      <div className="space-y-1">
+                        <div className="flex h-11 items-start overflow-hidden">
+                          <h3
+                            onClick={() => setPreviewProject(project)}
+                            className="line-clamp-2 cursor-pointer text-sm leading-snug font-medium transition-colors hover:text-primary"
+                            title={project.title}
+                          >
+                            {project.title}
+                          </h3>
+                        </div>
+                        <p className="flex h-4 items-center text-xs text-muted-foreground">
+                          {formatDate(project.createdAt)}
+                        </p>
+                      </div>
+
+                      <div className="mt-auto pt-2">
+                        {isReady && (
+                          <div className="flex gap-2">
+                            <Link
+                              href={`/composer?projectId=${project.id}`}
+                              className={cn(
+                                buttonVariants({ size: "sm" }),
+                                "flex-1 cursor-pointer text-xs",
+                              )}
+                            >
+                              <Send className="mr-1 size-3.5" /> Post Video
+                            </Link>
+                            {project.outputUrl && (
+                              <a
+                                href={project.outputUrl}
+                                download
+                                target="_blank"
+                                rel="noreferrer"
+                                className={cn(
+                                  buttonVariants({ size: "sm", variant: "outline" }),
+                                  "px-2.5",
+                                )}
+                                title="Download MP4"
+                              >
+                                <Download className="size-3.5" />
+                              </a>
+                            )}
+                          </div>
+                        )}
+
+                        {!isReady && !isRendering && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="w-full cursor-pointer text-xs"
+                            onClick={() =>
+                              router.push(`/composer?projectId=${project.id}`)
+                            }
+                          >
+                            <Pencil className="mr-1 size-3.5" /> Open Editor
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
           )}
         </section>
 
@@ -1155,24 +1193,27 @@ export default function DashboardPage() {
             <CardContent>
               {loadingQueue ? (
                 <div className="py-6 text-center text-xs text-muted-foreground">
-                  <Loader2 className="mx-auto size-4 animate-spin text-muted-foreground/60 mb-2" />
+                  <Loader2 className="mx-auto mb-2 size-4 animate-spin text-muted-foreground/60" />
                   Loading schedule queue…
                 </div>
               ) : queue.length === 0 ? (
-                <div className="py-6 text-center space-y-2">
+                <div className="space-y-2 py-6 text-center">
                   <div className="mx-auto grid size-10 place-items-center rounded-full bg-muted/60 text-muted-foreground">
                     <CalendarCheck className="size-5" />
                   </div>
                   <div>
                     <p className="text-sm font-medium">Queue is Clear</p>
-                    <p className="text-xs text-muted-foreground max-w-[220px] mx-auto mt-0.5">
+                    <p className="mx-auto mt-0.5 max-w-[220px] text-xs text-muted-foreground">
                       No posts currently scheduled. Ready clips can be scheduled anytime.
                     </p>
                   </div>
                   <div className="pt-2">
                     <Link
                       href="/projects"
-                      className={cn(buttonVariants({ size: "sm", variant: "outline" }), "text-xs")}
+                      className={cn(
+                        buttonVariants({ size: "sm", variant: "outline" }),
+                        "text-xs",
+                      )}
                     >
                       Schedule from Projects →
                     </Link>
@@ -1182,21 +1223,25 @@ export default function DashboardPage() {
                 <ol className="relative space-y-5 border-l pl-5">
                   {queue.map((item) => (
                     <li key={item.id} className="relative">
-                      <span className="absolute top-0 -left-[34px] grid size-7 place-items-center rounded-full ring-4 ring-card bg-neutral-100 dark:bg-neutral-800">
+                      <span className="absolute top-0 -left-[34px] grid size-7 place-items-center rounded-full bg-neutral-100 ring-4 ring-card dark:bg-neutral-800">
                         <PlatformIcon platform={item.platform} className="size-3.5" />
                       </span>
                       <div className="min-w-0 flex-1">
                         <p className="text-xs text-muted-foreground">
-                          {item.scheduledTime ? formatDate(item.scheduledTime) : "Scheduled soon"}
+                          {item.scheduledTime
+                            ? formatDate(item.scheduledTime)
+                            : "Scheduled soon"}
                         </p>
-                        <p className="truncate text-sm font-medium">{item.title || "ClipFlow Video"}</p>
+                        <p className="truncate text-sm font-medium">
+                          {item.title || "ClipFlow Video"}
+                        </p>
                         <div className="mt-1.5 flex items-center gap-2">
-                          <Badge variant="secondary" className="text-[10px] py-0 px-1.5">
+                          <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">
                             {item.status}
                           </Badge>
                           <button
                             type="button"
-                            className="text-xs text-primary underline-offset-2 hover:underline cursor-pointer"
+                            className="cursor-pointer text-xs text-primary underline-offset-2 hover:underline"
                             onClick={() => handlePublishNow(item)}
                           >
                             Post Now
@@ -1223,7 +1268,7 @@ export default function DashboardPage() {
             <CardContent className="space-y-3.5">
               {PRIORITY_PLATFORMS.map(({ platform, label, color }) => {
                 const connectedAcc = accounts.find(
-                  (a) => a.platform === platform && a.status === "CONNECTED"
+                  (a) => a.platform === platform && a.status === "CONNECTED",
                 );
 
                 return (
@@ -1233,21 +1278,26 @@ export default function DashboardPage() {
                       <img
                         src={connectedAcc.avatarUrl}
                         alt={connectedAcc.accountName}
-                        className="size-9 rounded-lg object-cover ring-1 ring-border shrink-0"
+                        className="size-9 shrink-0 rounded-lg object-cover ring-1 ring-border"
                       />
                     ) : (
-                      <span className={cn("grid size-9 place-items-center rounded-lg shrink-0", color)}>
+                      <span
+                        className={cn(
+                          "grid size-9 shrink-0 place-items-center rounded-lg",
+                          color,
+                        )}
+                      >
                         <PlatformIcon platform={platform} className="size-4" />
                       </span>
                     )}
 
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium leading-none">{label}</p>
+                      <p className="text-sm leading-none font-medium">{label}</p>
                       <p className="mt-1 flex items-center gap-1.5 truncate text-xs text-muted-foreground">
                         {connectedAcc ? (
                           <>
                             <span className="truncate">{connectedAcc.accountName}</span>
-                            <span className="text-emerald-500 font-medium flex items-center gap-0.5 shrink-0">
+                            <span className="flex shrink-0 items-center gap-0.5 font-medium text-emerald-500">
                               • Connected <CheckCircle2 className="size-3" />
                             </span>
                           </>
@@ -1261,7 +1311,7 @@ export default function DashboardPage() {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="h-8 text-xs cursor-pointer"
+                        className="h-8 cursor-pointer text-xs"
                         disabled={connectingPlatform === platform}
                         onClick={() => handleConnect(platform)}
                       >
@@ -1278,10 +1328,10 @@ export default function DashboardPage() {
                 );
               })}
 
-              <div className="pt-2 border-t text-center">
+              <div className="border-t pt-2 text-center">
                 <Link
                   href="/settings/accounts"
-                  className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
                 >
                   Manage Channels & Integrations →
                 </Link>
@@ -1293,25 +1343,34 @@ export default function DashboardPage() {
 
       {/* Video Preview Modal */}
       {previewProject && (
-        <Dialog open={!!previewProject} onOpenChange={(open) => !open && setPreviewProject(null)}>
+        <Dialog
+          open={!!previewProject}
+          onOpenChange={(open) => !open && setPreviewProject(null)}
+        >
           <DialogContent
             className={cn(
-              "p-5 bg-neutral-950 text-white border-neutral-800 shadow-2xl",
-              previewProject.aspectRatio === "LANDSCAPE_16_9" ? "sm:max-w-2xl" : "sm:max-w-md"
+              "border-neutral-800 bg-neutral-950 p-5 text-white shadow-2xl",
+              previewProject.aspectRatio === "LANDSCAPE_16_9"
+                ? "sm:max-w-2xl"
+                : "sm:max-w-md",
             )}
           >
             <DialogHeader>
               <DialogTitle className="line-clamp-1">{previewProject.title}</DialogTitle>
-              <DialogDescription className="text-neutral-400 text-xs">
-                {previewProject.durationSeconds ? formatDuration(previewProject.durationSeconds) : "Video"} • Created{" "}
-                {formatDate(previewProject.createdAt)}
+              <DialogDescription className="text-xs text-neutral-400">
+                {previewProject.durationSeconds
+                  ? formatDuration(previewProject.durationSeconds)
+                  : "Video"}{" "}
+                • Created {formatDate(previewProject.createdAt)}
               </DialogDescription>
             </DialogHeader>
 
             <div
               className={cn(
-                "relative max-h-[65vh] w-full overflow-hidden rounded-xl bg-black flex items-center justify-center mx-auto my-2",
-                previewProject.aspectRatio === "LANDSCAPE_16_9" ? "aspect-video" : "aspect-[9/16]"
+                "relative mx-auto my-2 flex max-h-[65vh] w-full items-center justify-center overflow-hidden rounded-xl bg-black",
+                previewProject.aspectRatio === "LANDSCAPE_16_9"
+                  ? "aspect-video"
+                  : "aspect-[9/16]",
               )}
             >
               {previewProject.outputUrl ? (
@@ -1322,16 +1381,18 @@ export default function DashboardPage() {
                   className="size-full object-contain"
                 />
               ) : (
-                <div className="text-center p-6 text-neutral-400">
-                  <Film className="size-10 mx-auto mb-2 opacity-50" />
+                <div className="p-6 text-center text-neutral-400">
+                  <Film className="mx-auto mb-2 size-10 opacity-50" />
                   <p className="text-sm">Video file is still being rendered.</p>
                 </div>
               )}
             </div>
 
-            <div className="flex justify-between items-center gap-2 pt-2">
+            <div className="flex items-center justify-between gap-2 pt-2">
               <span className="text-xs text-neutral-400">
-                {previewProject.aspectRatio === "LANDSCAPE_16_9" ? "16:9 Landscape Video" : "9:16 Vertical Short"}
+                {previewProject.aspectRatio === "LANDSCAPE_16_9"
+                  ? "16:9 Landscape Video"
+                  : "9:16 Vertical Short"}
               </span>
               <div className="flex items-center gap-2">
                 {previewProject.outputUrl && (
@@ -1342,10 +1403,10 @@ export default function DashboardPage() {
                     rel="noreferrer"
                     className={cn(
                       buttonVariants({ variant: "outline", size: "sm" }),
-                      "text-white border-neutral-700 hover:bg-neutral-800"
+                      "border-neutral-700 text-white hover:bg-neutral-800",
                     )}
                   >
-                    <Download className="size-3.5 mr-1" /> Download MP4
+                    <Download className="mr-1 size-3.5" /> Download MP4
                   </a>
                 )}
                 <Button
@@ -1355,7 +1416,7 @@ export default function DashboardPage() {
                     router.push(`/composer?projectId=${previewProject.id}`);
                   }}
                 >
-                  <Send className="size-3.5 mr-1" /> Compose Post
+                  <Send className="mr-1 size-3.5" /> Compose Post
                 </Button>
               </div>
             </div>

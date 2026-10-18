@@ -5,7 +5,7 @@ import axios, {
 } from "axios";
 import type { ApiError } from "@/types/api.types";
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8090/api";
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 export const ACCESS_TOKEN_KEY = "autoclip.accessToken";
 export const REFRESH_TOKEN_KEY = "autoclip.refreshToken";

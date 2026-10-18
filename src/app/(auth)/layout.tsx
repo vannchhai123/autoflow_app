@@ -36,9 +36,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
             ))}
           </ul>
         </div>
-        <p className="relative text-sm text-white/70">
-          © 2026 AutoClip
-        </p>
+        <p className="relative text-sm text-white/70">© 2026 AutoClip</p>
       </aside>
       <main className="flex items-center justify-center p-6">{children}</main>
     </div>

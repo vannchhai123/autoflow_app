@@ -45,14 +45,14 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             >
               <Menu className="size-5" />
             </button>
-            <span className="text-sm font-medium text-muted-foreground hidden sm:inline">
+            <span className="hidden text-sm font-medium text-muted-foreground sm:inline">
               ClipFlow Studio
             </span>
           </div>
 
           <div className="flex items-center gap-3">
             {userEmail && (
-              <span className="hidden text-xs text-muted-foreground md:inline font-mono">
+              <span className="hidden font-mono text-xs text-muted-foreground md:inline">
                 {userEmail}
               </span>
             )}
@@ -60,7 +60,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               variant="outline"
               size="sm"
               onClick={logout}
-              className="h-8 gap-1.5 px-3 text-xs text-muted-foreground hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-colors"
+              className="h-8 gap-1.5 px-3 text-xs text-muted-foreground transition-colors hover:border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
               title="Log out"
             >
               <LogOut className="size-3.5" />

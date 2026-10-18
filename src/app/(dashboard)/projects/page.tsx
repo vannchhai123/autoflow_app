@@ -272,8 +272,17 @@ interface ProjectActions {
   onPublish?: (project: Project) => void;
 }
 
-function StatusBadge({ status, className }: { status: Status | string; className?: string }) {
-  const badge = STATUS_BADGE[status as Status] ?? { label: status ?? "Draft", dot: "bg-neutral-400" };
+function StatusBadge({
+  status,
+  className,
+}: {
+  status: Status | string;
+  className?: string;
+}) {
+  const badge = STATUS_BADGE[status as Status] ?? {
+    label: status ?? "Draft",
+    dot: "bg-neutral-400",
+  };
   const { label, dot } = badge;
   return (
     <Badge
@@ -358,7 +367,7 @@ function ProjectCard({
 }) {
   const { status, videoType } = project;
   return (
-    <Card className="group gap-0 overflow-hidden py-0 transition-shadow hover:shadow-md h-full flex flex-col justify-between">
+    <Card className="group flex h-full flex-col justify-between gap-0 overflow-hidden py-0 transition-shadow hover:shadow-md">
       {/* preview thumbnail with hover demo */}
       <HoverVideoPreview
         src={project.outputUrl}
@@ -368,14 +377,14 @@ function ProjectCard({
         className="aspect-[9/16] shrink-0"
       >
         <div className="absolute inset-x-2 top-2 z-10 flex items-start justify-between gap-1.5">
-          <div className="flex flex-col gap-1 items-start">
+          <div className="flex flex-col items-start gap-1">
             <StatusBadge status={status} />
             {videoType === "SHORT" ? (
-              <Badge className="bg-cyan-500/90 text-white border-0 gap-1 text-[10px] h-5 shadow-xs font-medium">
+              <Badge className="h-5 gap-1 border-0 bg-cyan-500/90 text-[10px] font-medium text-white shadow-xs">
                 <Smartphone className="size-2.5" /> Short
               </Badge>
             ) : (
-              <Badge className="bg-amber-600/90 text-white border-0 gap-1 text-[10px] h-5 shadow-xs font-medium">
+              <Badge className="h-5 gap-1 border-0 bg-amber-600/90 text-[10px] font-medium text-white shadow-xs">
                 <Film className="size-2.5" /> Long Form
               </Badge>
             )}
@@ -388,10 +397,10 @@ function ProjectCard({
                   e.stopPropagation();
                   actions.onSelectFolder?.(project.folderId || "all");
                 }}
-                className="h-6 max-w-[100px] truncate border-white/20 bg-black/60 text-white backdrop-blur text-[10px] cursor-pointer hover:bg-black/80"
+                className="h-6 max-w-[100px] cursor-pointer truncate border-white/20 bg-black/60 text-[10px] text-white backdrop-blur hover:bg-black/80"
                 title={`Folder: ${folderName}`}
               >
-                <Folder className="size-2.5 mr-1 text-primary shrink-0" />
+                <Folder className="mr-1 size-2.5 shrink-0 text-primary" />
                 <span className="truncate">{folderName}</span>
               </Badge>
             )}
@@ -401,7 +410,7 @@ function ProjectCard({
 
         {/* State-specific center content */}
         {status === "RENDERING" && (
-          <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 space-y-3 rounded-xl bg-black/55 p-4 text-white backdrop-blur z-10">
+          <div className="absolute inset-x-4 top-1/2 z-10 -translate-y-1/2 space-y-3 rounded-xl bg-black/55 p-4 text-white backdrop-blur">
             <div className="flex items-center gap-2 text-sm font-medium">
               <Loader2 className="size-4 animate-spin" />
               Rendering video... {project.progress}%
@@ -418,14 +427,14 @@ function ProjectCard({
             type="button"
             aria-label="Preview video"
             onClick={() => actions.onPlay?.(project)}
-            className="absolute top-1/2 left-1/2 grid size-14 -translate-x-1/2 -translate-y-1/2 scale-90 place-items-center rounded-full bg-white/90 text-neutral-900 opacity-0 shadow-lg transition group-hover:scale-100 group-hover:opacity-100 focus-visible:opacity-100 hover:bg-white cursor-pointer z-10"
+            className="absolute top-1/2 left-1/2 z-10 grid size-14 -translate-x-1/2 -translate-y-1/2 scale-90 cursor-pointer place-items-center rounded-full bg-white/90 text-neutral-900 opacity-0 shadow-lg transition group-hover:scale-100 group-hover:opacity-100 hover:bg-white focus-visible:opacity-100"
           >
             <Play className="ml-0.5 size-6 fill-current" />
           </button>
         )}
 
         {status === "DRAFT" && (
-          <div className="absolute inset-0 grid place-items-center z-10">
+          <div className="absolute inset-0 z-10 grid place-items-center">
             <div className="flex flex-col items-center gap-3 text-white/90">
               <span className="grid size-14 place-items-center rounded-2xl bg-white/15 backdrop-blur">
                 <FileText className="size-7" />
@@ -436,8 +445,8 @@ function ProjectCard({
         )}
 
         {status === "FAILED" && (
-          <div className="absolute inset-0 grid place-items-center p-4 z-10">
-            <div className="flex flex-col items-center gap-2 text-rose-300 bg-black/60 p-4 rounded-xl backdrop-blur text-center">
+          <div className="absolute inset-0 z-10 grid place-items-center p-4">
+            <div className="flex flex-col items-center gap-2 rounded-xl bg-black/60 p-4 text-center text-rose-300 backdrop-blur">
               <span className="grid size-12 place-items-center rounded-full bg-rose-500/20 text-rose-400">
                 <X className="size-6" />
               </span>
@@ -447,7 +456,7 @@ function ProjectCard({
         )}
 
         {status === "PUBLISHED" && (
-          <div className="absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-center z-10">
+          <div className="absolute inset-x-0 top-1/2 z-10 flex -translate-y-1/2 justify-center">
             <PlatformIcons
               platforms={project.platforms}
               className="gap-2 [&_svg]:size-4 [&>span]:size-8"
@@ -456,9 +465,13 @@ function ProjectCard({
         )}
 
         {/* Bottom overlays: duration + resolution */}
-        <div className="absolute inset-x-2 bottom-2 flex items-center justify-between text-xs font-medium text-white z-10">
+        <div className="absolute inset-x-2 bottom-2 z-10 flex items-center justify-between text-xs font-medium text-white">
           <span className="rounded bg-black/70 px-1.5 py-0.5 tabular-nums">
-            {project.aspectRatio === "PORTRAIT_9_16" ? "9:16" : project.aspectRatio === "LANDSCAPE_16_9" ? "16:9" : "1080p"}
+            {project.aspectRatio === "PORTRAIT_9_16"
+              ? "9:16"
+              : project.aspectRatio === "LANDSCAPE_16_9"
+                ? "16:9"
+                : "1080p"}
           </span>
           <span className="rounded bg-black/70 px-1.5 py-0.5 tabular-nums">
             {project.duration}
@@ -466,37 +479,39 @@ function ProjectCard({
         </div>
       </HoverVideoPreview>
 
-      <CardContent className="flex flex-1 flex-col justify-between p-3 gap-2.5">
+      <CardContent className="flex flex-1 flex-col justify-between gap-2.5 p-3">
         <div className="space-y-1">
-          <div className="flex items-center justify-between gap-1 h-5">
+          <div className="flex h-5 items-center justify-between gap-1">
             <PlatformIcons platforms={project.platforms} />
-            <span className="text-[10px] text-muted-foreground uppercase font-medium shrink-0">
+            <span className="shrink-0 text-[10px] font-medium text-muted-foreground uppercase">
               {videoType === "SHORT" ? "Short (≤60s)" : "Long Form"}
             </span>
           </div>
-          <div className="h-11 flex items-start overflow-hidden">
+          <div className="flex h-11 items-start overflow-hidden">
             <h3
               onClick={() => actions.onPlay?.(project)}
-              className="line-clamp-2 text-sm leading-snug font-medium cursor-pointer hover:text-primary transition-colors"
+              className="line-clamp-2 cursor-pointer text-sm leading-snug font-medium transition-colors hover:text-primary"
               title={project.title}
             >
               {project.title}
             </h3>
           </div>
-          <p className="flex items-center gap-1 text-xs text-muted-foreground h-4">
+          <p className="flex h-4 items-center gap-1 text-xs text-muted-foreground">
             {status === "SCHEDULED" && project.scheduledFor ? (
               <>
-                <Calendar className="size-3 shrink-0" /> <span className="truncate">{project.scheduledFor}</span>
+                <Calendar className="size-3 shrink-0" />{" "}
+                <span className="truncate">{project.scheduledFor}</span>
               </>
             ) : (
               <>
-                <Clock className="size-3 shrink-0" /> <span className="truncate">{project.updatedAt}</span>
+                <Clock className="size-3 shrink-0" />{" "}
+                <span className="truncate">{project.updatedAt}</span>
               </>
             )}
           </p>
         </div>
 
-        <div className="pt-2 mt-auto">
+        <div className="mt-auto pt-2">
           {status === "READY" && (
             <div className="flex gap-2">
               <Button
@@ -504,7 +519,7 @@ function ProjectCard({
                 className="flex-1 text-xs"
                 onClick={() => actions.onPublish?.(project)}
               >
-                <Send className="size-3.5 mr-1" /> Publish Post
+                <Send className="mr-1 size-3.5" /> Publish Post
               </Button>
               <Button
                 size="sm"
@@ -512,7 +527,7 @@ function ProjectCard({
                 className="text-xs"
                 onClick={() => actions.onPlay?.(project)}
               >
-                <Play className="size-3.5 mr-1" /> Preview
+                <Play className="mr-1 size-3.5" /> Preview
               </Button>
             </div>
           )}
@@ -523,7 +538,7 @@ function ProjectCard({
               className="w-full text-xs"
               onClick={() => actions.onPlay?.(project)}
             >
-              <Pencil className="size-3.5 mr-1" /> View Script
+              <Pencil className="mr-1 size-3.5" /> View Script
             </Button>
           )}
           {(status === "SCHEDULED" || status === "PUBLISHED") && (
@@ -533,7 +548,7 @@ function ProjectCard({
               className="w-full text-xs"
               onClick={() => actions.onPlay?.(project)}
             >
-              <Play className="size-3.5 mr-1" /> Preview Post
+              <Play className="mr-1 size-3.5" /> Preview Post
             </Button>
           )}
         </div>
@@ -563,18 +578,22 @@ function KanbanCard({
           className="aspect-[9/16] w-14 shrink-0 rounded-md"
         >
           {project.status === "RENDERING" && (
-            <span className="absolute inset-0 grid place-items-center bg-black/40 z-10">
+            <span className="absolute inset-0 z-10 grid place-items-center bg-black/40">
               <Loader2 className="size-4 animate-spin text-white" />
             </span>
           )}
-          <span className="absolute right-0.5 bottom-0.5 rounded bg-black/70 px-1 text-[10px] text-white tabular-nums z-10">
+          <span className="absolute right-0.5 bottom-0.5 z-10 rounded bg-black/70 px-1 text-[10px] text-white tabular-nums">
             {project.duration}
           </span>
-          <span className="absolute left-0.5 top-0.5 z-10">
+          <span className="absolute top-0.5 left-0.5 z-10">
             {project.videoType === "SHORT" ? (
-              <span className="text-[9px] bg-cyan-500/90 text-white rounded px-1 font-semibold">Short</span>
+              <span className="rounded bg-cyan-500/90 px-1 text-[9px] font-semibold text-white">
+                Short
+              </span>
             ) : (
-              <span className="text-[9px] bg-amber-600/90 text-white rounded px-1 font-semibold">Long</span>
+              <span className="rounded bg-amber-600/90 px-1 text-[9px] font-semibold text-white">
+                Long
+              </span>
             )}
           </span>
         </HoverVideoPreview>
@@ -592,7 +611,7 @@ function KanbanCard({
           <div className="flex items-center justify-between gap-1">
             <PlatformIcons platforms={project.platforms} />
             {folderName && (
-              <span className="text-[10px] text-muted-foreground truncate max-w-[90px]">
+              <span className="max-w-[90px] truncate text-[10px] text-muted-foreground">
                 📁 {folderName}
               </span>
             )}
@@ -628,7 +647,8 @@ function KanbanBoard({
   actions: ProjectActions;
   folders: Folder[];
 }) {
-  const getFolderName = (fId?: string) => folders.find((f) => f.id === fId)?.name || "General";
+  const getFolderName = (fId?: string) =>
+    folders.find((f) => f.id === fId)?.name || "General";
   return (
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
       {KANBAN_COLUMNS.map((col) => {
@@ -665,7 +685,6 @@ function KanbanBoard({
     </div>
   );
 }
-
 
 function EmptyState({ onClear, onNew }: { onClear: () => void; onNew: () => void }) {
   return (
@@ -720,25 +739,25 @@ const ASPECT_OPTIONS: {
   shape: string;
   platforms: Platform[];
 }[] = [
-    {
-      value: "9:16",
-      hint: "Vertical • Shorts, Reels, TikTok",
-      shape: "h-8 w-[18px]",
-      platforms: ["YOUTUBE_SHORTS", "INSTAGRAM_REELS", "TIKTOK"],
-    },
-    {
-      value: "16:9",
-      hint: "Horizontal • YouTube, Landscape",
-      shape: "h-[18px] w-8",
-      platforms: ["YOUTUBE_SHORTS"],
-    },
-    {
-      value: "1:1",
-      hint: "Square • LinkedIn, Feed",
-      shape: "size-6",
-      platforms: ["INSTAGRAM_REELS"],
-    },
-  ];
+  {
+    value: "9:16",
+    hint: "Vertical • Shorts, Reels, TikTok",
+    shape: "h-8 w-[18px]",
+    platforms: ["YOUTUBE_SHORTS", "INSTAGRAM_REELS", "TIKTOK"],
+  },
+  {
+    value: "16:9",
+    hint: "Horizontal • YouTube, Landscape",
+    shape: "h-[18px] w-8",
+    platforms: ["YOUTUBE_SHORTS"],
+  },
+  {
+    value: "1:1",
+    hint: "Square • LinkedIn, Feed",
+    shape: "size-6",
+    platforms: ["INSTAGRAM_REELS"],
+  },
+];
 
 const DURATION_OPTIONS = [
   { value: "30", label: "30 Seconds" },
@@ -870,11 +889,12 @@ function CloneVoiceDialog({ open, onOpenChange, onVoiceCloned }: CloneVoiceDialo
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-lg flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-lg">
             <Mic className="size-5 text-primary" /> Clone New Voice
           </DialogTitle>
           <DialogDescription>
-            Upload a short voice note (5-30s) from Telegram, Messenger, or phone recorder to clone the voice.
+            Upload a short voice note (5-30s) from Telegram, Messenger, or phone recorder
+            to clone the voice.
           </DialogDescription>
         </DialogHeader>
 
@@ -890,7 +910,10 @@ function CloneVoiceDialog({ open, onOpenChange, onVoiceCloned }: CloneVoiceDialo
           </Field>
 
           <Field label="Language & Gender Match">
-            <Select value={baseVoice} onValueChange={(v) => setBaseVoice(v ?? "km-KH-PisethNeural")}>
+            <Select
+              value={baseVoice}
+              onValueChange={(v) => setBaseVoice(v ?? "km-KH-PisethNeural")}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
@@ -911,7 +934,9 @@ function CloneVoiceDialog({ open, onOpenChange, onVoiceCloned }: CloneVoiceDialo
                 role="button"
                 tabIndex={0}
                 onClick={() => fileInputRef.current?.click()}
-                onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && fileInputRef.current?.click()}
+                onKeyDown={(e) =>
+                  (e.key === "Enter" || e.key === " ") && fileInputRef.current?.click()
+                }
                 className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 p-6 text-center transition-colors hover:bg-primary/10"
               >
                 <UploadCloud className="size-8 text-primary" />
@@ -924,8 +949,8 @@ function CloneVoiceDialog({ open, onOpenChange, onVoiceCloned }: CloneVoiceDialo
               <div className="flex flex-col gap-2 rounded-lg border bg-muted/30 p-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 truncate">
-                    <Music2 className="size-4 text-primary shrink-0" />
-                    <span className="text-sm font-medium truncate">{file.name}</span>
+                    <Music2 className="size-4 shrink-0 text-primary" />
+                    <span className="truncate text-sm font-medium">{file.name}</span>
                   </div>
                   <Button
                     type="button"
@@ -941,7 +966,9 @@ function CloneVoiceDialog({ open, onOpenChange, onVoiceCloned }: CloneVoiceDialo
                     <X className="size-4" />
                   </Button>
                 </div>
-                {previewUrl && <audio src={previewUrl} controls className="w-full h-8 mt-1" />}
+                {previewUrl && (
+                  <audio src={previewUrl} controls className="mt-1 h-8 w-full" />
+                )}
               </div>
             )}
             <input
@@ -957,13 +984,17 @@ function CloneVoiceDialog({ open, onOpenChange, onVoiceCloned }: CloneVoiceDialo
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => handleOpenChange(false)}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={!name.trim() || !file || isCloning}>
               {isCloning ? (
                 <>
-                  <Loader2 className="animate-spin size-4" /> Extracting &amp; Cloning...
+                  <Loader2 className="size-4 animate-spin" /> Extracting &amp; Cloning...
                 </>
               ) : (
                 <>
@@ -1000,7 +1031,7 @@ function NewVideoDialog({ open, onOpenChange, onCreate }: DialogProps) {
         .then((res) => {
           if (Array.isArray(res)) setClonedVoices(res);
         })
-        .catch(() => { });
+        .catch(() => {});
     }
   }, [open]);
 
@@ -1026,7 +1057,9 @@ function NewVideoDialog({ open, onOpenChange, onCreate }: DialogProps) {
     setPrompt("");
     setAspect("9:16");
     setDuration("45");
-    setVoice(clonedVoices.length > 0 ? `cloned:${clonedVoices[0].id}` : "km-KH-PisethNeural");
+    setVoice(
+      clonedVoices.length > 0 ? `cloned:${clonedVoices[0].id}` : "km-KH-PisethNeural",
+    );
     setAudioSource("ai");
     setCustomAudioFile(null);
     if (customAudioUrl) {
@@ -1109,7 +1142,8 @@ function NewVideoDialog({ open, onOpenChange, onCreate }: DialogProps) {
           tags: [aspect, audioSource === "custom" ? "Real Voice" : voice],
           status: "RENDERING",
           progress: 10,
-          duration: audioSource === "ai" ? formatDuration(Number(duration)) : "Audio Track",
+          duration:
+            audioSource === "ai" ? formatDuration(Number(duration)) : "Audio Track",
           durationSeconds: audioSource === "ai" ? Number(duration) : 45,
           videoType: aspect === "9:16" || Number(duration) <= 60 ? "SHORT" : "LONG",
           aspectRatio: created.aspectRatio,
@@ -1177,8 +1211,8 @@ function NewVideoDialog({ open, onOpenChange, onCreate }: DialogProps) {
                 className={cn(
                   "flex items-center justify-center gap-2 rounded-lg border p-2.5 text-xs font-medium transition-all sm:text-sm",
                   audioSource === "ai"
-                    ? "border-primary bg-primary/10 text-primary shadow-xs font-semibold"
-                    : "border-border bg-card text-muted-foreground hover:bg-muted/50"
+                    ? "border-primary bg-primary/10 font-semibold text-primary shadow-xs"
+                    : "border-border bg-card text-muted-foreground hover:bg-muted/50",
                 )}
               >
                 <Sparkles className="size-4" />
@@ -1190,8 +1224,8 @@ function NewVideoDialog({ open, onOpenChange, onCreate }: DialogProps) {
                 className={cn(
                   "flex items-center justify-center gap-2 rounded-lg border p-2.5 text-xs font-medium transition-all sm:text-sm",
                   audioSource === "custom"
-                    ? "border-primary bg-primary/10 text-primary shadow-xs font-semibold"
-                    : "border-border bg-card text-muted-foreground hover:bg-muted/50"
+                    ? "border-primary bg-primary/10 font-semibold text-primary shadow-xs"
+                    : "border-border bg-card text-muted-foreground hover:bg-muted/50",
                 )}
               >
                 <Music2 className="size-4" />
@@ -1203,7 +1237,7 @@ function NewVideoDialog({ open, onOpenChange, onCreate }: DialogProps) {
           {audioSource === "custom" ? (
             <div className="space-y-2 rounded-xl border border-dashed border-primary/40 bg-primary/5 p-4">
               <div className="flex items-center justify-between">
-                <Label className="text-xs font-semibold uppercase tracking-wider text-primary">
+                <Label className="text-xs font-semibold tracking-wider text-primary uppercase">
                   Real Audio / Voice Chat Memo
                 </Label>
                 <Badge variant="outline" className="text-[10px] text-muted-foreground">
@@ -1223,8 +1257,10 @@ function NewVideoDialog({ open, onOpenChange, onCreate }: DialogProps) {
                 >
                   <UploadCloud className="size-8 text-primary" />
                   <div>
-                    <p className="text-sm font-medium">Click to select audio or voice note</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
+                    <p className="text-sm font-medium">
+                      Click to select audio or voice note
+                    </p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
                       Supports .mp3, .wav, .m4a, .ogg, .aac, .flac
                     </p>
                   </div>
@@ -1233,9 +1269,11 @@ function NewVideoDialog({ open, onOpenChange, onCreate }: DialogProps) {
                 <div className="flex flex-col gap-2 rounded-lg border bg-background/80 p-3 shadow-xs">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 truncate">
-                      <Music2 className="size-4 text-primary shrink-0" />
-                      <span className="text-sm font-medium truncate">{customAudioFile.name}</span>
-                      <span className="text-xs text-muted-foreground shrink-0">
+                      <Music2 className="size-4 shrink-0 text-primary" />
+                      <span className="truncate text-sm font-medium">
+                        {customAudioFile.name}
+                      </span>
+                      <span className="shrink-0 text-xs text-muted-foreground">
                         ({(customAudioFile.size / (1024 * 1024)).toFixed(2)} MB)
                       </span>
                     </div>
@@ -1254,14 +1292,11 @@ function NewVideoDialog({ open, onOpenChange, onCreate }: DialogProps) {
                     </Button>
                   </div>
                   {customAudioUrl && (
-                    <audio
-                      src={customAudioUrl}
-                      controls
-                      className="w-full h-8 mt-1"
-                    />
+                    <audio src={customAudioUrl} controls className="mt-1 h-8 w-full" />
                   )}
-                  <p className="text-[11px] text-muted-foreground mt-1">
-                    ✨ Video duration will automatically synchronize to this audio recording length.
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    ✨ Video duration will automatically synchronize to this audio
+                    recording length.
                   </p>
                 </div>
               )}
@@ -1290,7 +1325,10 @@ function NewVideoDialog({ open, onOpenChange, onCreate }: DialogProps) {
           )}
 
           {audioSource === "custom" && (
-            <Field label="On-Screen Captions / Subtitle (Optional)" htmlFor="nv-prompt-caption">
+            <Field
+              label="On-Screen Captions / Subtitle (Optional)"
+              htmlFor="nv-prompt-caption"
+            >
               <Textarea
                 id="nv-prompt-caption"
                 value={prompt}
@@ -1357,7 +1395,7 @@ function NewVideoDialog({ open, onOpenChange, onCreate }: DialogProps) {
                   <button
                     type="button"
                     onClick={() => setCloneDialogOpen(true)}
-                    className="text-xs text-primary hover:underline flex items-center gap-1 font-medium cursor-pointer"
+                    className="flex cursor-pointer items-center gap-1 text-xs font-medium text-primary hover:underline"
                   >
                     <Plus className="size-3" /> Clone Voice
                   </button>
@@ -1372,7 +1410,7 @@ function NewVideoDialog({ open, onOpenChange, onCreate }: DialogProps) {
                   </SelectTrigger>
                   <SelectContent alignItemWithTrigger={false}>
                     {clonedVoices.length > 0 && (
-                      <div className="px-2 py-1 text-[10px] font-semibold text-primary uppercase tracking-wider">
+                      <div className="px-2 py-1 text-[10px] font-semibold tracking-wider text-primary uppercase">
                         ⭐ Your Cloned Voices
                       </div>
                     )}
@@ -1381,7 +1419,7 @@ function NewVideoDialog({ open, onOpenChange, onCreate }: DialogProps) {
                         🎙️ {cv.name} (Cloned Voice)
                       </SelectItem>
                     ))}
-                    <div className="px-2 py-1 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mt-1">
+                    <div className="mt-1 px-2 py-1 text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
                       Standard Voices
                     </div>
                     {VOICE_OPTIONS.map((o) => (
@@ -1406,7 +1444,7 @@ function NewVideoDialog({ open, onOpenChange, onCreate }: DialogProps) {
             <Button type="submit" disabled={!canSubmit}>
               {isSubmitting ? (
                 <>
-                  <Loader2 className="animate-spin size-4" /> Rendering...
+                  <Loader2 className="size-4 animate-spin" /> Rendering...
                 </>
               ) : (
                 <>
@@ -1450,10 +1488,10 @@ function parseScriptFile(name: string, raw: string): string {
             ? v.map(pick).join(" ")
             : v && typeof v === "object"
               ? pick(
-                (v as Record<string, unknown>).text ??
-                (v as Record<string, unknown>).script ??
-                Object.values(v),
-              )
+                  (v as Record<string, unknown>).text ??
+                    (v as Record<string, unknown>).script ??
+                    Object.values(v),
+                )
               : "";
       return pick(data).trim() || raw;
     } catch {
@@ -1759,15 +1797,15 @@ function MoveToFolderDialog({
               <label
                 key={f.id}
                 className={cn(
-                  "flex items-center justify-between rounded-lg border p-3 cursor-pointer transition hover:bg-muted/50",
-                  selectedFolderId === f.id && "border-primary bg-primary/5"
+                  "flex cursor-pointer items-center justify-between rounded-lg border p-3 transition hover:bg-muted/50",
+                  selectedFolderId === f.id && "border-primary bg-primary/5",
                 )}
               >
                 <div className="flex items-center gap-3">
                   <div
                     className={cn(
-                      "size-8 rounded-lg flex items-center justify-center bg-muted",
-                      f.color || "text-primary"
+                      "flex size-8 items-center justify-center rounded-lg bg-muted",
+                      f.color || "text-primary",
                     )}
                   >
                     {f.id === "all" ? (
@@ -1777,8 +1815,8 @@ function MoveToFolderDialog({
                     )}
                   </div>
                   <div>
-                    <div className="text-sm font-medium leading-none">{f.name}</div>
-                    <div className="text-xs text-muted-foreground mt-1">
+                    <div className="text-sm leading-none font-medium">{f.name}</div>
+                    <div className="mt-1 text-xs text-muted-foreground">
                       {f.id === "all" ? "Root directory (Unfiled)" : "Folder category"}
                     </div>
                   </div>
@@ -1796,9 +1834,9 @@ function MoveToFolderDialog({
               onOpenChange(false);
               onOpenNewFolder();
             }}
-            className="w-full text-xs text-muted-foreground hover:text-foreground cursor-pointer"
+            className="w-full cursor-pointer text-xs text-muted-foreground hover:text-foreground"
           >
-            <Plus className="size-3.5 mr-1 text-primary" /> Create New Directory / Folder
+            <Plus className="mr-1 size-3.5 text-primary" /> Create New Directory / Folder
           </Button>
         </div>
 
@@ -1812,7 +1850,7 @@ function MoveToFolderDialog({
               onOpenChange(false);
             }}
           >
-            <Check className="size-4 mr-1" /> Move Video
+            <Check className="mr-1 size-4" /> Move Video
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -1858,7 +1896,8 @@ function NewFolderDialog({ open, onOpenChange, onCreateFolder }: NewFolderDialog
             <FolderPlus className="size-5 text-primary" /> Create New Directory
           </DialogTitle>
           <DialogDescription>
-            Create a custom directory or folder to organize your shorts, long videos, and posts.
+            Create a custom directory or folder to organize your shorts, long videos, and
+            posts.
           </DialogDescription>
         </DialogHeader>
 
@@ -1882,11 +1921,11 @@ function NewFolderDialog({ open, onOpenChange, onCreateFolder }: NewFolderDialog
                   type="button"
                   onClick={() => setFolderColor(c.value)}
                   className={cn(
-                    "size-7 rounded-full transition border-2 flex items-center justify-center cursor-pointer",
+                    "flex size-7 cursor-pointer items-center justify-center rounded-full border-2 transition",
                     c.bg,
                     folderColor === c.value
-                      ? "border-foreground ring-2 ring-ring scale-110"
-                      : "border-transparent opacity-80 hover:opacity-100"
+                      ? "scale-110 border-foreground ring-2 ring-ring"
+                      : "border-transparent opacity-80 hover:opacity-100",
                   )}
                   title={c.label}
                 >
@@ -1901,7 +1940,7 @@ function NewFolderDialog({ open, onOpenChange, onCreateFolder }: NewFolderDialog
               Cancel
             </Button>
             <Button type="submit" disabled={!folderName.trim()}>
-              <FolderPlus className="size-4 mr-1" /> Create Folder
+              <FolderPlus className="mr-1 size-4" /> Create Folder
             </Button>
           </DialogFooter>
         </form>
@@ -2007,9 +2046,7 @@ export default function ProjectsPage() {
                     : "1:1",
               ],
               status: itemStatus,
-              duration: p.durationSeconds
-                ? formatDuration(p.durationSeconds)
-                : "0:45",
+              duration: p.durationSeconds ? formatDuration(p.durationSeconds) : "0:45",
               durationSeconds: p.durationSeconds ?? 45,
               videoType,
               aspectRatio: p.aspectRatio,
@@ -2018,15 +2055,17 @@ export default function ProjectsPage() {
               platforms,
               scheduledFor: matchingTask?.scheduledTime
                 ? new Date(matchingTask.scheduledTime).toLocaleString([], {
-                  month: "short",
-                  day: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
                 : undefined,
               outputUrl: p.outputUrl,
               thumbnailUrl: p.outputUrl
-                ? p.outputUrl.replace("/storage/videos/", "/storage/thumbnails/").replace(/\.mp4(\?.*)?$/i, ".jpg")
+                ? p.outputUrl
+                    .replace("/storage/videos/", "/storage/thumbnails/")
+                    .replace(/\.mp4(\?.*)?$/i, ".jpg")
                 : undefined,
               updatedAt: new Date(p.updatedAt).toLocaleTimeString([], {
                 hour: "2-digit",
@@ -2053,10 +2092,10 @@ export default function ProjectsPage() {
     const shorts = projects.filter((p) => p.videoType === "SHORT").length;
     const long = projects.filter((p) => p.videoType === "LONG").length;
     const posts = projects.filter(
-      (p) => p.status === "SCHEDULED" || p.status === "PUBLISHED"
+      (p) => p.status === "SCHEDULED" || p.status === "PUBLISHED",
     ).length;
     const videos = projects.filter(
-      (p) => p.status !== "SCHEDULED" && p.status !== "PUBLISHED"
+      (p) => p.status !== "SCHEDULED" && p.status !== "PUBLISHED",
     ).length;
     return { total, shorts, long, posts, videos };
   }, [projects]);
@@ -2121,9 +2160,7 @@ export default function ProjectsPage() {
     } catch {
       // ignore
     }
-    setProjects((prev) =>
-      prev.map((p) => (p.id === projectId ? { ...p, folderId } : p))
-    );
+    setProjects((prev) => prev.map((p) => (p.id === projectId ? { ...p, folderId } : p)));
     const targetFolder = folders.find((f) => f.id === folderId);
     toast.success(`Video moved to ${targetFolder?.name || "Folder"}`);
   };
@@ -2177,8 +2214,8 @@ export default function ProjectsPage() {
           if (job.status === "RUNNING") {
             setProjects((prev) =>
               prev.map((p) =>
-                p.id === project.id ? { ...p, progress: job.progressPercentage } : p
-              )
+                p.id === project.id ? { ...p, progress: job.progressPercentage } : p,
+              ),
             );
           } else if (job.status === "SUCCEEDED") {
             clearInterval(timer);
@@ -2188,26 +2225,26 @@ export default function ProjectsPage() {
                 prev.map((p) =>
                   p.id === project.id
                     ? {
-                      ...p,
-                      status: "READY",
-                      progress: 100,
-                      outputUrl: updated.outputUrl,
-                    }
-                    : p
-                )
+                        ...p,
+                        status: "READY",
+                        progress: 100,
+                        outputUrl: updated.outputUrl,
+                      }
+                    : p,
+                ),
               );
             } catch {
               setProjects((prev) =>
                 prev.map((p) =>
-                  p.id === project.id ? { ...p, status: "READY", progress: 100 } : p
-                )
+                  p.id === project.id ? { ...p, status: "READY", progress: 100 } : p,
+                ),
               );
             }
             toast.success("Video rendered successfully!", { description: project.title });
           } else if (job.status === "FAILED") {
             clearInterval(timer);
             setProjects((prev) =>
-              prev.map((p) => (p.id === project.id ? { ...p, status: "DRAFT" } : p))
+              prev.map((p) => (p.id === project.id ? { ...p, status: "DRAFT" } : p)),
             );
             toast.error("Video rendering failed", { description: job.errorMessage });
           }
@@ -2273,7 +2310,8 @@ export default function ProjectsPage() {
             Posts &amp; Videos
           </h1>
           <p className="mt-1 text-muted-foreground">
-            Manage, categorize, and organize your short clips, long videos, and social posts.
+            Manage, categorize, and organize your short clips, long videos, and social
+            posts.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -2281,7 +2319,7 @@ export default function ProjectsPage() {
             variant="outline"
             size="sm"
             onClick={() => setNewFolderOpen(true)}
-            className="gap-1.5 cursor-pointer"
+            className="cursor-pointer gap-1.5"
           >
             <FolderPlus className="size-4 text-primary" /> New Folder
           </Button>
@@ -2289,14 +2327,14 @@ export default function ProjectsPage() {
             variant="outline"
             size="sm"
             onClick={() => setImportOpen(true)}
-            className="gap-1.5 cursor-pointer"
+            className="cursor-pointer gap-1.5"
           >
             <Upload className="size-4" /> Import Script
           </Button>
           <Button
             size="sm"
             onClick={() => router.push("/create")}
-            className="gap-2 cursor-pointer"
+            className="cursor-pointer gap-2"
           >
             <Sparkles className="size-4" /> Create AI Video
           </Button>
@@ -2309,20 +2347,20 @@ export default function ProjectsPage() {
           type="button"
           onClick={() => setContentCategory("ALL")}
           className={cn(
-            "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-medium transition cursor-pointer",
+            "flex cursor-pointer items-center gap-2 rounded-lg px-3.5 py-1.5 text-sm font-medium transition",
             contentCategory === "ALL"
-              ? "bg-primary text-primary-foreground shadow-xs font-semibold"
-              : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+              ? "bg-primary font-semibold text-primary-foreground shadow-xs"
+              : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
           )}
         >
           <Layers className="size-4" />
           <span>All Content</span>
           <span
             className={cn(
-              "text-xs rounded-full px-1.5 py-0.2",
+              "py-0.2 rounded-full px-1.5 text-xs",
               contentCategory === "ALL"
                 ? "bg-primary-foreground/20 text-primary-foreground"
-                : "bg-muted text-muted-foreground"
+                : "bg-muted text-muted-foreground",
             )}
           >
             {counts.total}
@@ -2333,20 +2371,20 @@ export default function ProjectsPage() {
           type="button"
           onClick={() => setContentCategory("VIDEOS")}
           className={cn(
-            "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-medium transition cursor-pointer",
+            "flex cursor-pointer items-center gap-2 rounded-lg px-3.5 py-1.5 text-sm font-medium transition",
             contentCategory === "VIDEOS"
-              ? "bg-primary text-primary-foreground shadow-xs font-semibold"
-              : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+              ? "bg-primary font-semibold text-primary-foreground shadow-xs"
+              : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
           )}
         >
           <Film className="size-4" />
           <span>Videos &amp; Clips</span>
           <span
             className={cn(
-              "text-xs rounded-full px-1.5 py-0.2",
+              "py-0.2 rounded-full px-1.5 text-xs",
               contentCategory === "VIDEOS"
                 ? "bg-primary-foreground/20 text-primary-foreground"
-                : "bg-muted text-muted-foreground"
+                : "bg-muted text-muted-foreground",
             )}
           >
             {counts.videos}
@@ -2357,20 +2395,20 @@ export default function ProjectsPage() {
           type="button"
           onClick={() => setContentCategory("POSTS")}
           className={cn(
-            "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-medium transition cursor-pointer",
+            "flex cursor-pointer items-center gap-2 rounded-lg px-3.5 py-1.5 text-sm font-medium transition",
             contentCategory === "POSTS"
-              ? "bg-primary text-primary-foreground shadow-xs font-semibold"
-              : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+              ? "bg-primary font-semibold text-primary-foreground shadow-xs"
+              : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
           )}
         >
           <Send className="size-4" />
           <span>Social Posts</span>
           <span
             className={cn(
-              "text-xs rounded-full px-1.5 py-0.2",
+              "py-0.2 rounded-full px-1.5 text-xs",
               contentCategory === "POSTS"
                 ? "bg-primary-foreground/20 text-primary-foreground"
-                : "bg-muted text-muted-foreground"
+                : "bg-muted text-muted-foreground",
             )}
           >
             {counts.posts}
@@ -2379,18 +2417,18 @@ export default function ProjectsPage() {
       </div>
 
       {/* Directory & Folders Bar */}
-      <div className="rounded-xl border bg-card p-3 shadow-xs space-y-2.5">
+      <div className="space-y-2.5 rounded-xl border bg-card p-3 shadow-xs">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <FolderOpen className="size-4 text-primary" />
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
               Directories &amp; Folders
             </span>
           </div>
           <button
             type="button"
             onClick={() => setNewFolderOpen(true)}
-            className="text-xs text-primary hover:underline flex items-center gap-1 font-medium cursor-pointer"
+            className="flex cursor-pointer items-center gap-1 text-xs font-medium text-primary hover:underline"
           >
             <FolderPlus className="size-3.5" /> + New Folder
           </button>
@@ -2407,25 +2445,27 @@ export default function ProjectsPage() {
               <div
                 key={f.id}
                 className={cn(
-                  "group inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition cursor-pointer",
+                  "group inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition",
                   isSelected
-                    ? "border-primary bg-primary/10 text-primary font-semibold ring-1 ring-primary/30"
-                    : "border-border bg-background hover:bg-muted/60 text-muted-foreground hover:text-foreground"
+                    ? "border-primary bg-primary/10 font-semibold text-primary ring-1 ring-primary/30"
+                    : "border-border bg-background text-muted-foreground hover:bg-muted/60 hover:text-foreground",
                 )}
                 onClick={() => setSelectedFolder(f.id)}
               >
                 {isSelected ? (
                   <FolderOpen className={cn("size-3.5", f.color || "text-primary")} />
                 ) : (
-                  <Folder className={cn("size-3.5", f.color || "text-muted-foreground")} />
+                  <Folder
+                    className={cn("size-3.5", f.color || "text-muted-foreground")}
+                  />
                 )}
                 <span>{f.name}</span>
                 <span
                   className={cn(
-                    "ml-1 rounded-full px-1.5 py-0.2 text-[10px] tabular-nums",
+                    "py-0.2 ml-1 rounded-full px-1.5 text-[10px] tabular-nums",
                     isSelected
-                      ? "bg-primary text-primary-foreground font-bold"
-                      : "bg-muted text-muted-foreground"
+                      ? "bg-primary font-bold text-primary-foreground"
+                      : "bg-muted text-muted-foreground",
                   )}
                 >
                   {folderCount}
@@ -2438,7 +2478,7 @@ export default function ProjectsPage() {
                       e.stopPropagation();
                       handleDeleteFolder(f.id, f.name);
                     }}
-                    className="ml-1 opacity-0 group-hover:opacity-100 hover:text-destructive transition p-0.5"
+                    className="ml-1 p-0.5 opacity-0 transition group-hover:opacity-100 hover:text-destructive"
                   >
                     <Trash2 className="size-3" />
                   </button>
@@ -2465,15 +2505,15 @@ export default function ProjectsPage() {
 
           <div className="flex flex-wrap items-center gap-2">
             {/* Format Filter Tabs (Short vs Long) */}
-            <div className="flex items-center gap-1 bg-muted/60 p-1 rounded-lg border">
+            <div className="flex items-center gap-1 rounded-lg border bg-muted/60 p-1">
               <button
                 type="button"
                 onClick={() => setFormatFilter("ALL")}
                 className={cn(
-                  "px-3 py-1 rounded-md text-xs font-medium transition cursor-pointer",
+                  "cursor-pointer rounded-md px-3 py-1 text-xs font-medium transition",
                   formatFilter === "ALL"
                     ? "bg-background text-foreground shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 All Formats
@@ -2482,10 +2522,10 @@ export default function ProjectsPage() {
                 type="button"
                 onClick={() => setFormatFilter("SHORT")}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition cursor-pointer",
+                  "flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium transition",
                   formatFilter === "SHORT"
                     ? "bg-cyan-500 text-white shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 <Smartphone className="size-3.5" /> Shorts (&le;60s) ({counts.shorts})
@@ -2494,10 +2534,10 @@ export default function ProjectsPage() {
                 type="button"
                 onClick={() => setFormatFilter("LONG")}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition cursor-pointer",
+                  "flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium transition",
                   formatFilter === "LONG"
                     ? "bg-amber-600 text-white shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 <Film className="size-3.5" /> Long Form (&gt;60s) ({counts.long})
@@ -2543,7 +2583,7 @@ export default function ProjectsPage() {
 
         {/* Platform Quick Filter Pills */}
         <div className="flex flex-wrap items-center gap-1.5 pt-1">
-          <span className="text-xs text-muted-foreground font-medium flex items-center gap-1 mr-1">
+          <span className="mr-1 flex items-center gap-1 text-xs font-medium text-muted-foreground">
             <Share2 className="size-3.5" /> Platform:
           </span>
           {PLATFORM_FILTERS.map((p) => {
@@ -2556,10 +2596,10 @@ export default function ProjectsPage() {
                 type="button"
                 onClick={() => setPlatform(p.value)}
                 className={cn(
-                  "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition cursor-pointer border",
+                  "inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition",
                   isActive
-                    ? "bg-foreground text-background border-foreground shadow-xs font-semibold"
-                    : "bg-muted/50 hover:bg-muted text-muted-foreground border-transparent hover:text-foreground"
+                    ? "border-foreground bg-foreground font-semibold text-background shadow-xs"
+                    : "border-transparent bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground",
                 )}
               >
                 {PIcon && <PIcon className="size-3" />}
@@ -2592,7 +2632,7 @@ export default function ProjectsPage() {
           <button
             type="button"
             onClick={clearFilters}
-            className="hover:text-foreground text-xs font-medium text-primary hover:underline cursor-pointer"
+            className="cursor-pointer text-xs font-medium text-primary hover:text-foreground hover:underline"
           >
             Clear all filters
           </button>
@@ -2603,7 +2643,7 @@ export default function ProjectsPage() {
       {filtered.length === 0 ? (
         <EmptyState onClear={clearFilters} onNew={() => router.push("/create")} />
       ) : view === "grid" ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 items-stretch">
+        <div className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {filtered.map((p) => (
             <ProjectCard
               key={p.id}
@@ -2645,22 +2685,26 @@ export default function ProjectsPage() {
       >
         <DialogContent
           className={cn(
-            "p-5 bg-neutral-950 text-white border-neutral-800 shadow-2xl",
-            previewProject?.aspectRatio === "LANDSCAPE_16_9" ? "sm:max-w-2xl" : "sm:max-w-md"
+            "border-neutral-800 bg-neutral-950 p-5 text-white shadow-2xl",
+            previewProject?.aspectRatio === "LANDSCAPE_16_9"
+              ? "sm:max-w-2xl"
+              : "sm:max-w-md",
           )}
         >
           <DialogHeader>
-            <DialogTitle className="text-base font-medium truncate">
+            <DialogTitle className="truncate text-base font-medium">
               {previewProject?.title}
             </DialogTitle>
-            <DialogDescription className="text-neutral-400 text-xs">
+            <DialogDescription className="text-xs text-neutral-400">
               {previewProject?.duration} • Rendered via AutoClip Video Engine
             </DialogDescription>
           </DialogHeader>
           <div
             className={cn(
-              "relative w-full max-h-[70vh] rounded-xl overflow-hidden bg-black flex items-center justify-center mx-auto my-2",
-              previewProject?.aspectRatio === "LANDSCAPE_16_9" ? "aspect-video" : "aspect-[9/16]"
+              "relative mx-auto my-2 flex max-h-[70vh] w-full items-center justify-center overflow-hidden rounded-xl bg-black",
+              previewProject?.aspectRatio === "LANDSCAPE_16_9"
+                ? "aspect-video"
+                : "aspect-[9/16]",
             )}
           >
             {previewProject?.outputUrl ? (
@@ -2671,12 +2715,12 @@ export default function ProjectsPage() {
                 className="h-full w-full object-contain"
               />
             ) : (
-              <div className="text-neutral-500 text-sm p-8 text-center">
+              <div className="p-8 text-center text-sm text-neutral-500">
                 No video stream available
               </div>
             )}
           </div>
-          <DialogFooter className="sm:justify-between items-center gap-2 mt-2">
+          <DialogFooter className="mt-2 items-center gap-2 sm:justify-between">
             <span className="text-xs text-neutral-400">
               {previewProject?.aspectRatio === "PORTRAIT_9_16"
                 ? "Format: 9:16 Vertical Short"
@@ -2686,21 +2730,21 @@ export default function ProjectsPage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="text-white border-neutral-700 hover:bg-neutral-800"
+                className="border-neutral-700 text-white hover:bg-neutral-800"
                 onClick={() => {
                   if (previewProject?.outputUrl) {
                     window.open(previewProject.outputUrl, "_blank");
                   }
                 }}
               >
-                <Download className="size-3.5 mr-1" /> Download MP4
+                <Download className="mr-1 size-3.5" /> Download MP4
               </Button>
               {previewProject?.id && (
                 <Button
                   size="sm"
                   onClick={() => router.push(`/composer?projectId=${previewProject.id}`)}
                 >
-                  <Send className="size-3.5 mr-1" /> Publish Post
+                  <Send className="mr-1 size-3.5" /> Publish Post
                 </Button>
               )}
             </div>

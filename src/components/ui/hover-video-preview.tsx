@@ -34,7 +34,9 @@ export function HoverVideoPreview({
   const resolvedThumbnail =
     thumbnailUrl ||
     (src && src.includes("/storage/videos/")
-      ? src.replace("/storage/videos/", "/storage/thumbnails/").replace(/\.mp4(\?.*)?$/i, ".jpg")
+      ? src
+          .replace("/storage/videos/", "/storage/thumbnails/")
+          .replace(/\.mp4(\?.*)?$/i, ".jpg")
       : null);
 
   // Clean up timer on unmount
@@ -56,9 +58,7 @@ export function HoverVideoPreview({
         video.muted = true;
         const promise = video.play();
         if (promise !== undefined) {
-          promise
-            .then(() => setIsPlaying(true))
-            .catch(() => setIsPlaying(false));
+          promise.then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
         }
       }
     }, 120);
@@ -96,9 +96,9 @@ export function HoverVideoPreview({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       className={cn(
-        "relative overflow-hidden group/video select-none bg-neutral-900",
+        "group/video relative overflow-hidden bg-neutral-900 select-none",
         onClick && "cursor-pointer",
-        className
+        className,
       )}
     >
       {/* Background Poster Gradient (fallback while media loads or for draft videos) */}
@@ -106,7 +106,9 @@ export function HoverVideoPreview({
         className={cn(
           "absolute inset-0 bg-gradient-to-b transition-opacity duration-500",
           gradient,
-          (showThumbnailImage && isImgLoaded) || isVideoLoaded ? "opacity-0" : "opacity-100"
+          (showThumbnailImage && isImgLoaded) || isVideoLoaded
+            ? "opacity-0"
+            : "opacity-100",
         )}
       />
 
@@ -119,8 +121,8 @@ export function HoverVideoPreview({
           onLoad={() => setIsImgLoaded(true)}
           onError={() => setHasImgError(true)}
           className={cn(
-            "absolute inset-0 h-full w-full object-cover transition-opacity duration-300 pointer-events-none",
-            isImgLoaded ? (isPlaying ? "opacity-0" : "opacity-100") : "opacity-0"
+            "pointer-events-none absolute inset-0 h-full w-full object-cover transition-opacity duration-300",
+            isImgLoaded ? (isPlaying ? "opacity-0" : "opacity-100") : "opacity-0",
           )}
         />
       )}
@@ -137,18 +139,22 @@ export function HoverVideoPreview({
           onLoadedData={() => setIsVideoLoaded(true)}
           onError={() => setHasVideoError(true)}
           className={cn(
-            "absolute inset-0 h-full w-full object-cover transition-opacity duration-300 pointer-events-none",
+            "pointer-events-none absolute inset-0 h-full w-full object-cover transition-opacity duration-300",
             // If image is active and loaded, video is only visible while playing.
             // If no image, video is ALWAYS visible once loaded (serving as the thumbnail + live hover demo)!
             showThumbnailImage && isImgLoaded
-              ? isPlaying ? "opacity-100" : "opacity-0"
-              : isVideoLoaded ? "opacity-100" : "opacity-0"
+              ? isPlaying
+                ? "opacity-100"
+                : "opacity-0"
+              : isVideoLoaded
+                ? "opacity-100"
+                : "opacity-0",
           )}
         />
       )}
 
       {/* Cinematic subtle scrim gradient to guarantee text/badge contrast */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-transparent to-black/60 pointer-events-none z-1" />
+      <div className="pointer-events-none absolute inset-0 z-1 bg-gradient-to-b from-black/45 via-transparent to-black/60" />
 
       {/* Children Overlays (Badges, Menus, Duration indicators, Play buttons, etc.) */}
       {children}

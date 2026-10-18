@@ -57,15 +57,15 @@ export interface ClonedVoiceResponse {
 
 export const videoApi = {
   list: (page = 0, size = 20) =>
-    apiClient.get<PageResponse<VideoProjectResponse>>(`/videos?page=${page}&size=${size}`),
-  get: (id: string) =>
-    apiClient.get<VideoProjectResponse>(`/videos/${id}`),
+    apiClient.get<PageResponse<VideoProjectResponse>>(
+      `/videos?page=${page}&size=${size}`,
+    ),
+  get: (id: string) => apiClient.get<VideoProjectResponse>(`/videos/${id}`),
   create: (body: VideoProjectRequest) =>
     apiClient.post<VideoProjectResponse, VideoProjectRequest>("/videos", body),
   update: (id: string, body: VideoProjectRequest) =>
     apiClient.put<VideoProjectResponse, VideoProjectRequest>(`/videos/${id}`, body),
-  delete: (id: string) =>
-    apiClient.delete(`/videos/${id}`),
+  delete: (id: string) => apiClient.delete(`/videos/${id}`),
   requestRender: (id: string) =>
     apiClient.post<RenderJobResponse>(`/videos/${id}/render`),
   getJob: (jobId: string) =>
@@ -73,12 +73,15 @@ export const videoApi = {
   uploadAudio: (file: File) => {
     const formData = new FormData();
     formData.append("file", file);
-    return apiClient.post<AudioUploadResponse, FormData>("/videos/upload-audio", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    return apiClient.post<AudioUploadResponse, FormData>(
+      "/videos/upload-audio",
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      },
+    );
   },
-  listClonedVoices: () =>
-    apiClient.get<ClonedVoiceResponse[]>("/voices/cloned"),
+  listClonedVoices: () => apiClient.get<ClonedVoiceResponse[]>("/voices/cloned"),
   cloneVoice: (name: string, baseVoice: string, file: File) => {
     const formData = new FormData();
     formData.append("name", name);
@@ -88,6 +91,5 @@ export const videoApi = {
       headers: { "Content-Type": "multipart/form-data" },
     });
   },
-  deleteClonedVoice: (id: string) =>
-    apiClient.delete(`/voices/cloned/${id}`),
+  deleteClonedVoice: (id: string) => apiClient.delete(`/voices/cloned/${id}`),
 };

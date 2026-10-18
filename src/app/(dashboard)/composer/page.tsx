@@ -12,7 +12,10 @@ import {
   type Platform,
   type PostStatus,
 } from "@/features/publishing/types/publishing.types";
-import { videoApi, type VideoProjectResponse } from "@/features/video-editor/api/video-api";
+import {
+  videoApi,
+  type VideoProjectResponse,
+} from "@/features/video-editor/api/video-api";
 import {
   AlertCircle,
   ArrowRight,
@@ -45,7 +48,13 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -74,24 +83,44 @@ import { cn } from "@/lib/utils";
 /*                                Platform Icons                              */
 /* -------------------------------------------------------------------------- */
 
-function PlatformIcon({ platform, className }: { platform: Platform; className?: string }) {
+function PlatformIcon({
+  platform,
+  className,
+}: {
+  platform: Platform;
+  className?: string;
+}) {
   if (platform === "YOUTUBE_SHORTS") {
     return (
-      <svg viewBox="0 0 24 24" fill="currentColor" className={cn("size-4 text-red-500", className)}>
+      <svg
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        className={cn("size-4 text-red-500", className)}
+      >
         <path d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.9.5A3 3 0 0 0 1 7.2C.5 9.1.5 12 .5 12s0 2.9.5 4.8a3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1c.5-1.9.5-4.8.5-4.8s0-2.9-.5-4.8ZM9.8 15.1V8.9l5.4 3.1-5.4 3.1Z" />
       </svg>
     );
   }
   if (platform === "TIKTOK") {
     return (
-      <svg viewBox="0 0 24 24" fill="currentColor" className={cn("size-4 text-cyan-400", className)}>
+      <svg
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        className={cn("size-4 text-cyan-400", className)}
+      >
         <path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743 2.894 2.894 0 0 1 2.316-4.637c.307 0 .605.048.885.137V9.402a6.353 6.353 0 0 0-.885-.063 6.338 6.338 0 1 0 6.33 6.333V9.072a8.214 8.214 0 0 0 4.77 1.516v-3.9a4.8 4.8 0 0 1-1-.002Z" />
       </svg>
     );
   }
   if (platform === "INSTAGRAM_REELS") {
     return (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={cn("size-4 text-pink-500", className)}>
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        className={cn("size-4 text-pink-500", className)}
+      >
         <rect x="3" y="3" width="18" height="18" rx="5" />
         <circle cx="12" cy="12" r="4" />
         <circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" />
@@ -100,13 +129,21 @@ function PlatformIcon({ platform, className }: { platform: Platform; className?:
   }
   if (platform === "FACEBOOK") {
     return (
-      <svg viewBox="0 0 24 24" fill="currentColor" className={cn("size-4 text-blue-500", className)}>
+      <svg
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        className={cn("size-4 text-blue-500", className)}
+      >
         <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12Z" />
       </svg>
     );
   }
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className={cn("size-4 text-sky-500", className)}>
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={cn("size-4 text-sky-500", className)}
+    >
       <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 8.76a1.64 1.64 0 0 0 1.63-1.64 1.64 1.64 0 0 0-3.27 0 1.64 1.64 0 0 0 1.64 1.64m1.39 9.74v-8.37H5.07v8.37h2.78Z" />
     </svg>
   );
@@ -244,7 +281,7 @@ export default function ComposerPage() {
 
   const projectItems = useMemo(
     () => Object.fromEntries(projects.map((p) => [p.id, p.title])),
-    [projects]
+    [projects],
   );
 
   const handleSelectProject = (proj: VideoProjectResponse) => {
@@ -257,7 +294,8 @@ export default function ComposerPage() {
         .replace(/\.mp4(\?.*)?$/i, ".jpg");
       setThumbnailUrl(autoThumb);
     }
-    const isShort = (proj.durationSeconds ?? 45) <= 60 || proj.aspectRatio === "PORTRAIT_9_16";
+    const isShort =
+      (proj.durationSeconds ?? 45) <= 60 || proj.aspectRatio === "PORTRAIT_9_16";
     updateCurrentState({ videoFormat: isShort ? "SHORTS" : "STANDARD_VIDEO" });
     toast.success(`Selected video: "${proj.title}"`);
   };
@@ -336,7 +374,9 @@ export default function ComposerPage() {
 
   // Load existing projects from Spring Boot backend (Video Asset left empty by default)
   useEffect(() => {
-    setScheduledDateTime(new Date(Date.now() + 24 * 3600 * 1000).toISOString().slice(0, 16));
+    setScheduledDateTime(
+      new Date(Date.now() + 24 * 3600 * 1000).toISOString().slice(0, 16),
+    );
     videoApi
       .list(0, 20)
       .then((res) => {
@@ -345,7 +385,7 @@ export default function ComposerPage() {
           // Video Asset and Video Details left completely empty by default
         }
       })
-      .catch(() => { });
+      .catch(() => {});
   }, []);
 
   const currentPlatformState = platformData[activeTab] || DEFAULT_PLATFORM_STATE;
@@ -363,7 +403,8 @@ export default function ComposerPage() {
   const togglePlatform = (p: Platform) => {
     if (!connectedPlatforms.includes(p)) {
       toast.error(`${PLATFORM_LABELS[p]} is not connected`, {
-        description: "Only connected platforms can be selected. Connect this account in Settings > Connected Accounts.",
+        description:
+          "Only connected platforms can be selected. Connect this account in Settings > Connected Accounts.",
         action: {
           label: "Connect",
           onClick: () => router.push("/settings/accounts"),
@@ -445,14 +486,21 @@ export default function ComposerPage() {
       {
         id: "tags_count",
         label: "At least 3 tags within 500 characters",
-        passed: s.tagsInput.split(",").filter((t) => t.trim().length > 0).length >= 3 && s.tagsInput.length <= 500,
+        passed:
+          s.tagsInput.split(",").filter((t) => t.trim().length > 0).length >= 3 &&
+          s.tagsInput.length <= 500,
         hint: `${s.tagsInput.split(",").filter((t) => t.trim().length > 0).length} tags (${s.tagsInput.length}/500 chars)`,
       },
       {
         id: "thumbnail_set",
-        label: s.videoFormat === "STANDARD_VIDEO" ? "Custom 16:9 Thumbnail attached" : "Video Thumbnail / Poster ready",
+        label:
+          s.videoFormat === "STANDARD_VIDEO"
+            ? "Custom 16:9 Thumbnail attached"
+            : "Video Thumbnail / Poster ready",
         passed: Boolean(thumbnailUrl),
-        hint: Boolean(thumbnailUrl) ? "High CTR thumbnail attached (+15% CTR boost)" : "Upload custom thumbnail to maximize click-through rate",
+        hint: Boolean(thumbnailUrl)
+          ? "High CTR thumbnail attached (+15% CTR boost)"
+          : "Upload custom thumbnail to maximize click-through rate",
       },
       s.videoFormat === "STANDARD_VIDEO"
         ? {
@@ -557,7 +605,8 @@ export default function ComposerPage() {
         id: "fb_title",
         label: "Post title defined",
         passed: s.title.trim().length > 0,
-        hint: s.title.trim().length > 0 ? "Title added" : "Add an attention-grabbing title",
+        hint:
+          s.title.trim().length > 0 ? "Title added" : "Add an attention-grabbing title",
       },
       {
         id: "fb_caption_len",
@@ -611,7 +660,8 @@ export default function ComposerPage() {
       description: `Analyzing script and platform rules for ${PLATFORM_LABELS[activeTab]}`,
     });
 
-    const currentTitle = currentPlatformState.title || selectedProject?.title || "Video Project";
+    const currentTitle =
+      currentPlatformState.title || selectedProject?.title || "Video Project";
     const kw = currentTitle.split(" ").slice(0, 2).join(" ").toLowerCase();
 
     setTimeout(() => {
@@ -657,7 +707,7 @@ export default function ComposerPage() {
 
     try {
       await publishingApi.publishNow({
-        videoProjectId: selectedProjectId || undefined as any,
+        videoProjectId: selectedProjectId || (undefined as any),
         platforms: selectedPlatforms,
         title: currentPlatformState.title || selectedProject?.title || "Untitled Project",
         caption: currentPlatformState.caption,
@@ -682,11 +732,13 @@ export default function ComposerPage() {
 
   const handleScheduleSubmit = async () => {
     setIsSubmitting(true);
-    const isoTime = scheduledDateTime ? new Date(scheduledDateTime).toISOString() : new Date(Date.now() + 3600000).toISOString();
+    const isoTime = scheduledDateTime
+      ? new Date(scheduledDateTime).toISOString()
+      : new Date(Date.now() + 3600000).toISOString();
 
     try {
       await publishingApi.schedulePost({
-        videoProjectId: selectedProjectId || undefined as any,
+        videoProjectId: selectedProjectId || (undefined as any),
         platforms: selectedPlatforms,
         title: currentPlatformState.title || selectedProject?.title || "Untitled Project",
         caption: currentPlatformState.caption,
@@ -715,24 +767,25 @@ export default function ComposerPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-6 pb-16">
       {/* Page Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b pb-4">
+      <div className="flex flex-col gap-4 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight md:text-3xl flex items-center gap-2">
+            <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight md:text-3xl">
               <Send className="size-6 text-primary" /> Multi-Platform Composer
             </h1>
             <Badge variant="outline" className="border-primary/40 text-primary">
               One Post $\rightarrow$ 5 Platforms
             </Badge>
           </div>
-          <p className="text-sm text-muted-foreground mt-1">
-            Adapt video metadata, SEO checklists, and rules for YouTube, TikTok, Instagram, Facebook, and LinkedIn.
+          <p className="mt-1 text-sm text-muted-foreground">
+            Adapt video metadata, SEO checklists, and rules for YouTube, TikTok,
+            Instagram, Facebook, and LinkedIn.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => router.push("/create")}>
-            <FileVideo className="size-4 mr-1.5" /> AI Studio
+            <FileVideo className="mr-1.5 size-4" /> AI Studio
           </Button>
           <Button
             variant="outline"
@@ -740,7 +793,7 @@ export default function ComposerPage() {
             onClick={handleAiDraft}
             className="border-primary/40 text-primary hover:bg-primary/10"
           >
-            <Sparkles className="size-4 mr-1.5" /> AI Draft
+            <Sparkles className="mr-1.5 size-4" /> AI Draft
           </Button>
           <Button
             variant="secondary"
@@ -748,21 +801,21 @@ export default function ComposerPage() {
             onClick={() => setScheduleModalOpen(true)}
             disabled={isSubmitting || selectedPlatforms.length === 0}
           >
-            <Calendar className="size-4 mr-1.5" /> Schedule
+            <Calendar className="mr-1.5 size-4" /> Schedule
           </Button>
           <Button
             size="sm"
             onClick={handlePublishNow}
             disabled={isSubmitting || selectedPlatforms.length === 0}
-            className="bg-primary hover:bg-primary/90 font-medium"
+            className="bg-primary font-medium hover:bg-primary/90"
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="size-4 animate-spin mr-1.5" /> Publishing...
+                <Loader2 className="mr-1.5 size-4 animate-spin" /> Publishing...
               </>
             ) : (
               <>
-                <Send className="size-4 mr-1.5" /> Publish Now
+                <Send className="mr-1.5 size-4" /> Publish Now
               </>
             )}
           </Button>
@@ -770,17 +823,20 @@ export default function ComposerPage() {
       </div>
 
       {/* Video Source & Direct Upload Card */}
-      <Card className="border shadow-xs overflow-hidden">
-        <CardHeader className="pb-3 border-b bg-muted/10">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <Card className="overflow-hidden border shadow-xs">
+        <CardHeader className="border-b bg-muted/10 pb-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="size-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+              <div className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <FileVideo className="size-5" />
               </div>
               <div>
-                <CardTitle className="text-base font-semibold">Video Asset for Publishing</CardTitle>
+                <CardTitle className="text-base font-semibold">
+                  Video Asset for Publishing
+                </CardTitle>
                 <CardDescription className="text-xs">
-                  Upload your video file (MP4, MOV, WebM) or choose from your rendered AI Studio projects.
+                  Upload your video file (MP4, MOV, WebM) or choose from your rendered AI
+                  Studio projects.
                 </CardDescription>
               </div>
             </div>
@@ -797,7 +853,7 @@ export default function ComposerPage() {
                 size="sm"
                 variant="outline"
                 onClick={() => fileInputRef.current?.click()}
-                className="gap-1.5 text-xs h-8 border-primary/40 text-primary hover:bg-primary/10"
+                className="h-8 gap-1.5 border-primary/40 text-xs text-primary hover:bg-primary/10"
               >
                 <UploadCloud className="size-4" /> Upload Video File
               </Button>
@@ -805,7 +861,7 @@ export default function ComposerPage() {
                 size="sm"
                 variant="outline"
                 onClick={() => router.push("/create")}
-                className="gap-1.5 text-xs h-8"
+                className="h-8 gap-1.5 text-xs"
               >
                 <Sparkles className="size-3.5 text-amber-500" /> Create in AI Studio
               </Button>
@@ -813,7 +869,7 @@ export default function ComposerPage() {
           </div>
         </CardHeader>
 
-        <CardContent className="p-4 space-y-4">
+        <CardContent className="space-y-4 p-4">
           {/* Hidden inputs for video and thumbnail */}
           <input
             ref={thumbnailInputRef}
@@ -828,12 +884,12 @@ export default function ComposerPage() {
 
           {/* Active Video Status Banner */}
           {selectedProject || customVideoFile ? (
-            <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4 p-3.5 rounded-xl border bg-muted/30">
-              <div className="flex flex-wrap items-center gap-4 min-w-0">
+            <div className="flex flex-col items-start justify-between gap-4 rounded-xl border bg-muted/30 p-3.5 xl:flex-row xl:items-center">
+              <div className="flex min-w-0 flex-wrap items-center gap-4">
                 {/* Video Info Block */}
-                <div className="flex items-center gap-3 min-w-0">
+                <div className="flex min-w-0 items-center gap-3">
                   <div
-                    className="relative size-14 rounded-lg bg-neutral-900 border overflow-hidden shrink-0 flex items-center justify-center group cursor-pointer"
+                    className="group relative flex size-14 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-lg border bg-neutral-900"
                     onClick={() => {
                       const videoEl = document.querySelector("video");
                       if (videoEl) videoEl.paused ? videoEl.play() : videoEl.pause();
@@ -841,42 +897,67 @@ export default function ComposerPage() {
                     title="Click to play/pause video"
                   >
                     {videoPreviewUrl ? (
-                      <video src={videoPreviewUrl} className="size-full object-cover" muted />
+                      <video
+                        src={videoPreviewUrl}
+                        className="size-full object-cover"
+                        muted
+                      />
                     ) : (
                       <Play className="size-5 text-white/70" />
                     )}
-                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Play className="size-4 text-white fill-white" />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                      <Play className="size-4 fill-white text-white" />
                     </div>
                   </div>
 
-                  <div className="space-y-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-semibold text-sm text-foreground truncate max-w-[220px] sm:max-w-xs">
+                  <div className="min-w-0 space-y-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="max-w-[220px] truncate text-sm font-semibold text-foreground sm:max-w-xs">
                         {customVideoFile ? customVideoFile.name : selectedProject?.title}
                       </span>
-                      <Badge variant="outline" className="border-emerald-500/40 bg-emerald-500/10 text-emerald-400 text-[10px]">
-                        <CheckCircle2 className="size-2.5 mr-1" /> Ready
+                      <Badge
+                        variant="outline"
+                        className="border-emerald-500/40 bg-emerald-500/10 text-[10px] text-emerald-400"
+                      >
+                        <CheckCircle2 className="mr-1 size-2.5" /> Ready
                       </Badge>
-                      <Badge variant="secondary" className="text-[10px] font-mono">
-                        {(customVideoFile ? customVideoFile.type.replace("video/", "").toUpperCase() : (selectedProject?.aspectRatio === "PORTRAIT_9_16" ? "9:16 Short" : "16:9 Long"))}
+                      <Badge variant="secondary" className="font-mono text-[10px]">
+                        {customVideoFile
+                          ? customVideoFile.type.replace("video/", "").toUpperCase()
+                          : selectedProject?.aspectRatio === "PORTRAIT_9_16"
+                            ? "9:16 Short"
+                            : "16:9 Long"}
                       </Badge>
                     </div>
 
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                       {customVideoFile ? (
                         <>
-                          <span>{(customVideoFile.size / (1024 * 1024)).toFixed(1)} MB</span>
+                          <span>
+                            {(customVideoFile.size / (1024 * 1024)).toFixed(1)} MB
+                          </span>
                           <span>•</span>
-                          <span className="text-primary font-medium">Uploaded from Device</span>
+                          <span className="font-medium text-primary">
+                            Uploaded from Device
+                          </span>
                         </>
                       ) : (
                         <>
-                          <span>{selectedProject?.aspectRatio === "PORTRAIT_9_16" ? "9:16 Vertical" : "16:9 Landscape"}</span>
+                          <span>
+                            {selectedProject?.aspectRatio === "PORTRAIT_9_16"
+                              ? "9:16 Vertical"
+                              : "16:9 Landscape"}
+                          </span>
                           <span>•</span>
-                          <span>{selectedProject?.durationSeconds ? `${selectedProject.durationSeconds}s` : "0:52s"}</span>
+                          <span>
+                            {selectedProject?.durationSeconds
+                              ? `${selectedProject.durationSeconds}s`
+                              : "0:52s"}
+                          </span>
                           <span>•</span>
-                          <span className="text-primary font-medium">AI Studio Project</span>
+                          <span className="font-medium text-primary">
+                            AI Studio Project
+                          </span>
                         </>
                       )}
                     </div>
@@ -884,31 +965,43 @@ export default function ComposerPage() {
                 </div>
 
                 {/* Thumbnail Slot */}
-                <div className="flex items-center gap-2.5 pl-0 xl:pl-4 xl:border-l border-border/70">
+                <div className="flex items-center gap-2.5 border-border/70 pl-0 xl:border-l xl:pl-4">
                   <div
-                    className="relative size-14 rounded-lg bg-neutral-900 border overflow-hidden shrink-0 flex items-center justify-center group cursor-pointer"
+                    className="group relative flex size-14 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-lg border bg-neutral-900"
                     onClick={() => thumbnailInputRef.current?.click()}
                     title="Click to change thumbnail"
                   >
                     {thumbnailUrl ? (
-                      <img src={thumbnailUrl} alt="Thumbnail preview" className="size-full object-cover" />
+                      <img
+                        src={thumbnailUrl}
+                        alt="Thumbnail preview"
+                        className="size-full object-cover"
+                      />
                     ) : (
                       <ImageIcon className="size-5 text-muted-foreground/60" />
                     )}
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-[10px] text-white font-medium transition-opacity">
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-[10px] font-medium text-white opacity-0 transition-opacity group-hover:opacity-100">
                       Change
                     </div>
                   </div>
 
-                  <div className="text-xs space-y-0.5">
+                  <div className="space-y-0.5 text-xs">
                     <div className="flex items-center gap-1.5">
-                      <span className="font-semibold text-foreground text-xs">Thumbnail</span>
+                      <span className="text-xs font-semibold text-foreground">
+                        Thumbnail
+                      </span>
                       {thumbnailUrl ? (
-                        <Badge variant="secondary" className="text-[10px] py-0 px-1.5 h-4 bg-primary/10 text-primary">
+                        <Badge
+                          variant="secondary"
+                          className="h-4 bg-primary/10 px-1.5 py-0 text-[10px] text-primary"
+                        >
                           Attached
                         </Badge>
                       ) : (
-                        <Badge variant="outline" className="text-[10px] py-0 px-1.5 h-4 text-amber-500 border-amber-500/30">
+                        <Badge
+                          variant="outline"
+                          className="h-4 border-amber-500/30 px-1.5 py-0 text-[10px] text-amber-500"
+                        >
                           Not set
                         </Badge>
                       )}
@@ -917,7 +1010,7 @@ export default function ComposerPage() {
                       <button
                         type="button"
                         onClick={() => thumbnailInputRef.current?.click()}
-                        className="text-primary hover:underline cursor-pointer"
+                        className="cursor-pointer text-primary hover:underline"
                       >
                         Upload
                       </button>
@@ -925,7 +1018,7 @@ export default function ComposerPage() {
                       <button
                         type="button"
                         onClick={() => captureThumbnailFromVideo()}
-                        className="text-muted-foreground hover:text-foreground cursor-pointer flex items-center gap-0.5"
+                        className="flex cursor-pointer items-center gap-0.5 text-muted-foreground hover:text-foreground"
                       >
                         <Camera className="size-3" /> Capture frame
                       </button>
@@ -934,7 +1027,7 @@ export default function ComposerPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 w-full xl:w-auto shrink-0 justify-end">
+              <div className="flex w-full shrink-0 items-center justify-end gap-2 xl:w-auto">
                 <Select
                   items={projectItems}
                   value={selectedProjectId}
@@ -943,20 +1036,21 @@ export default function ComposerPage() {
                     if (found) handleSelectProject(found);
                   }}
                 >
-                  <SelectTrigger className="h-8 text-xs min-w-44">
+                  <SelectTrigger className="h-8 min-w-44 text-xs">
                     <SelectValue placeholder="Switch Project" />
                   </SelectTrigger>
                   <SelectContent alignItemWithTrigger={false} className="min-w-56 p-1.5">
                     {projects.map((p) => {
                       const isShort =
-                        (p.durationSeconds ?? 45) <= 60 || p.aspectRatio === "PORTRAIT_9_16";
+                        (p.durationSeconds ?? 45) <= 60 ||
+                        p.aspectRatio === "PORTRAIT_9_16";
                       return (
                         <SelectItem key={p.id} value={p.id}>
                           <div className="flex items-center gap-1.5 py-0.5">
-                            <span className="text-[10px] px-1.5 py-0.2 rounded font-mono font-medium bg-muted text-muted-foreground shrink-0">
+                            <span className="py-0.2 shrink-0 rounded bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
                               {isShort ? "⚡ Short" : "🎬 Long"}
                             </span>
-                            <span className="truncate max-w-[220px]">{p.title}</span>
+                            <span className="max-w-[220px] truncate">{p.title}</span>
                           </div>
                         </SelectItem>
                       );
@@ -968,9 +1062,9 @@ export default function ComposerPage() {
                   size="sm"
                   variant="ghost"
                   onClick={() => fileInputRef.current?.click()}
-                  className="h-8 text-xs text-muted-foreground hover:text-foreground shrink-0 cursor-pointer"
+                  className="h-8 shrink-0 cursor-pointer text-xs text-muted-foreground hover:text-foreground"
                 >
-                  <UploadCloud className="size-3.5 mr-1" /> Replace
+                  <UploadCloud className="mr-1 size-3.5" /> Replace
                 </Button>
                 <Button
                   size="sm"
@@ -983,9 +1077,9 @@ export default function ComposerPage() {
                     setThumbnailFile(null);
                     toast.info("Video and thumbnail cleared");
                   }}
-                  className="h-8 text-xs text-muted-foreground hover:text-destructive shrink-0 cursor-pointer"
+                  className="h-8 shrink-0 cursor-pointer text-xs text-muted-foreground hover:text-destructive"
                 >
-                  <X className="size-3.5 mr-1" /> Remove
+                  <X className="mr-1 size-3.5" /> Remove
                 </Button>
               </div>
             </div>
@@ -1004,19 +1098,22 @@ export default function ComposerPage() {
                 if (f) handleFileSelected(f);
               }}
               className={cn(
-                "border-2 border-dashed rounded-xl p-8 text-center transition-all space-y-3",
+                "space-y-3 rounded-xl border-2 border-dashed p-8 text-center transition-all",
                 isDragOver
-                  ? "border-primary bg-primary/10 scale-[0.99]"
-                  : "border-border hover:border-primary/50 hover:bg-muted/10"
+                  ? "scale-[0.99] border-primary bg-primary/10"
+                  : "border-border hover:border-primary/50 hover:bg-muted/10",
               )}
             >
-              <div className="size-12 rounded-full bg-primary/10 text-primary mx-auto flex items-center justify-center">
+              <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <UploadCloud className="size-6" />
               </div>
               <div className="space-y-1">
-                <p className="text-sm font-semibold text-foreground">No video asset selected</p>
+                <p className="text-sm font-semibold text-foreground">
+                  No video asset selected
+                </p>
                 <p className="text-xs text-muted-foreground">
-                  Upload an MP4, MOV, or WebM video file, or select from your AI Studio rendered projects
+                  Upload an MP4, MOV, or WebM video file, or select from your AI Studio
+                  rendered projects
                 </p>
               </div>
 
@@ -1025,7 +1122,7 @@ export default function ComposerPage() {
                   size="sm"
                   variant="outline"
                   onClick={() => fileInputRef.current?.click()}
-                  className="gap-1.5 text-xs h-8 cursor-pointer"
+                  className="h-8 cursor-pointer gap-1.5 text-xs"
                 >
                   <UploadCloud className="size-3.5" /> Upload Video
                 </Button>
@@ -1039,20 +1136,24 @@ export default function ComposerPage() {
                       if (found) handleSelectProject(found);
                     }}
                   >
-                    <SelectTrigger className="h-8 text-xs min-w-48 bg-background">
+                    <SelectTrigger className="h-8 min-w-48 bg-background text-xs">
                       <SelectValue placeholder="Choose from AI Studio..." />
                     </SelectTrigger>
-                    <SelectContent alignItemWithTrigger={false} className="min-w-56 p-1.5">
+                    <SelectContent
+                      alignItemWithTrigger={false}
+                      className="min-w-56 p-1.5"
+                    >
                       {projects.map((p) => {
                         const isShort =
-                          (p.durationSeconds ?? 45) <= 60 || p.aspectRatio === "PORTRAIT_9_16";
+                          (p.durationSeconds ?? 45) <= 60 ||
+                          p.aspectRatio === "PORTRAIT_9_16";
                         return (
                           <SelectItem key={p.id} value={p.id}>
                             <div className="flex items-center gap-1.5 py-0.5">
-                              <span className="text-[10px] px-1.5 py-0.2 rounded font-mono font-medium bg-muted text-muted-foreground shrink-0">
+                              <span className="py-0.2 shrink-0 rounded bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
                                 {isShort ? "⚡ Short" : "🎬 Long"}
                               </span>
-                              <span className="truncate max-w-[220px]">{p.title}</span>
+                              <span className="max-w-[220px] truncate">{p.title}</span>
                             </div>
                           </SelectItem>
                         );
@@ -1066,10 +1167,11 @@ export default function ComposerPage() {
 
           {/* Uploading progress indicator */}
           {isUploading && (
-            <div className="space-y-1.5 p-3 rounded-lg border bg-muted/20">
+            <div className="space-y-1.5 rounded-lg border bg-muted/20 p-3">
               <div className="flex items-center justify-between text-xs">
                 <span className="flex items-center gap-1.5 font-medium">
-                  <Loader2 className="size-3.5 animate-spin text-primary" /> Processing &amp; Analyzing Media...
+                  <Loader2 className="size-3.5 animate-spin text-primary" /> Processing
+                  &amp; Analyzing Media...
                 </span>
                 <span className="font-mono text-muted-foreground">{uploadProgress}%</span>
               </div>
@@ -1080,9 +1182,9 @@ export default function ComposerPage() {
       </Card>
 
       {/* Target Account Checkbox Bar */}
-      <Card className="border shadow-xs bg-muted/20">
-        <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center gap-2 text-sm font-semibold shrink-0">
+      <Card className="border bg-muted/20 shadow-xs">
+        <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex shrink-0 items-center gap-2 text-sm font-semibold">
             <Layers className="size-4 text-primary" /> Target Platforms:
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -1096,15 +1198,15 @@ export default function ComposerPage() {
                   onClick={() => togglePlatform(p)}
                   title={`${active ? "Selected" : "Click to select"} ${PLATFORM_LABELS[p]}`}
                   className={cn(
-                    "flex items-center gap-2 rounded-xl border px-3 py-1.5 text-xs font-medium transition-all select-none cursor-pointer",
+                    "flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-1.5 text-xs font-medium transition-all select-none",
                     active
-                      ? `${color.bg} ${color.text} ${color.border} shadow-xs font-semibold ring-1 ring-primary/20 hover:opacity-90`
-                      : "border-border bg-background text-foreground/80 hover:bg-muted/50"
+                      ? `${color.bg} ${color.text} ${color.border} font-semibold shadow-xs ring-1 ring-primary/20 hover:opacity-90`
+                      : "border-border bg-background text-foreground/80 hover:bg-muted/50",
                   )}
                 >
                   <PlatformIcon platform={p} />
                   <span>{PLATFORM_LABELS[p]}</span>
-                  {active && <CheckCircle2 className="size-3.5 ml-1 text-primary" />}
+                  {active && <CheckCircle2 className="ml-1 size-3.5 text-primary" />}
                 </button>
               );
             })}
@@ -1114,7 +1216,7 @@ export default function ComposerPage() {
               variant="ghost"
               onClick={() => router.push("/settings/accounts")}
               title="Connect more social channels in Settings"
-              className="h-8 text-xs gap-1 text-muted-foreground hover:text-foreground cursor-pointer"
+              className="h-8 cursor-pointer gap-1 text-xs text-muted-foreground hover:text-foreground"
             >
               <Link2 className="size-3.5" /> + Connect more
             </Button>
@@ -1123,9 +1225,9 @@ export default function ComposerPage() {
       </Card>
 
       {/* Main Studio Grid: 7 cols Form + 5 cols Preview & Checklists */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
         {/* Left: Per-Platform Composer Tabs */}
-        <div className="lg:col-span-7 space-y-6">
+        <div className="space-y-6 lg:col-span-7">
           <Tabs
             value={activeTab}
             onValueChange={(v) => setActiveTab(v as Platform)}
@@ -1133,7 +1235,7 @@ export default function ComposerPage() {
           >
             {selectedPlatforms.length > 0 ? (
               <TabsList
-                className="grid w-full h-11 p-1 bg-muted/60"
+                className="grid h-11 w-full bg-muted/60 p-1"
                 style={{
                   gridTemplateColumns: `repeat(${selectedPlatforms.length}, minmax(0, 1fr))`,
                 }}
@@ -1150,8 +1252,8 @@ export default function ComposerPage() {
                 ))}
               </TabsList>
             ) : (
-              <div className="rounded-xl border border-dashed p-6 text-center space-y-2 bg-muted/10">
-                <AlertCircle className="size-5 text-amber-500 mx-auto" />
+              <div className="space-y-2 rounded-xl border border-dashed bg-muted/10 p-6 text-center">
+                <AlertCircle className="mx-auto size-5 text-amber-500" />
                 <p className="text-sm font-semibold">No Connected Platforms Selected</p>
                 <p className="text-xs text-muted-foreground">
                   Connect YouTube, TikTok, or Facebook in Settings to enable publishing.
@@ -1172,7 +1274,7 @@ export default function ComposerPage() {
               <Card className="border shadow-xs">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-base flex items-center gap-2">
+                    <CardTitle className="flex items-center gap-2 text-base">
                       <PlatformIcon platform="YOUTUBE_SHORTS" /> YouTube Video Details
                     </CardTitle>
                     <Badge variant="outline" className="text-xs">
@@ -1185,10 +1287,11 @@ export default function ComposerPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Video Format Selector */}
-                  <div className="space-y-2 p-3.5 rounded-xl border bg-muted/20">
+                  <div className="space-y-2 rounded-xl border bg-muted/20 p-3.5">
                     <div className="flex items-center justify-between">
-                      <Label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                        <FileVideo className="size-3.5 text-primary" /> Target Video Format
+                      <Label className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                        <FileVideo className="size-3.5 text-primary" /> Target Video
+                        Format
                       </Label>
                       <span className="text-[11px] text-muted-foreground">
                         {platformData.YOUTUBE_SHORTS.videoFormat === "STANDARD_VIDEO"
@@ -1196,57 +1299,65 @@ export default function ComposerPage() {
                           : "Vertical 9:16 • Shorts Shelf"}
                       </span>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                       <button
                         type="button"
                         onClick={() => updateCurrentState({ videoFormat: "SHORTS" })}
                         className={cn(
-                          "flex items-center justify-between p-3 rounded-lg border text-left transition-all cursor-pointer",
+                          "flex cursor-pointer items-center justify-between rounded-lg border p-3 text-left transition-all",
                           platformData.YOUTUBE_SHORTS.videoFormat !== "STANDARD_VIDEO"
-                            ? "border-primary bg-primary/10 text-primary font-semibold ring-1 ring-primary/20 shadow-xs"
-                            : "border-border bg-background text-muted-foreground hover:bg-muted/50"
+                            ? "border-primary bg-primary/10 font-semibold text-primary shadow-xs ring-1 ring-primary/20"
+                            : "border-border bg-background text-muted-foreground hover:bg-muted/50",
                         )}
                       >
                         <div className="space-y-0.5">
                           <div className="flex items-center gap-1.5 text-xs font-semibold">
                             <span>⚡</span> YouTube Shorts
                           </div>
-                          <p className="text-[10px] text-muted-foreground">Vertical (9:16), under 3 min</p>
+                          <p className="text-[10px] text-muted-foreground">
+                            Vertical (9:16), under 3 min
+                          </p>
                         </div>
                         {platformData.YOUTUBE_SHORTS.videoFormat !== "STANDARD_VIDEO" && (
-                          <CheckCircle2 className="size-4 text-primary shrink-0" />
+                          <CheckCircle2 className="size-4 shrink-0 text-primary" />
                         )}
                       </button>
 
                       <button
                         type="button"
-                        onClick={() => updateCurrentState({ videoFormat: "STANDARD_VIDEO" })}
+                        onClick={() =>
+                          updateCurrentState({ videoFormat: "STANDARD_VIDEO" })
+                        }
                         className={cn(
-                          "flex items-center justify-between p-3 rounded-lg border text-left transition-all cursor-pointer",
+                          "flex cursor-pointer items-center justify-between rounded-lg border p-3 text-left transition-all",
                           platformData.YOUTUBE_SHORTS.videoFormat === "STANDARD_VIDEO"
-                            ? "border-primary bg-primary/10 text-primary font-semibold ring-1 ring-primary/20 shadow-xs"
-                            : "border-border bg-background text-muted-foreground hover:bg-muted/50"
+                            ? "border-primary bg-primary/10 font-semibold text-primary shadow-xs ring-1 ring-primary/20"
+                            : "border-border bg-background text-muted-foreground hover:bg-muted/50",
                         )}
                       >
                         <div className="space-y-0.5">
                           <div className="flex items-center gap-1.5 text-xs font-semibold">
                             <span>🎬</span> Long-Form Video
                           </div>
-                          <p className="text-[10px] text-muted-foreground">Standard 16:9 widescreen</p>
+                          <p className="text-[10px] text-muted-foreground">
+                            Standard 16:9 widescreen
+                          </p>
                         </div>
                         {platformData.YOUTUBE_SHORTS.videoFormat === "STANDARD_VIDEO" && (
-                          <CheckCircle2 className="size-4 text-primary shrink-0" />
+                          <CheckCircle2 className="size-4 shrink-0 text-primary" />
                         )}
                       </button>
                     </div>
                   </div>
 
                   {/* Dedicated Custom Thumbnail Section */}
-                  <div className="space-y-2.5 p-3.5 rounded-xl border bg-muted/20">
+                  <div className="space-y-2.5 rounded-xl border bg-muted/20 p-3.5">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
                         <ImageIcon className="size-4 text-primary" />
-                        <Label className="text-xs font-semibold text-foreground">Video Thumbnail</Label>
+                        <Label className="text-xs font-semibold text-foreground">
+                          Video Thumbnail
+                        </Label>
                       </div>
                       <span className="text-[11px] text-muted-foreground">
                         {platformData.YOUTUBE_SHORTS.videoFormat === "STANDARD_VIDEO"
@@ -1255,38 +1366,42 @@ export default function ComposerPage() {
                       </span>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 pt-1">
+                    <div className="flex flex-col items-start gap-3 pt-1 sm:flex-row sm:items-center">
                       <div
                         className={cn(
-                          "relative rounded-lg bg-neutral-900 border overflow-hidden shrink-0 flex items-center justify-center group cursor-pointer",
+                          "group relative flex shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-lg border bg-neutral-900",
                           platformData.YOUTUBE_SHORTS.videoFormat === "STANDARD_VIDEO"
-                            ? "w-28 aspect-video"
-                            : "w-16 aspect-[9/16]"
+                            ? "aspect-video w-28"
+                            : "aspect-[9/16] w-16",
                         )}
                         onClick={() => thumbnailInputRef.current?.click()}
                         title="Click to choose a custom thumbnail"
                       >
                         {thumbnailUrl ? (
-                          <img src={thumbnailUrl} alt="Thumbnail preview" className="size-full object-cover" />
+                          <img
+                            src={thumbnailUrl}
+                            alt="Thumbnail preview"
+                            className="size-full object-cover"
+                          />
                         ) : (
-                          <div className="text-center p-2 text-muted-foreground">
-                            <ImageIcon className="size-5 mx-auto opacity-50" />
-                            <span className="text-[9px] block mt-1">No Image</span>
+                          <div className="p-2 text-center text-muted-foreground">
+                            <ImageIcon className="mx-auto size-5 opacity-50" />
+                            <span className="mt-1 block text-[9px]">No Image</span>
                           </div>
                         )}
-                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-[11px] text-white font-medium transition-opacity">
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-[11px] font-medium text-white opacity-0 transition-opacity group-hover:opacity-100">
                           Replace
                         </div>
                       </div>
 
-                      <div className="space-y-1.5 flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
+                      <div className="min-w-0 flex-1 space-y-1.5">
+                        <div className="flex flex-wrap items-center gap-2">
                           <Button
                             type="button"
                             size="sm"
                             variant="outline"
                             onClick={() => thumbnailInputRef.current?.click()}
-                            className="h-8 text-xs gap-1.5 cursor-pointer"
+                            className="h-8 cursor-pointer gap-1.5 text-xs"
                           >
                             <UploadCloud className="size-3.5" />
                             {thumbnailUrl ? "Change Image" : "Upload File"}
@@ -1296,7 +1411,7 @@ export default function ComposerPage() {
                             size="sm"
                             variant="outline"
                             onClick={() => captureThumbnailFromVideo()}
-                            className="h-8 text-xs gap-1.5 cursor-pointer"
+                            className="h-8 cursor-pointer gap-1.5 text-xs"
                           >
                             <Camera className="size-3.5" />
                             Select from Video
@@ -1311,15 +1426,16 @@ export default function ComposerPage() {
                                 setThumbnailFile(null);
                                 toast.info("Thumbnail removed");
                               }}
-                              className="h-8 text-xs text-muted-foreground hover:text-destructive cursor-pointer"
+                              className="h-8 cursor-pointer text-xs text-muted-foreground hover:text-destructive"
                             >
-                              <X className="size-3.5 mr-1" />
+                              <X className="mr-1 size-3.5" />
                               Remove
                             </Button>
                           )}
                         </div>
                         <p className="text-[11px] text-muted-foreground">
-                          Recommended: 1280x720 (16:9), under 2MB. Format: JPG, PNG, or WebP.
+                          Recommended: 1280x720 (16:9), under 2MB. Format: JPG, PNG, or
+                          WebP.
                         </p>
                       </div>
                     </div>
@@ -1328,15 +1444,22 @@ export default function ComposerPage() {
                   {/* Focus Keyword */}
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="yt-keyword" className="text-xs font-semibold text-primary">
+                      <Label
+                        htmlFor="yt-keyword"
+                        className="text-xs font-semibold text-primary"
+                      >
                         Focus SEO Keyword
                       </Label>
-                      <span className="text-[11px] text-muted-foreground">Used for SEO scoring</span>
+                      <span className="text-[11px] text-muted-foreground">
+                        Used for SEO scoring
+                      </span>
                     </div>
                     <Input
                       id="yt-keyword"
                       value={platformData.YOUTUBE_SHORTS.focusKeyword}
-                      onChange={(e) => updateCurrentState({ focusKeyword: e.target.value })}
+                      onChange={(e) =>
+                        updateCurrentState({ focusKeyword: e.target.value })
+                      }
                       placeholder="e.g. productivity, tech, marketing"
                       className="h-9"
                     />
@@ -1374,7 +1497,9 @@ export default function ComposerPage() {
                   {/* Tags */}
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="yt-tags">Tags (Comma-separated, Max 500 chars)</Label>
+                      <Label htmlFor="yt-tags">
+                        Tags (Comma-separated, Max 500 chars)
+                      </Label>
                       <span className="text-[11px] text-muted-foreground">
                         {platformData.YOUTUBE_SHORTS.tagsInput.length}/500 chars
                       </span>
@@ -1388,27 +1513,35 @@ export default function ComposerPage() {
                   </div>
 
                   {/* YouTube Specific Options */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t">
+                  <div className="grid grid-cols-1 gap-4 border-t pt-3 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                      <Label className="text-xs font-medium text-foreground">Visibility</Label>
+                      <Label className="text-xs font-medium text-foreground">
+                        Visibility
+                      </Label>
                       <Select
                         items={YOUTUBE_VISIBILITY_ITEMS}
                         value={platformData.YOUTUBE_SHORTS.privacy}
                         onValueChange={(v) =>
-                          v && updateCurrentState({ privacy: v as "PUBLIC" | "UNLISTED" | "PRIVATE" })
+                          v &&
+                          updateCurrentState({
+                            privacy: v as "PUBLIC" | "UNLISTED" | "PRIVATE",
+                          })
                         }
                       >
                         <SelectTrigger className="h-9 w-full justify-between">
                           <SelectValue placeholder="Select visibility" />
                         </SelectTrigger>
-                        <SelectContent alignItemWithTrigger={false} className="min-w-[240px] p-1.5">
-                          <SelectItem value="PUBLIC" className="py-2 px-3">
+                        <SelectContent
+                          alignItemWithTrigger={false}
+                          className="min-w-[240px] p-1.5"
+                        >
+                          <SelectItem value="PUBLIC" className="px-3 py-2">
                             Public (Instant Release)
                           </SelectItem>
-                          <SelectItem value="UNLISTED" className="py-2 px-3">
+                          <SelectItem value="UNLISTED" className="px-3 py-2">
                             Unlisted (Anyone with link)
                           </SelectItem>
-                          <SelectItem value="PRIVATE" className="py-2 px-3">
+                          <SelectItem value="PRIVATE" className="px-3 py-2">
                             Private (Only you)
                           </SelectItem>
                         </SelectContent>
@@ -1416,20 +1549,29 @@ export default function ComposerPage() {
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label className="text-xs font-medium text-foreground">Audience Setting</Label>
+                      <Label className="text-xs font-medium text-foreground">
+                        Audience Setting
+                      </Label>
                       <Select
                         items={YOUTUBE_AUDIENCE_ITEMS}
-                        value={platformData.YOUTUBE_SHORTS.madeForKids ? "kids" : "not_kids"}
-                        onValueChange={(v) => updateCurrentState({ madeForKids: v === "kids" })}
+                        value={
+                          platformData.YOUTUBE_SHORTS.madeForKids ? "kids" : "not_kids"
+                        }
+                        onValueChange={(v) =>
+                          updateCurrentState({ madeForKids: v === "kids" })
+                        }
                       >
                         <SelectTrigger className="h-9 w-full justify-between">
                           <SelectValue placeholder="Select audience" />
                         </SelectTrigger>
-                        <SelectContent alignItemWithTrigger={false} className="min-w-[260px] p-1.5">
-                          <SelectItem value="not_kids" className="py-2 px-3">
+                        <SelectContent
+                          alignItemWithTrigger={false}
+                          className="min-w-[260px] p-1.5"
+                        >
+                          <SelectItem value="not_kids" className="px-3 py-2">
                             No, it&apos;s not made for kids
                           </SelectItem>
-                          <SelectItem value="kids" className="py-2 px-3">
+                          <SelectItem value="kids" className="px-3 py-2">
                             Yes, it&apos;s made for kids
                           </SelectItem>
                         </SelectContent>
@@ -1440,37 +1582,46 @@ export default function ComposerPage() {
               </Card>
 
               {/* YouTube SEO Checklist */}
-              <Card className="border shadow-xs bg-muted/10">
+              <Card className="border bg-muted/10 shadow-xs">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                    <CardTitle className="flex items-center gap-2 text-sm font-semibold">
                       <Sparkles className="size-4 text-primary" /> YouTube SEO Checklist
                     </CardTitle>
                     <Badge
                       variant={youtubeChecklist.score >= 80 ? "default" : "secondary"}
                       className={cn(
                         "font-mono font-bold",
-                        youtubeChecklist.score >= 80 ? "bg-emerald-600 text-white" : "text-amber-500"
+                        youtubeChecklist.score >= 80
+                          ? "bg-emerald-600 text-white"
+                          : "text-amber-500",
                       )}
                     >
                       Score: {youtubeChecklist.score}/100
                     </Badge>
                   </div>
-                  <Progress value={youtubeChecklist.score} className="h-2 mt-2" />
+                  <Progress value={youtubeChecklist.score} className="mt-2 h-2" />
                 </CardHeader>
                 <CardContent className="space-y-2.5 pt-0">
                   {youtubeChecklist.items.map((item) => (
                     <div key={item.id} className="flex items-start gap-2 text-xs">
                       {item.passed ? (
-                        <CheckCircle2 className="size-4 text-emerald-500 shrink-0 mt-0.5" />
+                        <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-500" />
                       ) : (
-                        <XCircle className="size-4 text-muted-foreground/60 shrink-0 mt-0.5" />
+                        <XCircle className="mt-0.5 size-4 shrink-0 text-muted-foreground/60" />
                       )}
-                      <div className="flex-1 min-w-0">
-                        <p className={cn("font-medium", item.passed ? "text-foreground" : "text-muted-foreground")}>
+                      <div className="min-w-0 flex-1">
+                        <p
+                          className={cn(
+                            "font-medium",
+                            item.passed ? "text-foreground" : "text-muted-foreground",
+                          )}
+                        >
                           {item.label}
                         </p>
-                        <p className="text-[10px] text-muted-foreground truncate">{item.hint}</p>
+                        <p className="truncate text-[10px] text-muted-foreground">
+                          {item.hint}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -1483,7 +1634,7 @@ export default function ComposerPage() {
               <Card className="border shadow-xs">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-base flex items-center gap-2">
+                    <CardTitle className="flex items-center gap-2 text-base">
                       <PlatformIcon platform="TIKTOK" /> TikTok Post Options
                     </CardTitle>
                     <Badge variant="outline" className="text-xs">
@@ -1491,26 +1642,32 @@ export default function ComposerPage() {
                     </Badge>
                   </div>
                   <CardDescription>
-                    Vertical 9:16 video rules, first-line hooks, and TikTok audit policies.
+                    Vertical 9:16 video rules, first-line hooks, and TikTok audit
+                    policies.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Audit Warning Notice */}
                   <div className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200">
-                    <ShieldAlert className="size-5 text-amber-400 shrink-0 mt-0.5" />
+                    <ShieldAlert className="mt-0.5 size-5 shrink-0 text-amber-400" />
                     <div>
-                      <p className="font-semibold text-amber-300">TikTok API Audit Notice</p>
-                      <p className="text-muted-foreground mt-0.5 leading-relaxed">
-                        Until ClipFlow passes TikTok&apos;s direct public posting audit, all posts
-                        will be published as <strong>Private</strong> in your TikTok inbox. You can
-                        switch them to Public directly inside the TikTok app.
+                      <p className="font-semibold text-amber-300">
+                        TikTok API Audit Notice
+                      </p>
+                      <p className="mt-0.5 leading-relaxed text-muted-foreground">
+                        Until ClipFlow passes TikTok&apos;s direct public posting audit,
+                        all posts will be published as <strong>Private</strong> in your
+                        TikTok inbox. You can switch them to Public directly inside the
+                        TikTok app.
                       </p>
                     </div>
                   </div>
 
                   {/* Caption */}
                   <div className="space-y-1.5">
-                    <Label htmlFor="tt-caption">Caption &amp; Hashtags (Hook First)</Label>
+                    <Label htmlFor="tt-caption">
+                      Caption &amp; Hashtags (Hook First)
+                    </Label>
                     <Textarea
                       id="tt-caption"
                       value={platformData.TIKTOK.caption}
@@ -1521,10 +1678,12 @@ export default function ComposerPage() {
                   </div>
 
                   {/* Regulatory Switches */}
-                  <div className="space-y-3 pt-2 border-t">
+                  <div className="space-y-3 border-t pt-2">
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
-                        <Label className="text-sm font-medium">Commercial Content Disclosure</Label>
+                        <Label className="text-sm font-medium">
+                          Commercial Content Disclosure
+                        </Label>
                         <p className="text-xs text-muted-foreground">
                           Disclose brand partnership or promotional content
                         </p>
@@ -1539,14 +1698,18 @@ export default function ComposerPage() {
 
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
-                        <Label className="text-sm font-medium">AI-Generated Content Label</Label>
+                        <Label className="text-sm font-medium">
+                          AI-Generated Content Label
+                        </Label>
                         <p className="text-xs text-muted-foreground">
                           Add the official TikTok badge for AI-generated visuals or audio
                         </p>
                       </div>
                       <Switch
                         checked={platformData.TIKTOK.aiLabel}
-                        onCheckedChange={(checked) => updateCurrentState({ aiLabel: checked })}
+                        onCheckedChange={(checked) =>
+                          updateCurrentState({ aiLabel: checked })
+                        }
                       />
                     </div>
                   </div>
@@ -1554,9 +1717,9 @@ export default function ComposerPage() {
               </Card>
 
               {/* TikTok Best Practice Checklist */}
-              <Card className="border shadow-xs bg-muted/10">
+              <Card className="border bg-muted/10 shadow-xs">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-sm font-semibold">
                     <PlatformIcon platform="TIKTOK" /> TikTok Best Practice Checklist
                   </CardTitle>
                 </CardHeader>
@@ -1564,15 +1727,22 @@ export default function ComposerPage() {
                   {tiktokChecklist.map((item) => (
                     <div key={item.id} className="flex items-start gap-2 text-xs">
                       {item.passed ? (
-                        <CheckCircle2 className="size-4 text-emerald-500 shrink-0 mt-0.5" />
+                        <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-500" />
                       ) : (
-                        <XCircle className="size-4 text-amber-500 shrink-0 mt-0.5" />
+                        <XCircle className="mt-0.5 size-4 shrink-0 text-amber-500" />
                       )}
-                      <div className="flex-1 min-w-0">
-                        <p className={cn("font-medium", item.passed ? "text-foreground" : "text-muted-foreground")}>
+                      <div className="min-w-0 flex-1">
+                        <p
+                          className={cn(
+                            "font-medium",
+                            item.passed ? "text-foreground" : "text-muted-foreground",
+                          )}
+                        >
                           {item.label}
                         </p>
-                        <p className="text-[10px] text-muted-foreground truncate">{item.hint}</p>
+                        <p className="truncate text-[10px] text-muted-foreground">
+                          {item.hint}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -1585,7 +1755,7 @@ export default function ComposerPage() {
               <Card className="border shadow-xs">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-base flex items-center gap-2">
+                    <CardTitle className="flex items-center gap-2 text-base">
                       <PlatformIcon platform="INSTAGRAM_REELS" /> Instagram Reels Settings
                     </CardTitle>
                     <Badge variant="outline" className="text-xs">
@@ -1599,7 +1769,9 @@ export default function ComposerPage() {
                 <CardContent className="space-y-4">
                   {/* Caption */}
                   <div className="space-y-1.5">
-                    <Label htmlFor="ig-caption">Caption &amp; Hashtags (3-10 recommended)</Label>
+                    <Label htmlFor="ig-caption">
+                      Caption &amp; Hashtags (3-10 recommended)
+                    </Label>
                     <Textarea
                       id="ig-caption"
                       value={platformData.INSTAGRAM_REELS.caption}
@@ -1620,25 +1792,29 @@ export default function ComposerPage() {
                   </div>
 
                   {/* Share to Feed Toggle */}
-                  <div className="flex items-center justify-between pt-2 border-t">
+                  <div className="flex items-center justify-between border-t pt-2">
                     <div className="space-y-0.5">
-                      <Label className="text-sm font-medium">Also Share to Profile Feed</Label>
+                      <Label className="text-sm font-medium">
+                        Also Share to Profile Feed
+                      </Label>
                       <p className="text-xs text-muted-foreground">
                         Show this Reel on your main profile grid as well as the Reels tab
                       </p>
                     </div>
                     <Switch
                       checked={platformData.INSTAGRAM_REELS.shareToFeed}
-                      onCheckedChange={(checked) => updateCurrentState({ shareToFeed: checked })}
+                      onCheckedChange={(checked) =>
+                        updateCurrentState({ shareToFeed: checked })
+                      }
                     />
                   </div>
                 </CardContent>
               </Card>
 
               {/* Instagram Reels Checklist */}
-              <Card className="border shadow-xs bg-muted/10">
+              <Card className="border bg-muted/10 shadow-xs">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-sm font-semibold">
                     <PlatformIcon platform="INSTAGRAM_REELS" /> Instagram Reels Checklist
                   </CardTitle>
                 </CardHeader>
@@ -1646,15 +1822,22 @@ export default function ComposerPage() {
                   {instagramChecklist.map((item) => (
                     <div key={item.id} className="flex items-start gap-2 text-xs">
                       {item.passed ? (
-                        <CheckCircle2 className="size-4 text-emerald-500 shrink-0 mt-0.5" />
+                        <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-500" />
                       ) : (
-                        <XCircle className="size-4 text-amber-500 shrink-0 mt-0.5" />
+                        <XCircle className="mt-0.5 size-4 shrink-0 text-amber-500" />
                       )}
-                      <div className="flex-1 min-w-0">
-                        <p className={cn("font-medium", item.passed ? "text-foreground" : "text-muted-foreground")}>
+                      <div className="min-w-0 flex-1">
+                        <p
+                          className={cn(
+                            "font-medium",
+                            item.passed ? "text-foreground" : "text-muted-foreground",
+                          )}
+                        >
                           {item.label}
                         </p>
-                        <p className="text-[10px] text-muted-foreground truncate">{item.hint}</p>
+                        <p className="truncate text-[10px] text-muted-foreground">
+                          {item.hint}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -1666,7 +1849,7 @@ export default function ComposerPage() {
             <TabsContent value="FACEBOOK" className="space-y-5 pt-4">
               <Card className="border shadow-xs">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-base">
                     <PlatformIcon platform="FACEBOOK" /> Facebook Video Post
                   </CardTitle>
                   <CardDescription>
@@ -1695,9 +1878,9 @@ export default function ComposerPage() {
               </Card>
 
               {/* Facebook Best Practice Checklist */}
-              <Card className="border shadow-xs bg-muted/10">
+              <Card className="border bg-muted/10 shadow-xs">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-sm font-semibold">
                     <PlatformIcon platform="FACEBOOK" /> Facebook Best Practice Checklist
                   </CardTitle>
                 </CardHeader>
@@ -1705,15 +1888,22 @@ export default function ComposerPage() {
                   {facebookChecklist.map((item) => (
                     <div key={item.id} className="flex items-start gap-2 text-xs">
                       {item.passed ? (
-                        <CheckCircle2 className="size-4 text-emerald-500 shrink-0 mt-0.5" />
+                        <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-500" />
                       ) : (
-                        <XCircle className="size-4 text-amber-500 shrink-0 mt-0.5" />
+                        <XCircle className="mt-0.5 size-4 shrink-0 text-amber-500" />
                       )}
-                      <div className="flex-1 min-w-0">
-                        <p className={cn("font-medium", item.passed ? "text-foreground" : "text-muted-foreground")}>
+                      <div className="min-w-0 flex-1">
+                        <p
+                          className={cn(
+                            "font-medium",
+                            item.passed ? "text-foreground" : "text-muted-foreground",
+                          )}
+                        >
                           {item.label}
                         </p>
-                        <p className="text-[10px] text-muted-foreground truncate">{item.hint}</p>
+                        <p className="truncate text-[10px] text-muted-foreground">
+                          {item.hint}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -1725,7 +1915,7 @@ export default function ComposerPage() {
             <TabsContent value="LINKEDIN" className="space-y-5 pt-4">
               <Card className="border shadow-xs">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-base">
                     <PlatformIcon platform="LINKEDIN" /> LinkedIn Professional Commentary
                   </CardTitle>
                   <CardDescription>
@@ -1734,22 +1924,30 @@ export default function ComposerPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-medium text-foreground">Publishing Target</Label>
+                    <Label className="text-xs font-medium text-foreground">
+                      Publishing Target
+                    </Label>
                     <Select
                       items={LINKEDIN_TARGET_ITEMS}
                       value={platformData.LINKEDIN.targetType}
                       onValueChange={(v) =>
-                        v && updateCurrentState({ targetType: v as "PERSONAL_PROFILE" | "COMPANY_PAGE" })
+                        v &&
+                        updateCurrentState({
+                          targetType: v as "PERSONAL_PROFILE" | "COMPANY_PAGE",
+                        })
                       }
                     >
                       <SelectTrigger className="h-9 w-full justify-between">
                         <SelectValue placeholder="Select target" />
                       </SelectTrigger>
-                      <SelectContent alignItemWithTrigger={false} className="min-w-[280px] p-1.5">
-                        <SelectItem value="COMPANY_PAGE" className="py-2 px-3">
+                      <SelectContent
+                        alignItemWithTrigger={false}
+                        className="min-w-[280px] p-1.5"
+                      >
+                        <SelectItem value="COMPANY_PAGE" className="px-3 py-2">
                           Company Page (ClipFlow Media)
                         </SelectItem>
-                        <SelectItem value="PERSONAL_PROFILE" className="py-2 px-3">
+                        <SelectItem value="PERSONAL_PROFILE" className="px-3 py-2">
                           Personal Profile (Author)
                         </SelectItem>
                       </SelectContent>
@@ -1757,7 +1955,9 @@ export default function ComposerPage() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label htmlFor="li-caption">Commentary &amp; Thought Leadership</Label>
+                    <Label htmlFor="li-caption">
+                      Commentary &amp; Thought Leadership
+                    </Label>
                     <Textarea
                       id="li-caption"
                       value={platformData.LINKEDIN.caption}
@@ -1769,9 +1969,9 @@ export default function ComposerPage() {
               </Card>
 
               {/* LinkedIn Optimization Checklist */}
-              <Card className="border shadow-xs bg-muted/10">
+              <Card className="border bg-muted/10 shadow-xs">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-sm font-semibold">
                     <PlatformIcon platform="LINKEDIN" /> LinkedIn Optimization Checklist
                   </CardTitle>
                 </CardHeader>
@@ -1779,15 +1979,22 @@ export default function ComposerPage() {
                   {linkedinChecklist.map((item) => (
                     <div key={item.id} className="flex items-start gap-2 text-xs">
                       {item.passed ? (
-                        <CheckCircle2 className="size-4 text-emerald-500 shrink-0 mt-0.5" />
+                        <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-500" />
                       ) : (
-                        <XCircle className="size-4 text-amber-500 shrink-0 mt-0.5" />
+                        <XCircle className="mt-0.5 size-4 shrink-0 text-amber-500" />
                       )}
-                      <div className="flex-1 min-w-0">
-                        <p className={cn("font-medium", item.passed ? "text-foreground" : "text-muted-foreground")}>
+                      <div className="min-w-0 flex-1">
+                        <p
+                          className={cn(
+                            "font-medium",
+                            item.passed ? "text-foreground" : "text-muted-foreground",
+                          )}
+                        >
                           {item.label}
                         </p>
-                        <p className="text-[10px] text-muted-foreground truncate">{item.hint}</p>
+                        <p className="truncate text-[10px] text-muted-foreground">
+                          {item.hint}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -1798,74 +2005,94 @@ export default function ComposerPage() {
         </div>
 
         {/* Right: Live Preview Mockup */}
-        <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-6">
+        <div className="space-y-6 lg:sticky lg:top-6 lg:col-span-5">
           {/* Smartphone / Player Live Preview Mockup */}
-          <Card className="border shadow-md overflow-hidden bg-neutral-950 text-white border-neutral-800">
-            <CardHeader className="pb-2 flex flex-row items-center justify-between border-b border-neutral-800">
+          <Card className="overflow-hidden border border-neutral-800 bg-neutral-950 text-white shadow-md">
+            <CardHeader className="flex flex-row items-center justify-between border-b border-neutral-800 pb-2">
               <div className="flex items-center gap-2">
                 <PlatformIcon platform={activeTab} />
-                <span className="text-xs font-semibold uppercase tracking-wider text-neutral-300">
+                <span className="text-xs font-semibold tracking-wider text-neutral-300 uppercase">
                   {PLATFORM_LABELS[activeTab]} Preview
                 </span>
               </div>
-              <Badge variant="outline" className="text-[10px] border-neutral-700 text-neutral-400">
-                {activeTab === "YOUTUBE_SHORTS" && currentPlatformState.videoFormat === "STANDARD_VIDEO"
+              <Badge
+                variant="outline"
+                className="border-neutral-700 text-[10px] text-neutral-400"
+              >
+                {activeTab === "YOUTUBE_SHORTS" &&
+                currentPlatformState.videoFormat === "STANDARD_VIDEO"
                   ? "16:9 Widescreen"
                   : "Mobile Feed (9:16)"}
               </Badge>
             </CardHeader>
 
-            <CardContent className="p-4 flex flex-col items-center">
-              {activeTab === "YOUTUBE_SHORTS" && currentPlatformState.videoFormat === "STANDARD_VIDEO" ? (
+            <CardContent className="flex flex-col items-center p-4">
+              {activeTab === "YOUTUBE_SHORTS" &&
+              currentPlatformState.videoFormat === "STANDARD_VIDEO" ? (
                 /* 16:9 YouTube Desktop/Landscape Video Preview */
                 <div className="w-full space-y-3">
-                  <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-neutral-900 border border-neutral-800 shadow-xl group">
+                  <div className="group relative aspect-video w-full overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900 shadow-xl">
                     {thumbnailUrl ? (
-                      <img src={thumbnailUrl} alt="YouTube thumbnail" className="size-full object-cover" />
+                      <img
+                        src={thumbnailUrl}
+                        alt="YouTube thumbnail"
+                        className="size-full object-cover"
+                      />
                     ) : videoPreviewUrl ? (
-                      <video src={videoPreviewUrl} autoPlay loop muted playsInline className="size-full object-cover" />
+                      <video
+                        src={videoPreviewUrl}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="size-full object-cover"
+                      />
                     ) : (
-                      <div className="size-full flex flex-col items-center justify-center text-center p-4">
-                        <FileVideo className="size-8 text-neutral-600 mb-1" />
-                        <span className="text-xs text-neutral-500 font-medium">16:9 Landscape Video</span>
+                      <div className="flex size-full flex-col items-center justify-center p-4 text-center">
+                        <FileVideo className="mb-1 size-8 text-neutral-600" />
+                        <span className="text-xs font-medium text-neutral-500">
+                          16:9 Landscape Video
+                        </span>
                       </div>
                     )}
                     {/* Duration badge */}
-                    <span className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-black/85 text-[10px] font-mono text-white font-medium">
+                    <span className="absolute right-2 bottom-2 rounded bg-black/85 px-1.5 py-0.5 font-mono text-[10px] font-medium text-white">
                       {selectedProject?.durationSeconds
                         ? `${Math.floor(selectedProject.durationSeconds / 60)}:${String(selectedProject.durationSeconds % 60).padStart(2, "0")}`
                         : "0:52"}
                     </span>
                     {/* Play icon overlay on hover */}
-                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                      <div className="size-11 rounded-full bg-red-600 flex items-center justify-center shadow-lg">
-                        <Play className="size-5 text-white fill-white ml-0.5" />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 transition-opacity group-hover:opacity-100">
+                      <div className="flex size-11 items-center justify-center rounded-full bg-red-600 shadow-lg">
+                        <Play className="ml-0.5 size-5 fill-white text-white" />
                       </div>
                     </div>
                   </div>
 
                   {/* YouTube Video Info Block */}
                   <div className="flex items-start gap-2.5">
-                    <div className="size-9 rounded-full bg-red-600 shrink-0 flex items-center justify-center font-bold text-xs text-white">
+                    <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white">
                       CF
                     </div>
-                    <div className="space-y-1 min-w-0 flex-1">
-                      <h4 className="text-xs font-semibold text-white line-clamp-2 leading-snug">
-                        {currentPlatformState.title || "Your YouTube Video Title will appear here"}
+                    <div className="min-w-0 flex-1 space-y-1">
+                      <h4 className="line-clamp-2 text-xs leading-snug font-semibold text-white">
+                        {currentPlatformState.title ||
+                          "Your YouTube Video Title will appear here"}
                       </h4>
-                      <p className="text-[11px] text-neutral-400 flex items-center gap-1">
+                      <p className="flex items-center gap-1 text-[11px] text-neutral-400">
                         <span>ClipFlow Media</span>
                         <span>•</span>
                         <span>14.8K views</span>
                         <span>•</span>
                         <span>Just now</span>
                       </p>
-                      <p className="text-[11px] text-neutral-400 line-clamp-2 pt-0.5">
-                        {currentPlatformState.caption || "Video description and chapters will display here..."}
+                      <p className="line-clamp-2 pt-0.5 text-[11px] text-neutral-400">
+                        {currentPlatformState.caption ||
+                          "Video description and chapters will display here..."}
                       </p>
                       {currentPlatformState.focusKeyword && (
                         <div className="pt-1">
-                          <span className="text-[10px] text-blue-400 font-medium">
+                          <span className="text-[10px] font-medium text-blue-400">
                             #{currentPlatformState.focusKeyword} #ClipFlow
                           </span>
                         </div>
@@ -1875,8 +2102,8 @@ export default function ComposerPage() {
                 </div>
               ) : (
                 /* 9:16 Video Canvas */
-                <div className="relative w-full max-w-[270px] rounded-2xl overflow-hidden border-4 border-neutral-800 shadow-2xl bg-black">
-                  <div className="relative w-full aspect-[9/16] bg-gradient-to-b from-neutral-800 via-neutral-900 to-black flex flex-col justify-between p-3.5">
+                <div className="relative w-full max-w-[270px] overflow-hidden rounded-2xl border-4 border-neutral-800 bg-black shadow-2xl">
+                  <div className="relative flex aspect-[9/16] w-full flex-col justify-between bg-gradient-to-b from-neutral-800 via-neutral-900 to-black p-3.5">
                     {/* Platform Header */}
                     <div className="flex items-center justify-between text-[11px] text-white/90">
                       <span className="font-semibold">{PLATFORM_LABELS[activeTab]}</span>
@@ -1891,13 +2118,17 @@ export default function ComposerPage() {
                         loop
                         muted
                         playsInline
-                        className="absolute inset-0 size-full object-cover -z-0 opacity-80"
+                        className="absolute inset-0 -z-0 size-full object-cover opacity-80"
                       />
                     ) : thumbnailUrl ? (
-                      <img src={thumbnailUrl} alt="Thumbnail preview" className="absolute inset-0 size-full object-cover -z-0 opacity-80" />
+                      <img
+                        src={thumbnailUrl}
+                        alt="Thumbnail preview"
+                        className="absolute inset-0 -z-0 size-full object-cover opacity-80"
+                      />
                     ) : (
-                      <div className="my-auto text-center space-y-1.5 z-10 px-4">
-                        <div className="size-11 rounded-full bg-white/10 backdrop-blur mx-auto flex items-center justify-center">
+                      <div className="z-10 my-auto space-y-1.5 px-4 text-center">
+                        <div className="mx-auto flex size-11 items-center justify-center rounded-full bg-white/10 backdrop-blur">
                           <FileVideo className="size-5 text-white/50" />
                         </div>
                         <p className="text-[11px] font-semibold text-white/80">
@@ -1910,24 +2141,31 @@ export default function ComposerPage() {
                     )}
 
                     {/* Platform Overlay Chrome */}
-                    <div className="space-y-2 z-10 bg-gradient-to-t from-black/90 via-black/40 to-transparent pt-6 -mx-3.5 -mb-3.5 p-3.5">
+                    <div className="z-10 -mx-3.5 -mb-3.5 space-y-2 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-3.5 pt-6">
                       <div className="flex items-center gap-2">
-                        <div className="size-6 rounded-full bg-primary flex items-center justify-center text-[10px] font-bold text-white">
+                        <div className="flex size-6 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
                           CF
                         </div>
-                        <span className="text-xs font-semibold text-white">@clipflow</span>
+                        <span className="text-xs font-semibold text-white">
+                          @clipflow
+                        </span>
                       </div>
 
-                      <p className="text-[11px] text-white/95 line-clamp-2 leading-snug">
-                        {currentPlatformState.caption || "Your post caption will appear here..."}
+                      <p className="line-clamp-2 text-[11px] leading-snug text-white/95">
+                        {currentPlatformState.caption ||
+                          "Your post caption will appear here..."}
                       </p>
 
                       {/* Tags */}
-                      {activeTab === "YOUTUBE_SHORTS" && currentPlatformState.focusKeyword && (
-                        <Badge variant="secondary" className="text-[9px] bg-red-600/80 text-white border-0">
-                          #{currentPlatformState.focusKeyword}
-                        </Badge>
-                      )}
+                      {activeTab === "YOUTUBE_SHORTS" &&
+                        currentPlatformState.focusKeyword && (
+                          <Badge
+                            variant="secondary"
+                            className="border-0 bg-red-600/80 text-[9px] text-white"
+                          >
+                            #{currentPlatformState.focusKeyword}
+                          </Badge>
+                        )}
                     </div>
                   </div>
                 </div>
@@ -1945,8 +2183,8 @@ export default function ComposerPage() {
               <Calendar className="size-5 text-primary" /> Schedule Video Post
             </DialogTitle>
             <DialogDescription>
-              Select publication date and time. ClipFlow&apos;s automated worker will publish to all
-              selected platforms automatically.
+              Select publication date and time. ClipFlow&apos;s automated worker will
+              publish to all selected platforms automatically.
             </DialogDescription>
           </DialogHeader>
 
@@ -1961,7 +2199,7 @@ export default function ComposerPage() {
               />
             </div>
 
-            <div className="rounded-lg border bg-muted/30 p-3 text-xs space-y-1.5">
+            <div className="space-y-1.5 rounded-lg border bg-muted/30 p-3 text-xs">
               <p className="font-semibold text-foreground">Target Platforms:</p>
               <div className="flex flex-wrap gap-1.5">
                 {selectedPlatforms.map((p) => (
@@ -1970,8 +2208,9 @@ export default function ComposerPage() {
                   </Badge>
                 ))}
               </div>
-              <p className="text-[11px] text-muted-foreground pt-1">
-                Times are stored in UTC and dispatched by the background worker within 1 minute of scheduled time.
+              <p className="pt-1 text-[11px] text-muted-foreground">
+                Times are stored in UTC and dispatched by the background worker within 1
+                minute of scheduled time.
               </p>
             </div>
           </div>
@@ -1983,11 +2222,11 @@ export default function ComposerPage() {
             <Button onClick={handleScheduleSubmit} disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
-                  <Loader2 className="size-4 animate-spin mr-1.5" /> Scheduling...
+                  <Loader2 className="mr-1.5 size-4 animate-spin" /> Scheduling...
                 </>
               ) : (
                 <>
-                  <Calendar className="size-4 mr-1.5" /> Confirm Schedule
+                  <Calendar className="mr-1.5 size-4" /> Confirm Schedule
                 </>
               )}
             </Button>

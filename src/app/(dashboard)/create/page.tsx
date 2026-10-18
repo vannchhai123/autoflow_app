@@ -35,7 +35,13 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -229,7 +235,8 @@ function CloneVoiceDialog({
             <Mic className="size-5 text-primary" /> Clone New Voice
           </DialogTitle>
           <DialogDescription>
-            Upload a short voice note (5-30s) from Telegram, Messenger, or phone recorder to clone the voice.
+            Upload a short voice note (5-30s) from Telegram, Messenger, or phone recorder
+            to clone the voice.
           </DialogDescription>
         </DialogHeader>
 
@@ -247,7 +254,10 @@ function CloneVoiceDialog({
 
           <div className="space-y-1.5">
             <Label>Language &amp; Gender Match</Label>
-            <Select value={baseVoice} onValueChange={(v) => setBaseVoice(v ?? "km-KH-PisethNeural")}>
+            <Select
+              value={baseVoice}
+              onValueChange={(v) => setBaseVoice(v ?? "km-KH-PisethNeural")}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
@@ -268,7 +278,9 @@ function CloneVoiceDialog({
                 role="button"
                 tabIndex={0}
                 onClick={() => fileInputRef.current?.click()}
-                onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && fileInputRef.current?.click()}
+                onKeyDown={(e) =>
+                  (e.key === "Enter" || e.key === " ") && fileInputRef.current?.click()
+                }
                 className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 p-6 text-center transition-colors hover:bg-primary/10"
               >
                 <UploadCloud className="size-8 text-primary" />
@@ -281,8 +293,8 @@ function CloneVoiceDialog({
               <div className="flex flex-col gap-2 rounded-lg border bg-muted/30 p-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 truncate">
-                    <Music2 className="size-4 text-primary shrink-0" />
-                    <span className="text-sm font-medium truncate">{file.name}</span>
+                    <Music2 className="size-4 shrink-0 text-primary" />
+                    <span className="truncate text-sm font-medium">{file.name}</span>
                   </div>
                   <Button
                     type="button"
@@ -298,7 +310,9 @@ function CloneVoiceDialog({
                     <X className="size-4" />
                   </Button>
                 </div>
-                {previewUrl && <audio src={previewUrl} controls className="w-full h-8 mt-1" />}
+                {previewUrl && (
+                  <audio src={previewUrl} controls className="mt-1 h-8 w-full" />
+                )}
               </div>
             )}
             <input
@@ -320,11 +334,11 @@ function CloneVoiceDialog({
             <Button type="submit" disabled={!name.trim() || !file || isCloning}>
               {isCloning ? (
                 <>
-                  <Loader2 className="animate-spin size-4 mr-1" /> Cloning...
+                  <Loader2 className="mr-1 size-4 animate-spin" /> Cloning...
                 </>
               ) : (
                 <>
-                  <Sparkles className="size-4 mr-1" /> Save Cloned Voice
+                  <Sparkles className="mr-1 size-4" /> Save Cloned Voice
                 </>
               )}
             </Button>
@@ -345,7 +359,7 @@ export default function CreateVideoPage() {
   // Project form state
   const [title, setTitle] = useState("៣ ជំហានចាប់ផ្ដើមថ្ងៃថ្មីឱ្យមានថាមពល");
   const [script, setScript] = useState(
-    "តើអ្នកចង់ឱ្យថ្ងៃនេះជាថ្ងៃដ៏ជោគជ័យមែនទេ? ចងចាំ ៣ ចំណុចនេះ៖ ទីមួយ ក្រោកពីគេងញ៉ាំទឹកមួយកែវភ្លាមៗ។ ទីពីរ សរសេរគោលដៅសំខាន់បំផុត ៣ យ៉ាង។ និងទីបី កុំទាន់បើកមើលបណ្ដាញសង្គមក្នុងរយៈពេល ៣០ នាទីដំបូង។ សាកល្បងអនុវត្តទាំងអស់គ្នាណា!"
+    "តើអ្នកចង់ឱ្យថ្ងៃនេះជាថ្ងៃដ៏ជោគជ័យមែនទេ? ចងចាំ ៣ ចំណុចនេះ៖ ទីមួយ ក្រោកពីគេងញ៉ាំទឹកមួយកែវភ្លាមៗ។ ទីពីរ សរសេរគោលដៅសំខាន់បំផុត ៣ យ៉ាង។ និងទីបី កុំទាន់បើកមើលបណ្ដាញសង្គមក្នុងរយៈពេល ៣០ នាទីដំបូង។ សាកល្បងអនុវត្តទាំងអស់គ្នាណា!",
   );
   const [aspect, setAspect] = useState<AspectRatio>("9:16");
   const [selectedBg, setSelectedBg] = useState<BackgroundStyle>(BACKGROUND_STYLES[0]);
@@ -499,14 +513,14 @@ export default function CreateVideoPage() {
     } catch (err) {
       console.error(err);
       setIsRendering(false);
-      toast.error("Failed to generate video. Make sure backend is running on port 8090.");
+      toast.error("Failed to generate video. Make sure the backend API is running.");
     }
   };
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 pb-12">
       {/* Top Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b pb-4">
+      <div className="flex flex-col gap-4 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
@@ -517,7 +531,7 @@ export default function CreateVideoPage() {
             <ArrowLeft className="size-4" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight md:text-3xl flex items-center gap-2">
+            <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight md:text-3xl">
               <Sparkles className="size-6 text-primary" /> Create AI Video
             </h1>
             <p className="text-sm text-muted-foreground">
@@ -537,21 +551,22 @@ export default function CreateVideoPage() {
               setRenderSuccess(false);
             }}
           >
-            <RotateCcw className="size-3.5 mr-1.5" /> Reset
+            <RotateCcw className="mr-1.5 size-3.5" /> Reset
           </Button>
           <Button
             size="default"
             onClick={handleGenerate}
             disabled={isRendering || !title.trim()}
-            className="bg-primary hover:bg-primary/90 shadow-md font-medium px-5"
+            className="bg-primary px-5 font-medium shadow-md hover:bg-primary/90"
           >
             {isRendering ? (
               <>
-                <Loader2 className="animate-spin size-4 mr-2" /> Rendering {renderProgress}%
+                <Loader2 className="mr-2 size-4 animate-spin" /> Rendering{" "}
+                {renderProgress}%
               </>
             ) : (
               <>
-                <Wand2 className="size-4 mr-2" /> Generate Video
+                <Wand2 className="mr-2 size-4" /> Generate Video
               </>
             )}
           </Button>
@@ -559,17 +574,19 @@ export default function CreateVideoPage() {
       </div>
 
       {/* Main Studio Grid: Left Controls (7 cols) + Right Live Preview (5 cols) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
         {/* Left Column: Editor Controls */}
-        <div className="lg:col-span-7 space-y-6">
+        <div className="space-y-6 lg:col-span-7">
           {/* Card 1: Title & Script */}
           <Card className="border shadow-xs">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <FileText className="size-4 text-primary" /> 1. Video Title &amp; Spoken Script
+              <CardTitle className="flex items-center gap-2 text-base">
+                <FileText className="size-4 text-primary" /> 1. Video Title &amp; Spoken
+                Script
               </CardTitle>
               <CardDescription>
-                The title will appear on-screen, and the script will be spoken by your chosen voice.
+                The title will appear on-screen, and the script will be spoken by your
+                chosen voice.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -586,11 +603,15 @@ export default function CreateVideoPage() {
 
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="create-script">Spoken Voiceover Script (Khmer or English)</Label>
+                  <Label htmlFor="create-script">
+                    Spoken Voiceover Script (Khmer or English)
+                  </Label>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span className="tabular-nums font-medium">{wordCount} words</span>
+                    <span className="font-medium tabular-nums">{wordCount} words</span>
                     <span>•</span>
-                    <span className="tabular-nums text-primary font-medium">~{estimatedSeconds}s duration</span>
+                    <span className="font-medium text-primary tabular-nums">
+                      ~{estimatedSeconds}s duration
+                    </span>
                   </div>
                 </div>
                 <Textarea
@@ -607,8 +628,9 @@ export default function CreateVideoPage() {
           {/* Card 2: Voice & Audio Studio */}
           <Card className="border shadow-xs">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Volume2 className="size-4 text-primary" /> 2. Audio &amp; Voiceover Studio
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Volume2 className="size-4 text-primary" /> 2. Audio &amp; Voiceover
+                Studio
               </CardTitle>
               <CardDescription>
                 Choose between AI-generated voice or upload a real voice memo.
@@ -623,8 +645,8 @@ export default function CreateVideoPage() {
                   className={cn(
                     "flex items-center justify-center gap-2 rounded-xl border p-3 text-sm font-medium transition-all",
                     audioSource === "ai"
-                      ? "border-primary bg-primary/10 text-primary shadow-xs font-semibold"
-                      : "border-border bg-card text-muted-foreground hover:bg-muted/50"
+                      ? "border-primary bg-primary/10 font-semibold text-primary shadow-xs"
+                      : "border-border bg-card text-muted-foreground hover:bg-muted/50",
                   )}
                 >
                   <Sparkles className="size-4" />
@@ -636,8 +658,8 @@ export default function CreateVideoPage() {
                   className={cn(
                     "flex items-center justify-center gap-2 rounded-xl border p-3 text-sm font-medium transition-all",
                     audioSource === "custom"
-                      ? "border-primary bg-primary/10 text-primary shadow-xs font-semibold"
-                      : "border-border bg-card text-muted-foreground hover:bg-muted/50"
+                      ? "border-primary bg-primary/10 font-semibold text-primary shadow-xs"
+                      : "border-border bg-card text-muted-foreground hover:bg-muted/50",
                   )}
                 >
                   <Music2 className="size-4" />
@@ -653,18 +675,21 @@ export default function CreateVideoPage() {
                       <button
                         type="button"
                         onClick={() => setCloneModalOpen(true)}
-                        className="text-xs text-primary hover:underline flex items-center gap-1 font-medium cursor-pointer"
+                        className="flex cursor-pointer items-center gap-1 text-xs font-medium text-primary hover:underline"
                       >
                         <Plus className="size-3" /> Clone New Voice
                       </button>
                     </div>
-                    <Select value={voice} onValueChange={(v) => setVoice(v ?? "km-KH-PisethNeural")}>
+                    <Select
+                      value={voice}
+                      onValueChange={(v) => setVoice(v ?? "km-KH-PisethNeural")}
+                    >
                       <SelectTrigger className="w-full">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent alignItemWithTrigger={false}>
                         {clonedVoices.length > 0 && (
-                          <div className="px-2 py-1 text-[10px] font-semibold text-primary uppercase tracking-wider">
+                          <div className="px-2 py-1 text-[10px] font-semibold tracking-wider text-primary uppercase">
                             ⭐ Your Cloned Voices
                           </div>
                         )}
@@ -673,7 +698,7 @@ export default function CreateVideoPage() {
                             🎙️ {cv.name} (Cloned Voice)
                           </SelectItem>
                         ))}
-                        <div className="px-2 py-1 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mt-1">
+                        <div className="mt-1 px-2 py-1 text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
                           Standard Khmer &amp; English Voices
                         </div>
                         {VOICE_OPTIONS.map((o) => (
@@ -687,7 +712,10 @@ export default function CreateVideoPage() {
 
                   <div className="space-y-1.5">
                     <Label>Target Duration</Label>
-                    <Select value={duration} onValueChange={(v) => setDuration(v ?? "30")}>
+                    <Select
+                      value={duration}
+                      onValueChange={(v) => setDuration(v ?? "30")}
+                    >
                       <SelectTrigger className="w-full">
                         <SelectValue />
                       </SelectTrigger>
@@ -709,14 +737,17 @@ export default function CreateVideoPage() {
                       tabIndex={0}
                       onClick={() => audioInputRef.current?.click()}
                       onKeyDown={(e) =>
-                        (e.key === "Enter" || e.key === " ") && audioInputRef.current?.click()
+                        (e.key === "Enter" || e.key === " ") &&
+                        audioInputRef.current?.click()
                       }
                       className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 p-6 text-center transition-colors hover:bg-primary/10"
                     >
                       <UploadCloud className="size-8 text-primary" />
                       <div>
-                        <p className="text-sm font-medium">Click or drag &amp; drop voice memo</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">
+                        <p className="text-sm font-medium">
+                          Click or drag &amp; drop voice memo
+                        </p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">
                           Supports .mp3, .wav, .m4a, .ogg, .aac, .flac
                         </p>
                       </div>
@@ -725,9 +756,11 @@ export default function CreateVideoPage() {
                     <div className="flex flex-col gap-2 rounded-xl border bg-muted/40 p-3 shadow-xs">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 truncate">
-                          <Music2 className="size-4 text-primary shrink-0" />
-                          <span className="text-sm font-medium truncate">{customAudioFile.name}</span>
-                          <span className="text-xs text-muted-foreground shrink-0">
+                          <Music2 className="size-4 shrink-0 text-primary" />
+                          <span className="truncate text-sm font-medium">
+                            {customAudioFile.name}
+                          </span>
+                          <span className="shrink-0 text-xs text-muted-foreground">
                             ({(customAudioFile.size / (1024 * 1024)).toFixed(2)} MB)
                           </span>
                         </div>
@@ -746,10 +779,15 @@ export default function CreateVideoPage() {
                         </Button>
                       </div>
                       {customAudioUrl && (
-                        <audio src={customAudioUrl} controls className="w-full h-8 mt-1" />
+                        <audio
+                          src={customAudioUrl}
+                          controls
+                          className="mt-1 h-8 w-full"
+                        />
                       )}
                       <p className="text-[11px] text-muted-foreground">
-                        ✨ Video length will automatically match the duration of this audio recording.
+                        ✨ Video length will automatically match the duration of this
+                        audio recording.
                       </p>
                     </div>
                   )}
@@ -771,31 +809,32 @@ export default function CreateVideoPage() {
           {/* Card 3: Visual Background & Animations */}
           <Card className="border shadow-xs">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <ImageIcon className="size-4 text-primary" /> 3. Visual Background &amp; Motion Style
+              <CardTitle className="flex items-center gap-2 text-base">
+                <ImageIcon className="size-4 text-primary" /> 3. Visual Background &amp;
+                Motion Style
               </CardTitle>
               <CardDescription>
                 Choose an animated background template with smooth Ken Burns camera zoom.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {BACKGROUND_STYLES.map((bg) => (
                   <button
                     key={bg.id}
                     type="button"
                     onClick={() => setSelectedBg(bg)}
                     className={cn(
-                      "flex flex-col items-center gap-2 rounded-xl border p-3 text-center transition-all cursor-pointer",
+                      "flex cursor-pointer flex-col items-center gap-2 rounded-xl border p-3 text-center transition-all",
                       selectedBg.id === bg.id
-                        ? "border-primary ring-2 ring-primary/20 bg-primary/5 font-semibold"
-                        : "border-border hover:bg-muted/50"
+                        ? "border-primary bg-primary/5 font-semibold ring-2 ring-primary/20"
+                        : "border-border hover:bg-muted/50",
                     )}
                   >
                     <div
                       className={cn(
-                        "size-12 rounded-lg bg-gradient-to-br shadow-inner border border-white/20",
-                        bg.gradient
+                        "size-12 rounded-lg border border-white/20 bg-gradient-to-br shadow-inner",
+                        bg.gradient,
                       )}
                     />
                     <span className="text-xs font-medium">{bg.name}</span>
@@ -804,9 +843,10 @@ export default function CreateVideoPage() {
               </div>
 
               <div className="flex items-center gap-2 rounded-lg bg-muted/40 p-3 text-xs text-muted-foreground">
-                <Sparkles className="size-4 text-primary shrink-0" />
+                <Sparkles className="size-4 shrink-0 text-primary" />
                 <span>
-                  Every video is enhanced with slow cinematic camera drift, electric audio visualizer waves, and a bottom sweep line.
+                  Every video is enhanced with slow cinematic camera drift, electric audio
+                  visualizer waves, and a bottom sweep line.
                 </span>
               </div>
             </CardContent>
@@ -815,8 +855,9 @@ export default function CreateVideoPage() {
           {/* Card 4: Aspect Ratio */}
           <Card className="border shadow-xs">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Smartphone className="size-4 text-primary" /> 4. Aspect Ratio &amp; Target Platform
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Smartphone className="size-4 text-primary" /> 4. Aspect Ratio &amp;
+                Target Platform
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -829,16 +870,16 @@ export default function CreateVideoPage() {
                       type="button"
                       onClick={() => setAspect(opt.value)}
                       className={cn(
-                        "flex flex-col items-center gap-2 rounded-xl border p-3 text-center transition-all cursor-pointer",
+                        "flex cursor-pointer flex-col items-center gap-2 rounded-xl border p-3 text-center transition-all",
                         aspect === opt.value
-                          ? "border-primary ring-2 ring-primary/20 bg-primary/5 font-semibold"
-                          : "border-border hover:bg-muted/50"
+                          ? "border-primary bg-primary/5 font-semibold ring-2 ring-primary/20"
+                          : "border-border hover:bg-muted/50",
                       )}
                     >
                       <IconComp
                         className={cn(
                           "size-5",
-                          aspect === opt.value ? "text-primary" : "text-muted-foreground"
+                          aspect === opt.value ? "text-primary" : "text-muted-foreground",
                         )}
                       />
                       <div>
@@ -854,44 +895,50 @@ export default function CreateVideoPage() {
         </div>
 
         {/* Right Column: Live Mockup Preview & Action Dock */}
-        <div className="lg:col-span-5 lg:sticky lg:top-6 space-y-4">
-          <Card className="border shadow-md overflow-hidden bg-neutral-950 text-white border-neutral-800">
-            <CardHeader className="pb-2 flex flex-row items-center justify-between border-b border-neutral-800">
+        <div className="space-y-4 lg:sticky lg:top-6 lg:col-span-5">
+          <Card className="overflow-hidden border border-neutral-800 bg-neutral-950 text-white shadow-md">
+            <CardHeader className="flex flex-row items-center justify-between border-b border-neutral-800 pb-2">
               <div className="flex items-center gap-2">
-                <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
+                <span className="size-2 animate-pulse rounded-full bg-emerald-500" />
+                <span className="text-xs font-semibold tracking-wider text-neutral-400 uppercase">
                   Live Preview Mockup
                 </span>
               </div>
-              <Badge variant="outline" className="text-[10px] text-neutral-400 border-neutral-700">
+              <Badge
+                variant="outline"
+                className="border-neutral-700 text-[10px] text-neutral-400"
+              >
                 {aspect}
               </Badge>
             </CardHeader>
 
-            <CardContent className="p-4 flex flex-col items-center">
+            <CardContent className="flex flex-col items-center p-4">
               {/* Smartphone Simulator */}
-              <div className="relative w-full max-w-[280px] rounded-2xl overflow-hidden border-4 border-neutral-800 shadow-2xl bg-black">
+              <div className="relative w-full max-w-[280px] overflow-hidden rounded-2xl border-4 border-neutral-800 bg-black shadow-2xl">
                 {/* 9:16 Canvas */}
                 <div
                   className={cn(
-                    "relative w-full aspect-[9/16] bg-gradient-to-b flex flex-col justify-between p-4 transition-all duration-300",
-                    selectedBg.gradient
+                    "relative flex aspect-[9/16] w-full flex-col justify-between bg-gradient-to-b p-4 transition-all duration-300",
+                    selectedBg.gradient,
                   )}
                 >
                   {/* Top Branding Tag */}
                   <div className="flex items-center justify-between text-[10px] text-white/80">
                     <span className="font-semibold tracking-wide">AutoClip</span>
-                    <Badge variant="secondary" className="text-[9px] h-4 bg-white/20 text-white backdrop-blur border-0">
+                    <Badge
+                      variant="secondary"
+                      className="h-4 border-0 bg-white/20 text-[9px] text-white backdrop-blur"
+                    >
                       9:16 HD
                     </Badge>
                   </div>
 
                   {/* Centered Frosted Title Card */}
-                  <div className="rounded-xl bg-black/60 p-4 backdrop-blur-md border border-white/10 text-center shadow-lg my-auto">
-                    <p className="text-sm font-bold text-white line-clamp-3 leading-snug">
+                  <div className="my-auto rounded-xl border border-white/10 bg-black/60 p-4 text-center shadow-lg backdrop-blur-md">
+                    <p className="line-clamp-3 text-sm leading-snug font-bold text-white">
                       {title.trim() || "Your Video Title Here"}
                     </p>
-                    <p className="text-[10px] text-sky-400 font-medium mt-2">
+                    <p className="mt-2 text-[10px] font-medium text-sky-400">
                       AutoClip Studio • Short Video
                     </p>
                   </div>
@@ -899,31 +946,34 @@ export default function CreateVideoPage() {
                   {/* Bottom: Visualizer Waveform + Progress Bar */}
                   <div className="space-y-3">
                     {/* Pulsing Audio Waveform Mockup */}
-                    <div className="flex items-center justify-center gap-1 h-7 px-4">
-                      {[12, 24, 18, 30, 15, 28, 20, 32, 16, 26, 14, 28, 22].map((height, i) => (
-                        <span
-                          key={i}
-                          style={{ height: `${height}px` }}
-                          className="w-1 rounded-full bg-sky-400 opacity-90 animate-pulse"
-                        />
-                      ))}
+                    <div className="flex h-7 items-center justify-center gap-1 px-4">
+                      {[12, 24, 18, 30, 15, 28, 20, 32, 16, 26, 14, 28, 22].map(
+                        (height, i) => (
+                          <span
+                            key={i}
+                            style={{ height: `${height}px` }}
+                            className="w-1 animate-pulse rounded-full bg-sky-400 opacity-90"
+                          />
+                        ),
+                      )}
                     </div>
 
                     {/* Progress Bar Line */}
-                    <div className="h-1.5 w-full bg-white/20 rounded-full overflow-hidden">
-                      <div className="h-full w-2/3 bg-sky-400 rounded-full" />
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/20">
+                      <div className="h-full w-2/3 rounded-full bg-sky-400" />
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Progress & Result Panel */}
-              <div className="w-full mt-4 space-y-3">
+              <div className="mt-4 w-full space-y-3">
                 {isRendering && (
-                  <div className="space-y-2 rounded-xl bg-neutral-900 p-3 border border-neutral-800">
+                  <div className="space-y-2 rounded-xl border border-neutral-800 bg-neutral-900 p-3">
                     <div className="flex items-center justify-between text-xs text-neutral-300">
                       <span className="flex items-center gap-1.5 font-medium">
-                        <Loader2 className="size-3.5 animate-spin text-primary" /> Rendering video...
+                        <Loader2 className="size-3.5 animate-spin text-primary" />{" "}
+                        Rendering video...
                       </span>
                       <span className="font-mono text-primary">{renderProgress}%</span>
                     </div>
@@ -932,22 +982,23 @@ export default function CreateVideoPage() {
                 )}
 
                 {renderSuccess && renderedOutputUrl && (
-                  <div className="space-y-2 rounded-xl bg-emerald-950/60 p-3.5 border border-emerald-800/80 text-emerald-200">
+                  <div className="space-y-2 rounded-xl border border-emerald-800/80 bg-emerald-950/60 p-3.5 text-emerald-200">
                     <div className="flex items-center gap-2 text-xs font-semibold">
-                      <CheckCircle2 className="size-4 text-emerald-400" /> Video Rendered Successfully!
+                      <CheckCircle2 className="size-4 text-emerald-400" /> Video Rendered
+                      Successfully!
                     </div>
                     <div className="flex gap-2 pt-1">
                       <Button
                         size="sm"
-                        className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs h-8"
+                        className="h-8 flex-1 bg-emerald-600 text-xs text-white hover:bg-emerald-500"
                         onClick={() => window.open(renderedOutputUrl, "_blank")}
                       >
-                        <Play className="size-3 mr-1 fill-current" /> Play / Download
+                        <Play className="mr-1 size-3 fill-current" /> Play / Download
                       </Button>
                       <Button
                         size="sm"
                         variant="outline"
-                        className="text-xs h-8 border-neutral-700 text-neutral-200 hover:bg-neutral-800"
+                        className="h-8 border-neutral-700 text-xs text-neutral-200 hover:bg-neutral-800"
                         onClick={() => router.push("/projects")}
                       >
                         View in Projects
@@ -960,15 +1011,15 @@ export default function CreateVideoPage() {
                   size="lg"
                   onClick={handleGenerate}
                   disabled={isRendering || !title.trim()}
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg text-sm h-11"
+                  className="h-11 w-full bg-primary text-sm font-semibold text-primary-foreground shadow-lg hover:bg-primary/90"
                 >
                   {isRendering ? (
                     <>
-                      <Loader2 className="animate-spin size-4 mr-2" /> Rendering Video...
+                      <Loader2 className="mr-2 size-4 animate-spin" /> Rendering Video...
                     </>
                   ) : (
                     <>
-                      <Sparkles className="size-4 mr-2" /> Generate Video Now
+                      <Sparkles className="mr-2 size-4" /> Generate Video Now
                     </>
                   )}
                 </Button>

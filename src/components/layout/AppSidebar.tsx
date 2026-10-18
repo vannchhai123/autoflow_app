@@ -80,13 +80,15 @@ export function AppSidebar({
               <Sparkles className="size-4" />
             </span>
             <div className={cn("flex flex-col", collapsed && "lg:hidden")}>
-              <span className="font-bold tracking-tight text-sm">ClipFlow</span>
-              <span className="text-[10px] text-muted-foreground font-medium -mt-1">Publish &amp; Monitor</span>
+              <span className="text-sm font-bold tracking-tight">ClipFlow</span>
+              <span className="-mt-1 text-[10px] font-medium text-muted-foreground">
+                Publish &amp; Monitor
+              </span>
             </div>
           </Link>
         </div>
 
-        <nav className="flex-1 space-y-1 p-2 overflow-y-auto">
+        <nav className="flex-1 space-y-1 overflow-y-auto p-2">
           {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
             const active = pathname === href || pathname.startsWith(`${href}/`);
             return (
@@ -99,7 +101,7 @@ export function AppSidebar({
                 className={cn(
                   "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                   active
-                    ? "bg-primary/10 text-primary font-semibold"
+                    ? "bg-primary/10 font-semibold text-primary"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground",
                   collapsed && "lg:justify-center lg:px-2",
                 )}
@@ -115,7 +117,7 @@ export function AppSidebar({
         {collapsed ? (
           <div className="flex flex-col items-center gap-2 border-t py-3">
             <div
-              className="flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-sky-500 to-indigo-600 font-bold text-xs text-white shadow-xs"
+              className="flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-sky-500 to-indigo-600 text-xs font-bold text-white shadow-xs"
               title={userEmail}
             >
               {userEmail ? userEmail.charAt(0).toUpperCase() : "V"}
@@ -125,7 +127,7 @@ export function AppSidebar({
               onClick={logout}
               title="Log out"
               aria-label="Log out"
-              className="flex size-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+              className="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
             >
               <LogOut className="size-4" />
             </button>
@@ -134,29 +136,31 @@ export function AppSidebar({
               onClick={onToggle}
               title="Expand sidebar"
               aria-label="Expand sidebar"
-              className="hidden lg:flex size-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted transition-colors"
+              className="hidden size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted lg:flex"
             >
               <ChevronsRight className="size-4" />
             </button>
           </div>
         ) : (
-          <div className="border-t p-3 space-y-2">
+          <div className="space-y-2 border-t p-3">
             <div className="flex items-center justify-between gap-2.5 rounded-lg border bg-muted/40 p-2.5">
-              <div className="flex items-center gap-2.5 min-w-0">
+              <div className="flex min-w-0 items-center gap-2.5">
                 <div
-                  className="flex size-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-sky-500 to-indigo-600 font-bold text-xs text-white shadow-xs"
+                  className="flex size-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-sky-500 to-indigo-600 text-xs font-bold text-white shadow-xs"
                   title={userEmail}
                 >
                   {userEmail ? userEmail.charAt(0).toUpperCase() : "V"}
                 </div>
                 <div className="min-w-0 flex-1">
                   <p
-                    className="truncate text-xs font-semibold text-foreground leading-tight"
+                    className="truncate text-xs leading-tight font-semibold text-foreground"
                     title={userEmail}
                   >
                     {userEmail}
                   </p>
-                  <p className="text-[10px] text-muted-foreground font-medium mt-0.5">Admin Account</p>
+                  <p className="mt-0.5 text-[10px] font-medium text-muted-foreground">
+                    Admin Account
+                  </p>
                 </div>
               </div>
               <button
@@ -164,7 +168,7 @@ export function AppSidebar({
                 onClick={logout}
                 title="Log out"
                 aria-label="Log out"
-                className="flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+                className="flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
               >
                 <LogOut className="size-4" />
               </button>
@@ -174,7 +178,7 @@ export function AppSidebar({
               type="button"
               onClick={onToggle}
               aria-label="Collapse sidebar"
-              className="hidden lg:flex w-full items-center justify-center gap-2 rounded-lg p-2 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              className="hidden w-full items-center justify-center gap-2 rounded-lg p-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:flex"
             >
               <ChevronsLeft className="size-4" />
               <span>Collapse sidebar</span>

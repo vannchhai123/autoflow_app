@@ -21,10 +21,21 @@ export const PLATFORM_LABELS: Record<Platform, string> = {
   LINKEDIN: "LinkedIn",
 };
 
-export const PLATFORM_COLORS: Record<Platform, { bg: string; text: string; border: string }> = {
-  YOUTUBE_SHORTS: { bg: "bg-red-500/10", text: "text-red-500", border: "border-red-500/30" },
+export const PLATFORM_COLORS: Record<
+  Platform,
+  { bg: string; text: string; border: string }
+> = {
+  YOUTUBE_SHORTS: {
+    bg: "bg-red-500/10",
+    text: "text-red-500",
+    border: "border-red-500/30",
+  },
   TIKTOK: { bg: "bg-cyan-500/10", text: "text-cyan-400", border: "border-cyan-500/30" },
-  INSTAGRAM_REELS: { bg: "bg-pink-500/10", text: "text-pink-500", border: "border-pink-500/30" },
+  INSTAGRAM_REELS: {
+    bg: "bg-pink-500/10",
+    text: "text-pink-500",
+    border: "border-pink-500/30",
+  },
   FACEBOOK: { bg: "bg-blue-500/10", text: "text-blue-500", border: "border-blue-500/30" },
   LINKEDIN: { bg: "bg-sky-500/10", text: "text-sky-500", border: "border-sky-500/30" },
 };

@@ -15,7 +15,13 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -69,19 +75,40 @@ const INITIAL_HASHTAGS: HashtagSet[] = [
     id: "ht-1",
     name: "Productivity & Habits",
     category: "Productivity",
-    tags: ["#productivity", "#morningroutine", "#habits", "#deepwork", "#discipline", "#successmindset"],
+    tags: [
+      "#productivity",
+      "#morningroutine",
+      "#habits",
+      "#deepwork",
+      "#discipline",
+      "#successmindset",
+    ],
   },
   {
     id: "ht-2",
     name: "AI & Tech Innovations",
     category: "Technology",
-    tags: ["#ai", "#automation", "#techtrends", "#softwareengineering", "#futureofwork", "#coding"],
+    tags: [
+      "#ai",
+      "#automation",
+      "#techtrends",
+      "#softwareengineering",
+      "#futureofwork",
+      "#coding",
+    ],
   },
   {
     id: "ht-3",
     name: "Reels & Shorts Growth",
     category: "Social Media",
-    tags: ["#reelsviral", "#shorts", "#contentcreator", "#videomarketing", "#clipflow", "#socialstrategy"],
+    tags: [
+      "#reelsviral",
+      "#shorts",
+      "#contentcreator",
+      "#videomarketing",
+      "#clipflow",
+      "#socialstrategy",
+    ],
   },
 ];
 
@@ -141,13 +168,14 @@ export default function LibraryPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-6 pb-16">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b pb-4">
+      <div className="flex flex-col gap-4 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight md:text-3xl flex items-center gap-2">
+          <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight md:text-3xl">
             <BookOpen className="size-6 text-primary" /> Content Library
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Store reusable caption templates, saved hashtag bundles, and brand asset presets.
+          <p className="mt-1 text-sm text-muted-foreground">
+            Store reusable caption templates, saved hashtag bundles, and brand asset
+            presets.
           </p>
         </div>
       </div>
@@ -169,16 +197,24 @@ export default function LibraryPage() {
         <TabsContent value="templates" className="space-y-4">
           <div className="flex items-center justify-between">
             <p className="text-xs text-muted-foreground">
-              Use variables like <code>{"{{title}}"}</code> or <code>{"{{topic}}"}</code> for automatic insertion in the Composer.
+              Use variables like <code>{"{{title}}"}</code> or <code>{"{{topic}}"}</code>{" "}
+              for automatic insertion in the Composer.
             </p>
-            <Button size="sm" onClick={() => setNewTemplateOpen(true)} className="gap-1.5">
+            <Button
+              size="sm"
+              onClick={() => setNewTemplateOpen(true)}
+              className="gap-1.5"
+            >
               <Plus className="size-3.5" /> New Template
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {templates.map((tpl) => (
-              <Card key={tpl.id} className="border shadow-xs flex flex-col justify-between">
+              <Card
+                key={tpl.id}
+                className="flex flex-col justify-between border shadow-xs"
+              >
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-sm font-semibold">{tpl.name}</CardTitle>
@@ -188,15 +224,15 @@ export default function LibraryPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="rounded-lg bg-muted/40 p-3 font-mono text-xs whitespace-pre-line text-muted-foreground line-clamp-6 leading-relaxed">
+                  <div className="line-clamp-6 rounded-lg bg-muted/40 p-3 font-mono text-xs leading-relaxed whitespace-pre-line text-muted-foreground">
                     {tpl.template}
                   </div>
-                  <div className="flex items-center justify-between pt-1 border-t">
+                  <div className="flex items-center justify-between border-t pt-1">
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => handleCopy(tpl.template, tpl.name)}
-                      className="text-xs h-7 gap-1"
+                      className="h-7 gap-1 text-xs"
                     >
                       <Copy className="size-3" /> Copy
                     </Button>
@@ -222,19 +258,23 @@ export default function LibraryPage() {
         <TabsContent value="hashtags" className="space-y-4">
           <div className="flex items-center justify-between">
             <p className="text-xs text-muted-foreground">
-              Curated tag bundles optimized for discoverability across YouTube, TikTok, and Instagram.
+              Curated tag bundles optimized for discoverability across YouTube, TikTok,
+              and Instagram.
             </p>
             <Button size="sm" onClick={() => setNewHashtagOpen(true)} className="gap-1.5">
               <Plus className="size-3.5" /> New Hashtag Set
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             {hashtagSets.map((set) => (
-              <Card key={set.id} className="border shadow-xs flex flex-col justify-between">
+              <Card
+                key={set.id}
+                className="flex flex-col justify-between border shadow-xs"
+              >
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm font-semibold flex items-center gap-1.5">
+                    <CardTitle className="flex items-center gap-1.5 text-sm font-semibold">
                       <Hash className="size-4 text-primary" /> {set.name}
                     </CardTitle>
                     <Badge variant="outline" className="text-[10px]">
@@ -243,22 +283,22 @@ export default function LibraryPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="flex flex-wrap gap-1.5 p-2 bg-muted/20 rounded-lg min-h-20">
+                  <div className="flex min-h-20 flex-wrap gap-1.5 rounded-lg bg-muted/20 p-2">
                     {set.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="text-[11px] font-mono bg-primary/10 text-primary px-1.5 py-0.5 rounded"
+                        className="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-[11px] text-primary"
                       >
                         {tag}
                       </span>
                     ))}
                   </div>
-                  <div className="flex items-center justify-between pt-1 border-t">
+                  <div className="flex items-center justify-between border-t pt-1">
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => handleCopy(set.tags.join(" "), set.name)}
-                      className="text-xs h-7 gap-1"
+                      className="h-7 gap-1 text-xs"
                     >
                       <Copy className="size-3" /> Copy All Tags
                     </Button>
@@ -282,7 +322,7 @@ export default function LibraryPage() {
 
         {/* Brand Assets Tab */}
         <TabsContent value="brand" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <Card className="border shadow-xs">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-semibold">Video Watermark</CardTitle>
@@ -290,22 +330,26 @@ export default function LibraryPage() {
                   Transparent PNG logo burned into video corner during FFmpeg rendering.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="py-6 flex flex-col items-center justify-center border-2 border-dashed rounded-lg m-4 mt-0 bg-muted/10 text-center">
-                <ImageIcon className="size-8 text-muted-foreground/60 mb-2" />
+              <CardContent className="m-4 mt-0 flex flex-col items-center justify-center rounded-lg border-2 border-dashed bg-muted/10 py-6 text-center">
+                <ImageIcon className="mb-2 size-8 text-muted-foreground/60" />
                 <p className="text-xs font-medium">watermark_logo.png (Configured)</p>
-                <p className="text-[10px] text-muted-foreground">Applied at 15% opacity in top-right</p>
+                <p className="text-[10px] text-muted-foreground">
+                  Applied at 15% opacity in top-right
+                </p>
               </CardContent>
             </Card>
 
             <Card className="border shadow-xs">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-semibold">Brand Intro Bumper</CardTitle>
+                <CardTitle className="text-sm font-semibold">
+                  Brand Intro Bumper
+                </CardTitle>
                 <CardDescription className="text-xs">
                   Optional 2-second motion intro stitched to beginnings.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="py-6 flex flex-col items-center justify-center border-2 border-dashed rounded-lg m-4 mt-0 bg-muted/10 text-center">
-                <Sparkles className="size-8 text-muted-foreground/60 mb-2" />
+              <CardContent className="m-4 mt-0 flex flex-col items-center justify-center rounded-lg border-2 border-dashed bg-muted/10 py-6 text-center">
+                <Sparkles className="mb-2 size-8 text-muted-foreground/60" />
                 <p className="text-xs font-medium">clipflow_bumper_1080p.mp4</p>
                 <p className="text-[10px] text-muted-foreground">Duration: 2.1s</p>
               </CardContent>
@@ -313,13 +357,15 @@ export default function LibraryPage() {
 
             <Card className="border shadow-xs">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-semibold">Standard Outro Call to Action</CardTitle>
+                <CardTitle className="text-sm font-semibold">
+                  Standard Outro Call to Action
+                </CardTitle>
                 <CardDescription className="text-xs">
                   Closing end-card prompting likes &amp; follows.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="py-6 flex flex-col items-center justify-center border-2 border-dashed rounded-lg m-4 mt-0 bg-muted/10 text-center">
-                <Layers className="size-8 text-muted-foreground/60 mb-2" />
+              <CardContent className="m-4 mt-0 flex flex-col items-center justify-center rounded-lg border-2 border-dashed bg-muted/10 py-6 text-center">
+                <Layers className="mb-2 size-8 text-muted-foreground/60" />
                 <p className="text-xs font-medium">standard_outro_card.mp4</p>
                 <p className="text-[10px] text-muted-foreground">Duration: 3.0s</p>
               </CardContent>
@@ -362,7 +408,10 @@ export default function LibraryPage() {
             <Button variant="outline" onClick={() => setNewTemplateOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleCreateTemplate} disabled={!tplName.trim() || !tplContent.trim()}>
+            <Button
+              onClick={handleCreateTemplate}
+              disabled={!tplName.trim() || !tplContent.trim()}
+            >
               Save Template
             </Button>
           </DialogFooter>
@@ -403,7 +452,10 @@ export default function LibraryPage() {
             <Button variant="outline" onClick={() => setNewHashtagOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleCreateHashtagSet} disabled={!htName.trim() || !htTags.trim()}>
+            <Button
+              onClick={handleCreateHashtagSet}
+              disabled={!htName.trim() || !htTags.trim()}
+            >
               Save Hashtag Set
             </Button>
           </DialogFooter>
