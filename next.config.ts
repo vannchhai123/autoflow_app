@@ -1,7 +1,13 @@
 import type { NextConfig } from "next";
 
+const backendOrigin = (
+  process.env.NEXT_PUBLIC_API_URL || "https://autoflow-api-f5c6.onrender.com"
+)
+  .trim()
+  .replace(/\/+$/, "")
+  .replace(/\/api$/, "");
+
 const nextConfig: NextConfig = {
-  /* config options here */
   cacheComponents: true,
   partialPrefetching: true,
   turbopack: {
@@ -16,7 +22,11 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: "http://localhost:8090/api/:path*",
+        destination: `${backendOrigin}/api/:path*`,
+      },
+      {
+        source: "/storage/:path*",
+        destination: `${backendOrigin}/storage/:path*`,
       },
     ];
   },

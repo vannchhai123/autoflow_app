@@ -13,7 +13,17 @@ import {
 
 export { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY, isTokenExpired, isTokenValid };
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+const DEFAULT_PROD_API_URL = "https://autoflow-api-f5c6.onrender.com/api";
+
+function resolveApiUrl(): string {
+  const raw = (process.env.NEXT_PUBLIC_API_URL || DEFAULT_PROD_API_URL)
+    .trim()
+    .replace(/\/+$/, "");
+  if (!raw) return DEFAULT_PROD_API_URL;
+  return raw.endsWith("/api") ? raw : `${raw}/api`;
+}
+
+export const API_URL = resolveApiUrl();
 
 function syncCookie(token: string) {
   if (typeof document === "undefined") return;
@@ -61,7 +71,7 @@ export const tokenStorage = {
 const axiosInstance = axios.create({
   baseURL: API_URL,
   headers: { "Content-Type": "application/json" },
-  timeout: 30_000,
+  timeout: 60_000,
 });
 
 axiosInstance.interceptors.request.use((config) => {
