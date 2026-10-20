@@ -39,7 +39,6 @@ jobs:
 
       - name: Build Next.js (CI build check)
         run: pnpm run build
-
   deploy:
     name: Deploy to Vercel
     needs: ci
