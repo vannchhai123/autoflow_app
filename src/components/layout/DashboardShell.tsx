@@ -11,7 +11,6 @@ import { isTokenValid } from "@/lib/auth-token";
 
 const STORAGE_KEY = "autoclip.sidebarCollapsed";
 
-/** Client shell owning sidebar state; pages stay Server Components as `children`. */
 export function DashboardShell({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -22,8 +21,10 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const userEmail = useCurrentUserEmail();
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setCollapsed(localStorage.getItem(STORAGE_KEY) === "1");
+    const saved = localStorage.getItem(STORAGE_KEY) === "1";
+    if (saved) {
+      queueMicrotask(() => setCollapsed(true));
+    }
 
     const token = tokenStorage.getAccess();
     if (!token || !isTokenValid(token)) {

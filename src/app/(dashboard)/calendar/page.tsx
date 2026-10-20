@@ -78,8 +78,6 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
-/* ----------------------------- Helpers & Brand Icons ----------------------------- */
-
 function PlatformIcon({
   platform,
   className,
@@ -157,7 +155,7 @@ interface ScheduledPost {
   title: string;
   caption?: string;
   platforms: Platform[];
-  scheduledAt: string; // ISO string
+  scheduledAt: string;
   status: "SCHEDULED" | "PUBLISHED" | "FAILED";
   outputUrl?: string;
 }
@@ -181,7 +179,7 @@ function formatDuration(seconds?: number): string {
 function getWeekStart(date: Date): Date {
   const d = new Date(date);
   const day = d.getDay();
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Monday is start of week
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
   d.setDate(diff);
   d.setHours(0, 0, 0, 0);
   return d;
@@ -213,12 +211,11 @@ function getMonthDays(
   const firstDayOfMonth = new Date(year, month, 1);
   const lastDayOfMonth = new Date(year, month + 1, 0);
 
-  const firstDayWeekIndex = (firstDayOfMonth.getDay() + 6) % 7; // Monday = 0
+  const firstDayWeekIndex = (firstDayOfMonth.getDay() + 6) % 7;
   const totalDays = lastDayOfMonth.getDate();
 
   const cells: (CalendarDay & { isCurrentMonth: boolean })[] = [];
 
-  // Previous month trailing days
   for (let i = firstDayWeekIndex - 1; i >= 0; i--) {
     const d = new Date(year, month, -i);
     cells.push({
@@ -232,7 +229,6 @@ function getMonthDays(
     });
   }
 
-  // Current month days
   for (let i = 1; i <= totalDays; i++) {
     const d = new Date(year, month, i);
     cells.push({
@@ -246,7 +242,6 @@ function getMonthDays(
     });
   }
 
-  // Next month leading days to complete grid
   const remaining = (7 - (cells.length % 7)) % 7;
   for (let i = 1; i <= remaining; i++) {
     const d = new Date(year, month + 1, i);
@@ -264,12 +259,9 @@ function getMonthDays(
   return cells;
 }
 
-/* --------------------------------- Page --------------------------------- */
-
 export default function CalendarPage() {
   const router = useRouter();
 
-  // Active anchor date & view mode (stably initialized for Next.js prerendering)
   const [currentDate, setCurrentDate] = useState<Date>(
     () => new Date("2026-10-17T00:00:00Z"),
   );
@@ -277,26 +269,20 @@ export default function CalendarPage() {
   const [viewMode, setViewMode] = useState<"week" | "month">("week");
   const [platformFilter, setPlatformFilter] = useState<string>("ALL");
 
-  // Live data states
   const [scheduledPosts, setScheduledPosts] = useState<ScheduledPost[]>([]);
   const [videoProjects, setVideoProjects] = useState<VideoProjectResponse[]>([]);
   const [accounts, setAccounts] = useState<SocialAccountDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [userTimeZone, setUserTimeZone] = useState("UTC");
 
-  // Search filter for draft videos in right sidebar
   const [draftSearchQuery, setDraftSearchQuery] = useState("");
 
-  // Modals state
-  // 1. Reschedule modal
   const [editingPost, setEditingPost] = useState<ScheduledPost | null>(null);
   const [newTime, setNewTime] = useState<string>("");
 
-  // 2. Post detail & preview modal
   const [detailPost, setDetailPost] = useState<ScheduledPost | null>(null);
   const [publishingId, setPublishingId] = useState<string | null>(null);
 
-  // 3. Quick Schedule modal
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
   const [selectedVideoId, setSelectedVideoId] = useState<string>("");
   const [schedulePostTitle, setSchedulePostTitle] = useState("");
@@ -305,11 +291,9 @@ export default function CalendarPage() {
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(["FACEBOOK"]);
   const [submittingSchedule, setSubmittingSchedule] = useState(false);
 
-  // 4. Video player preview modal (from sidebar or draft)
   const [videoPreviewProject, setVideoPreviewProject] =
     useState<VideoProjectResponse | null>(null);
 
-  // Initial load
   useEffect(() => {
     try {
       setUserTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone);
@@ -343,7 +327,6 @@ export default function CalendarPage() {
       const allVideos = videoRes?.content || [];
       setVideoProjects(allVideos);
 
-      // Build scheduled posts map
       if (Array.isArray(tasks)) {
         const mapByGroup = new Map<string, ScheduledPost>();
         const mapped: ScheduledPost[] = [];
@@ -397,7 +380,6 @@ export default function CalendarPage() {
     }
   };
 
-  // Navigation handlers
   const handlePrev = () => {
     setCurrentDate((prev) => {
       const d = new Date(prev);
@@ -426,7 +408,6 @@ export default function CalendarPage() {
     setCurrentDate(new Date());
   };
 
-  // Open quick schedule modal with pre-selected date/video
   const handleOpenScheduleModal = (video?: VideoProjectResponse, targetDate?: Date) => {
     if (video) {
       setSelectedVideoId(video.id);
@@ -440,7 +421,6 @@ export default function CalendarPage() {
       setSchedulePostCaption(first.scriptText ? first.scriptText.slice(0, 180) : "");
     }
 
-    // Ensure only connected accounts are selected
     const connectedActive = accounts
       .filter((a) => a.status === "CONNECTED")
       .map((a) => a.platform);
@@ -448,13 +428,11 @@ export default function CalendarPage() {
       setSelectedPlatforms(connectedActive);
     }
 
-    // Default time: targetDate at 18:30 (peak hour) or tomorrow 18:30
     const base = targetDate
       ? new Date(targetDate)
       : new Date(Date.now() + 24 * 3600 * 1000);
     base.setHours(18, 30, 0, 0);
 
-    // Format for datetime-local (YYYY-MM-DDTHH:mm)
     const localIso = new Date(base.getTime() - base.getTimezoneOffset() * 60000)
       .toISOString()
       .slice(0, 16);
@@ -548,13 +526,11 @@ export default function CalendarPage() {
     }
   };
 
-  // Filtered scheduled posts
   const filteredScheduled = useMemo(() => {
     if (platformFilter === "ALL") return scheduledPosts;
     return scheduledPosts.filter((p) => p.platforms.includes(platformFilter as Platform));
   }, [scheduledPosts, platformFilter]);
 
-  // Filtered draft videos
   const readyVideos = useMemo(() => {
     return videoProjects.filter((v) => {
       const matchStatus = v.status === "COMPLETED";
@@ -565,7 +541,6 @@ export default function CalendarPage() {
     });
   }, [videoProjects, draftSearchQuery]);
 
-  // Calendar dates
   const weekStart = useMemo(() => getWeekStart(currentDate), [currentDate]);
   const weekDays = useMemo(() => getWeekDays(weekStart, todayStr), [weekStart, todayStr]);
   const monthDays = useMemo(
@@ -573,7 +548,6 @@ export default function CalendarPage() {
     [currentDate, todayStr],
   );
 
-  // Date range title
   const dateRangeLabel = useMemo(() => {
     if (viewMode === "week") {
       const end = new Date(weekStart);
@@ -594,7 +568,6 @@ export default function CalendarPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 pb-16">
-      {/* 1. Header Toolbar */}
       <div className="flex flex-col gap-4 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="flex items-center gap-2.5 text-2xl font-bold tracking-tight md:text-3xl">
@@ -607,7 +580,6 @@ export default function CalendarPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
-          {/* Week / Month view toggle */}
           <Tabs
             value={viewMode}
             onValueChange={(v) => setViewMode(v as "week" | "month")}
@@ -631,7 +603,6 @@ export default function CalendarPage() {
         </div>
       </div>
 
-      {/* 2. Status & Metric Badges */}
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card p-3 text-xs shadow-xs">
         <div className="flex flex-wrap items-center gap-4">
           <span className="flex items-center gap-1.5 font-medium">
@@ -660,9 +631,7 @@ export default function CalendarPage() {
         </div>
       </div>
 
-      {/* 3. Navigation & Platform Filter Bar */}
       <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-        {/* Previous, Today, Next controls */}
         <div className="flex items-center gap-2">
           <div className="flex items-center rounded-lg border bg-card p-0.5 shadow-xs">
             <Button
@@ -698,7 +667,6 @@ export default function CalendarPage() {
           </span>
         </div>
 
-        {/* Platform filter */}
         <div className="flex w-full items-center gap-2 sm:w-auto">
           <Filter className="size-4 text-muted-foreground" />
           <Select value={platformFilter} onValueChange={(v) => v && setPlatformFilter(v)}>
@@ -727,12 +695,9 @@ export default function CalendarPage() {
         </div>
       </div>
 
-      {/* 4. Main Layout: Calendar Grid (8 cols) + Ready to Schedule Library (4 cols) */}
       <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
-        {/* Left Column: Calendar View */}
         <div className="space-y-4 lg:col-span-8">
           {viewMode === "week" ? (
-            /* ================= Week View ================= */
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-7">
               {weekDays.map((day) => {
                 const postsForDay = filteredScheduled.filter(
@@ -749,7 +714,6 @@ export default function CalendarPage() {
                         : "border-border",
                     )}
                   >
-                    {/* Day Header */}
                     <div className="mb-2 flex items-center justify-between border-b pb-2">
                       <div className="flex flex-col">
                         <span className="text-xs font-semibold text-foreground">
@@ -782,7 +746,6 @@ export default function CalendarPage() {
                       </div>
                     </div>
 
-                    {/* Day Posts List */}
                     <div className="flex-1 space-y-2">
                       {postsForDay.map((post) => (
                         <div
@@ -881,9 +844,7 @@ export default function CalendarPage() {
               })}
             </div>
           ) : (
-            /* ================= Month View ================= */
             <div className="overflow-hidden rounded-xl border bg-card shadow-xs">
-              {/* Month Day Names */}
               <div className="grid grid-cols-7 border-b bg-muted/20 py-2.5 text-center text-xs font-semibold text-muted-foreground">
                 <span>Mon</span>
                 <span>Tue</span>
@@ -894,7 +855,6 @@ export default function CalendarPage() {
                 <span>Sun</span>
               </div>
 
-              {/* Month Day Cells */}
               <div className="grid grid-cols-7 divide-x divide-y">
                 {monthDays.map((cell) => {
                   const postsForDay = filteredScheduled.filter(
@@ -910,7 +870,6 @@ export default function CalendarPage() {
                         cell.isToday && "bg-primary/5 font-semibold",
                       )}
                     >
-                      {/* Top Day Number & Quick Add */}
                       <div className="flex items-center justify-between">
                         <button
                           type="button"
@@ -931,7 +890,6 @@ export default function CalendarPage() {
                         </span>
                       </div>
 
-                      {/* Post Pills */}
                       <div className="my-1 flex-1 space-y-1">
                         {postsForDay.slice(0, 3).map((post) => (
                           <div
@@ -970,7 +928,6 @@ export default function CalendarPage() {
           )}
         </div>
 
-        {/* Right Column: Ready to Schedule Library */}
         <div className="space-y-4 lg:col-span-4">
           <Card className="border shadow-xs">
             <CardHeader className="pb-3">
@@ -986,7 +943,6 @@ export default function CalendarPage() {
                 Pick rendered video drafts to assign into optimal publishing slots.
               </CardDescription>
 
-              {/* Search filter for drafts */}
               <div className="relative pt-2">
                 <Search className="absolute top-5 left-2.5 size-3.5 text-muted-foreground" />
                 <Input
@@ -1075,7 +1031,6 @@ export default function CalendarPage() {
         </div>
       </div>
 
-      {/* ================= MODAL 1: Quick Schedule Post ================= */}
       <Dialog open={scheduleModalOpen} onOpenChange={setScheduleModalOpen}>
         <DialogContent className="p-5 sm:max-w-lg">
           <DialogHeader>
@@ -1088,7 +1043,6 @@ export default function CalendarPage() {
           </DialogHeader>
 
           <div className="space-y-4 py-2">
-            {/* Video selector */}
             <div className="space-y-1.5">
               <Label className="text-xs">Target Video</Label>
               <Select
@@ -1120,7 +1074,6 @@ export default function CalendarPage() {
               </Select>
             </div>
 
-            {/* Platform toggles */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <Label className="text-xs">Publish To Platforms</Label>
@@ -1177,7 +1130,6 @@ export default function CalendarPage() {
               </div>
             </div>
 
-            {/* Post Title & Caption */}
             <div className="space-y-2">
               <div>
                 <Label htmlFor="sched-title" className="text-xs">
@@ -1207,7 +1159,6 @@ export default function CalendarPage() {
               </div>
             </div>
 
-            {/* Time selection & Quick Presets */}
             <div className="space-y-2">
               <Label htmlFor="sched-datetime" className="text-xs">
                 Publish Date &amp; Time ({userTimeZone})
@@ -1220,7 +1171,6 @@ export default function CalendarPage() {
                 className="h-9 text-xs"
               />
 
-              {/* Quick time recommendation pills */}
               <div className="flex flex-wrap gap-1.5 pt-1">
                 <button
                   type="button"
@@ -1299,7 +1249,6 @@ export default function CalendarPage() {
         </DialogContent>
       </Dialog>
 
-      {/* ================= MODAL 2: Post Detail & Video Preview ================= */}
       {detailPost && (
         <Dialog open={!!detailPost} onOpenChange={(open) => !open && setDetailPost(null)}>
           <DialogContent className="p-5 sm:max-w-lg">
@@ -1324,7 +1273,6 @@ export default function CalendarPage() {
               </DialogDescription>
             </DialogHeader>
 
-            {/* Video preview player */}
             {detailPost.outputUrl ? (
               <div className="relative mx-auto my-2 flex aspect-[9/16] max-h-[45vh] w-full items-center justify-center overflow-hidden rounded-xl bg-black">
                 <video
@@ -1341,7 +1289,6 @@ export default function CalendarPage() {
               </div>
             )}
 
-            {/* Target platforms */}
             <div className="space-y-2 text-xs">
               <span className="font-semibold text-muted-foreground">
                 Target Platforms:
@@ -1407,7 +1354,6 @@ export default function CalendarPage() {
         </Dialog>
       )}
 
-      {/* ================= MODAL 3: Reschedule Post Time ================= */}
       <Dialog open={!!editingPost} onOpenChange={(open) => !open && setEditingPost(null)}>
         <DialogContent className="p-5 sm:max-w-md">
           <DialogHeader>
@@ -1455,7 +1401,6 @@ export default function CalendarPage() {
         </DialogContent>
       </Dialog>
 
-      {/* ================= MODAL 4: Video Draft Player Preview ================= */}
       {videoPreviewProject && (
         <Dialog
           open={!!videoPreviewProject}

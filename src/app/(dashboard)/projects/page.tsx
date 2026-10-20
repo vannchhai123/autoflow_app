@@ -93,10 +93,6 @@ import {
 } from "@/features/publishing/types/publishing.types";
 import { cn } from "@/lib/utils";
 
-/* -------------------------------------------------------------------------- */
-/*                                    Types                                   */
-/* -------------------------------------------------------------------------- */
-
 type Icon = ComponentType<LucideProps>;
 type Status = "DRAFT" | "RENDERING" | "READY" | "SCHEDULED" | "PUBLISHED" | "FAILED";
 type StatusFilter = "ALL" | Status;
@@ -133,9 +129,6 @@ interface Project {
   gradient: string;
 }
 
-/* -------------------------------------------------------------------------- */
-/*                                  Folders                                   */
-/* -------------------------------------------------------------------------- */
 const DEFAULT_FOLDERS: Folder[] = [
   { id: "all", name: "All Folders" },
   { id: "folder-shorts", name: "⚡ Viral Shorts & Reels", color: "text-amber-500" },
@@ -144,14 +137,7 @@ const DEFAULT_FOLDERS: Folder[] = [
   { id: "folder-explainers", name: "💡 AI Explainers", color: "text-purple-500" },
 ];
 
-/* -------------------------------------------------------------------------- */
-/*                               Mock data                                    */
-/* -------------------------------------------------------------------------- */
 const INITIAL_PROJECTS: Project[] = [];
-
-/* -------------------------------------------------------------------------- */
-/*                               Static config                                */
-/* -------------------------------------------------------------------------- */
 
 const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
   { value: "ALL", label: "All Statuses" },
@@ -188,11 +174,6 @@ const KANBAN_COLUMNS: { id: string; title: string; statuses: Status[] }[] = [
   { id: "live", title: "Scheduled & Published", statuses: ["SCHEDULED", "PUBLISHED"] },
 ];
 
-/* -------------------------------------------------------------------------- */
-/*                              Platform icons                                */
-/* -------------------------------------------------------------------------- */
-
-// lucide-react v1 dropped brand icons, so these are inline SVGs.
 const YoutubeIcon: Icon = ({ className }) => (
   <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden>
     <path d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.9.5A3 3 0 0 0 1 7.2C.5 9.1.5 12 .5 12s0 2.9.5 4.8a3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1c.5-1.9.5-4.8.5-4.8s0-2.9-.5-4.8ZM9.8 15.1V8.9l5.4 3.1-5.4 3.1Z" />
@@ -258,10 +239,6 @@ function PlatformIcons({
     </div>
   );
 }
-
-/* -------------------------------------------------------------------------- */
-/*                               Card components                              */
-/* -------------------------------------------------------------------------- */
 
 interface ProjectActions {
   onDuplicate: (id: string) => void;
@@ -368,7 +345,6 @@ function ProjectCard({
   const { status, videoType } = project;
   return (
     <Card className="group flex h-full flex-col justify-between gap-0 overflow-hidden py-0 transition-shadow hover:shadow-md">
-      {/* preview thumbnail with hover demo */}
       <HoverVideoPreview
         src={project.outputUrl}
         thumbnailUrl={project.thumbnailUrl}
@@ -408,7 +384,6 @@ function ProjectCard({
           </div>
         </div>
 
-        {/* State-specific center content */}
         {status === "RENDERING" && (
           <div className="absolute inset-x-4 top-1/2 z-10 -translate-y-1/2 space-y-3 rounded-xl bg-black/55 p-4 text-white backdrop-blur">
             <div className="flex items-center gap-2 text-sm font-medium">
@@ -464,7 +439,6 @@ function ProjectCard({
           </div>
         )}
 
-        {/* Bottom overlays: duration + resolution */}
         <div className="absolute inset-x-2 bottom-2 z-10 flex items-center justify-between text-xs font-medium text-white">
           <span className="rounded bg-black/70 px-1.5 py-0.5 tabular-nums">
             {project.aspectRatio === "PORTRAIT_9_16"
@@ -709,10 +683,6 @@ function EmptyState({ onClear, onNew }: { onClear: () => void; onNew: () => void
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/*                               Dialog helpers                               */
-/* -------------------------------------------------------------------------- */
-
 type AspectRatio = "9:16" | "16:9" | "1:1";
 
 const GRADIENTS = [
@@ -729,7 +699,6 @@ const randomGradient = () => GRADIENTS[Math.floor(Math.random() * GRADIENTS.leng
 const formatDuration = (seconds: number) =>
   `${Math.floor(seconds / 60)}:${String(Math.round(seconds % 60)).padStart(2, "0")}`;
 
-/** ~150 spoken words per minute. */
 const countWords = (text: string) => text.trim().split(/\s+/).filter(Boolean).length;
 const estimateSeconds = (words: number) => Math.round((words / 150) * 60);
 
@@ -766,10 +735,9 @@ const DURATION_OPTIONS = [
 ];
 
 const VOICE_OPTIONS = [
-  // Khmer (ភាសាខ្មែរ)
   { value: "km-KH-PisethNeural", label: "🇰🇭 Piseth (Natural Male - ខ្មែរ)" },
   { value: "km-KH-SreymomNeural", label: "🇰🇭 Sreymom (Clear Female - ខ្មែរ)" },
-  // English
+
   { value: "en-US-GuyNeural", label: "🇺🇸 Adam (Energetic Male)" },
   { value: "en-US-JennyNeural", label: "🇺🇸 Rachel (Narrative Female)" },
   { value: "en-US-ChristopherNeural", label: "🇺🇸 Christopher (Professional Explainer)" },
@@ -1023,7 +991,6 @@ function NewVideoDialog({ open, onOpenChange, onCreate }: DialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const audioInputRef = useRef<HTMLInputElement>(null);
 
-  // Load user's cloned voices from backend
   useEffect(() => {
     if (open) {
       videoApi
@@ -1114,14 +1081,12 @@ function NewVideoDialog({ open, onOpenChange, onCreate }: DialogProps) {
     try {
       let serverAudioUrl: string | undefined = undefined;
 
-      // If user uploaded custom real audio, upload it first
       if (audioSource === "custom" && customAudioFile) {
         toast.info("Uploading audio file...", { description: customAudioFile.name });
         const uploadRes = await videoApi.uploadAudio(customAudioFile);
         serverAudioUrl = uploadRes.audioUrl;
       }
 
-      // 1. Call Spring Boot to create video project
       const created = await videoApi.create({
         title: title.trim(),
         scriptText: script,
@@ -1131,7 +1096,6 @@ function NewVideoDialog({ open, onOpenChange, onCreate }: DialogProps) {
         audioUrl: serverAudioUrl,
       });
 
-      // 2. Request asynchronous render on the backend
       const renderJob = await videoApi.requestRender(created.id);
 
       onCreate(
@@ -1157,7 +1121,6 @@ function NewVideoDialog({ open, onOpenChange, onCreate }: DialogProps) {
 
       toast.success("Video rendering started on backend", { description: title.trim() });
     } catch {
-      // Fallback to local simulation if backend is not running or unauthenticated
       onCreate({
         id: `new-${Date.now()}`,
         title: title.trim(),
@@ -1201,7 +1164,6 @@ function NewVideoDialog({ open, onOpenChange, onCreate }: DialogProps) {
             />
           </Field>
 
-          {/* Audio Source Selector */}
           <div className="space-y-1.5">
             <Label>Audio Source</Label>
             <div className="grid grid-cols-2 gap-2">
@@ -1464,12 +1426,9 @@ function NewVideoDialog({ open, onOpenChange, onCreate }: DialogProps) {
   );
 }
 
-/* ----------------------------- Import Script ----------------------------- */
-
 type ImportTab = "paste" | "url" | "file";
 const ACCEPTED_EXTENSIONS = [".txt", ".srt", ".json"];
 
-/** Extracts plain spoken text from .txt / .srt / .json uploads. */
 function parseScriptFile(name: string, raw: string): string {
   const ext = name.slice(name.lastIndexOf(".")).toLowerCase();
   if (ext === ".srt") {
@@ -1537,7 +1496,7 @@ function ImportScriptDialog({ open, onOpenChange, onCreate }: DialogProps) {
       return;
     }
     setFetching(true);
-    // Mock summarizer — replace with a call to the backend.
+
     setTimeout(() => {
       setScript(
         `Here's the quick version of the article. ${new URL(url).hostname} breaks down the key ideas into three simple takeaways. First, start small and stay consistent. Second, measure what matters instead of everything. Third, share what you learn with others. Follow for more ideas like this.`,
@@ -1744,10 +1703,6 @@ function ImportScriptDialog({ open, onOpenChange, onCreate }: DialogProps) {
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/*                            Folder Dialogs                                  */
-/* -------------------------------------------------------------------------- */
-
 interface MoveToFolderDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -1949,10 +1904,6 @@ function NewFolderDialog({ open, onOpenChange, onCreateFolder }: NewFolderDialog
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/*                                    Page                                    */
-/* -------------------------------------------------------------------------- */
-
 export default function ProjectsPage() {
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>(INITIAL_PROJECTS);
@@ -1972,7 +1923,6 @@ export default function ProjectsPage() {
   const [projectToMove, setProjectToMove] = useState<Project | null>(null);
   const [previewProject, setPreviewProject] = useState<Project | null>(null);
 
-  // Load projects from Spring Boot backend and scheduled posts
   useEffect(() => {
     let active = true;
     let savedFolderMap: Record<string, string> = {};
@@ -1987,9 +1937,7 @@ export default function ProjectsPage() {
         savedFolderMap = JSON.parse(savedMap);
         setFolderMap(savedFolderMap);
       }
-    } catch {
-      // ignore localStorage errors
-    }
+    } catch {}
 
     Promise.allSettled([videoApi.list(0, 50), publishingApi.listScheduled()])
       .then(([resVideos, resScheduled]) => {
@@ -2016,7 +1964,6 @@ export default function ProjectsPage() {
               (p.durationSeconds ?? 45) <= 60 || p.aspectRatio === "PORTRAIT_9_16";
             const videoType: "SHORT" | "LONG" = isShort ? "SHORT" : "LONG";
 
-            // Check if there is an associated scheduled publishing task
             const matchingTask = scheduledTasks.find((t) => t.videoProjectId === p.id);
             const itemStatus: Status = matchingTask
               ? matchingTask.status === "PUBLISHED"
@@ -2078,9 +2025,7 @@ export default function ProjectsPage() {
           setProjects(fromBackend);
         }
       })
-      .catch(() => {
-        // Backend offline or error
-      });
+      .catch(() => {});
 
     return () => {
       active = false;
@@ -2111,29 +2056,23 @@ export default function ProjectsPage() {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return projects.filter((p) => {
-      // Content Category (All, Videos, Posts)
       if (contentCategory === "VIDEOS") {
         if (p.status === "SCHEDULED" || p.status === "PUBLISHED") return false;
       } else if (contentCategory === "POSTS") {
         if (p.status !== "SCHEDULED" && p.status !== "PUBLISHED") return false;
       }
 
-      // Format (Short vs Long)
       if (formatFilter === "SHORT" && p.videoType !== "SHORT") return false;
       if (formatFilter === "LONG" && p.videoType !== "LONG") return false;
 
-      // Folder / Directory
       if (selectedFolder !== "all") {
         if ((p.folderId || "all") !== selectedFolder) return false;
       }
 
-      // Status Filter
       if (status !== "ALL" && p.status !== status) return false;
 
-      // Platform Filter
       if (platform !== "ALL" && !p.platforms.includes(platform)) return false;
 
-      // Query Search
       if (!q) return true;
       return (
         p.title.toLowerCase().includes(q) ||
@@ -2157,9 +2096,7 @@ export default function ProjectsPage() {
     setFolderMap(updatedMap);
     try {
       localStorage.setItem("clipflow_video_folder_map", JSON.stringify(updatedMap));
-    } catch {
-      // ignore
-    }
+    } catch {}
     setProjects((prev) => prev.map((p) => (p.id === projectId ? { ...p, folderId } : p)));
     const targetFolder = folders.find((f) => f.id === folderId);
     toast.success(`Video moved to ${targetFolder?.name || "Folder"}`);
@@ -2175,9 +2112,7 @@ export default function ProjectsPage() {
     setFolders(updated);
     try {
       localStorage.setItem("clipflow_video_folders", JSON.stringify(updated));
-    } catch {
-      // ignore
-    }
+    } catch {}
     setSelectedFolder(newF.id);
     toast.success(`Folder "${name}" created!`);
   };
@@ -2191,13 +2126,10 @@ export default function ProjectsPage() {
     }
     try {
       localStorage.setItem("clipflow_video_folders", JSON.stringify(updated));
-    } catch {
-      // ignore
-    }
+    } catch {}
     toast.info(`Folder "${folderName}" removed`);
   };
 
-  /** Prepends a project and monitors backend render progress */
   const addProject = (project: Project, jobId?: string) => {
     const enrichedProject = {
       ...project,
@@ -2303,7 +2235,6 @@ export default function ProjectsPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
-      {/* Header */}
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
@@ -2341,7 +2272,6 @@ export default function ProjectsPage() {
         </div>
       </header>
 
-      {/* Top Level Category Mode: All vs Videos vs Posts */}
       <div className="flex flex-wrap items-center gap-2 border-b pb-3">
         <button
           type="button"
@@ -2416,7 +2346,6 @@ export default function ProjectsPage() {
         </button>
       </div>
 
-      {/* Directory & Folders Bar */}
       <div className="space-y-2.5 rounded-xl border bg-card p-3 shadow-xs">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -2489,7 +2418,6 @@ export default function ProjectsPage() {
         </div>
       </div>
 
-      {/* Toolbar: Search, Short/Long, Status, Platform, View */}
       <div className="space-y-3">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
           <div className="relative flex-1">
@@ -2504,7 +2432,6 @@ export default function ProjectsPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            {/* Format Filter Tabs (Short vs Long) */}
             <div className="flex items-center gap-1 rounded-lg border bg-muted/60 p-1">
               <button
                 type="button"
@@ -2581,7 +2508,6 @@ export default function ProjectsPage() {
           </div>
         </div>
 
-        {/* Platform Quick Filter Pills */}
         <div className="flex flex-wrap items-center gap-1.5 pt-1">
           <span className="mr-1 flex items-center gap-1 text-xs font-medium text-muted-foreground">
             <Share2 className="size-3.5" /> Platform:
@@ -2610,7 +2536,6 @@ export default function ProjectsPage() {
         </div>
       </div>
 
-      {/* Result summary */}
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <span>
@@ -2639,7 +2564,6 @@ export default function ProjectsPage() {
         )}
       </div>
 
-      {/* Content */}
       {filtered.length === 0 ? (
         <EmptyState onClear={clearFilters} onNew={() => router.push("/create")} />
       ) : view === "grid" ? (
@@ -2657,7 +2581,6 @@ export default function ProjectsPage() {
         <KanbanBoard projects={filtered} actions={actions} folders={folders} />
       )}
 
-      {/* Dialogs */}
       <NewVideoDialog open={newOpen} onOpenChange={setNewOpen} onCreate={addProject} />
       <ImportScriptDialog
         open={importOpen}
@@ -2678,7 +2601,6 @@ export default function ProjectsPage() {
         onCreateFolder={handleCreateFolder}
       />
 
-      {/* Video Preview Modal */}
       <Dialog
         open={!!previewProject}
         onOpenChange={(open) => !open && setPreviewProject(null)}

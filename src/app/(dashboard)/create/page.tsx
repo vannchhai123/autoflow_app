@@ -65,10 +65,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
-/* -------------------------------------------------------------------------- */
-/*                                    Types                                   */
-/* -------------------------------------------------------------------------- */
-
 type AspectRatio = "9:16" | "16:9" | "1:1";
 
 interface BackgroundStyle {
@@ -149,10 +145,9 @@ const BASE_CLONE_VOICES = [
 ];
 
 const VOICE_OPTIONS = [
-  // Khmer
   { value: "km-KH-PisethNeural", label: "🇰🇭 Piseth (Natural Male - ខ្មែរ)" },
   { value: "km-KH-SreymomNeural", label: "🇰🇭 Sreymom (Clear Female - ខ្មែរ)" },
-  // English
+
   { value: "en-US-GuyNeural", label: "🇺🇸 Adam (Energetic Male)" },
   { value: "en-US-JennyNeural", label: "🇺🇸 Rachel (Narrative Female)" },
   { value: "en-US-ChristopherNeural", label: "🇺🇸 Christopher (Explainer Male)" },
@@ -160,10 +155,6 @@ const VOICE_OPTIONS = [
   { value: "en-US-EricNeural", label: "🇺🇸 Josh (Calm & Deep)" },
   { value: "en-GB-RyanNeural", label: "🇬🇧 Ryan (British Male)" },
 ];
-
-/* -------------------------------------------------------------------------- */
-/*                               Clone Dialog                                 */
-/* -------------------------------------------------------------------------- */
 
 function CloneVoiceDialog({
   open,
@@ -349,14 +340,9 @@ function CloneVoiceDialog({
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/*                                Main Page                                   */
-/* -------------------------------------------------------------------------- */
-
 export default function CreateVideoPage() {
   const router = useRouter();
 
-  // Project form state
   const [title, setTitle] = useState("៣ ជំហានចាប់ផ្ដើមថ្ងៃថ្មីឱ្យមានថាមពល");
   const [script, setScript] = useState(
     "តើអ្នកចង់ឱ្យថ្ងៃនេះជាថ្ងៃដ៏ជោគជ័យមែនទេ? ចងចាំ ៣ ចំណុចនេះ៖ ទីមួយ ក្រោកពីគេងញ៉ាំទឹកមួយកែវភ្លាមៗ។ ទីពីរ សរសេរគោលដៅសំខាន់បំផុត ៣ យ៉ាង។ និងទីបី កុំទាន់បើកមើលបណ្ដាញសង្គមក្នុងរយៈពេល ៣០ នាទីដំបូង។ សាកល្បងអនុវត្តទាំងអស់គ្នាណា!",
@@ -367,23 +353,19 @@ export default function CreateVideoPage() {
   const [voice, setVoice] = useState("km-KH-PisethNeural");
   const [duration, setDuration] = useState("30");
 
-  // Custom audio upload state
   const [customAudioFile, setCustomAudioFile] = useState<File | null>(null);
   const [customAudioUrl, setCustomAudioUrl] = useState<string | null>(null);
   const audioInputRef = useRef<HTMLInputElement>(null);
 
-  // Cloned voices state
   const [clonedVoices, setClonedVoices] = useState<ClonedVoiceResponse[]>([]);
   const [cloneModalOpen, setCloneModalOpen] = useState(false);
 
-  // Rendering & Progress state
   const [isRendering, setIsRendering] = useState(false);
   const [renderProgress, setRenderProgress] = useState(0);
   const [renderSuccess, setRenderSuccess] = useState(false);
   const [renderedOutputUrl, setRenderedOutputUrl] = useState<string | null>(null);
   const [createdProjectId, setCreatedProjectId] = useState<string | null>(null);
 
-  // Fetch cloned voices on mount
   useEffect(() => {
     videoApi
       .listClonedVoices()
@@ -393,13 +375,11 @@ export default function CreateVideoPage() {
       .catch(() => {});
   }, []);
 
-  // Word count & duration estimate
   const wordCount = useMemo(() => {
     return script.trim().split(/\s+/).filter(Boolean).length;
   }, [script]);
 
   const estimatedSeconds = useMemo(() => {
-    // ~140 words per minute for speech
     return Math.max(5, Math.round((wordCount / 140) * 60));
   }, [wordCount]);
 
@@ -436,7 +416,6 @@ export default function CreateVideoPage() {
     setVoice(`cloned:${newVoice.id}`);
   };
 
-  // Submission handler
   const handleGenerate = async () => {
     if (!title.trim()) {
       toast.error("Please enter a video title");
@@ -460,7 +439,6 @@ export default function CreateVideoPage() {
     try {
       let uploadedAudioUrl: string | undefined = undefined;
 
-      // 1. Upload custom audio if selected
       if (audioSource === "custom" && customAudioFile) {
         toast.info("Uploading audio file...", { description: customAudioFile.name });
         const uploadRes = await videoApi.uploadAudio(customAudioFile);
@@ -468,7 +446,6 @@ export default function CreateVideoPage() {
         setRenderProgress(25);
       }
 
-      // 2. Create Video Project in backend
       toast.info("Creating video project...");
       const created = await videoApi.create({
         title: title.trim(),
@@ -482,11 +459,9 @@ export default function CreateVideoPage() {
       setCreatedProjectId(created.id);
       setRenderProgress(35);
 
-      // 3. Request Asynchronous Render
       toast.info("Starting animated video rendering...");
       const renderJob = await videoApi.requestRender(created.id);
 
-      // 4. Poll render job progress
       const pollInterval = setInterval(async () => {
         try {
           const job = await videoApi.getJob(renderJob.jobId);
@@ -519,7 +494,6 @@ export default function CreateVideoPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 pb-12">
-      {/* Top Header */}
       <div className="flex flex-col gap-4 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <Button
@@ -573,11 +547,8 @@ export default function CreateVideoPage() {
         </div>
       </div>
 
-      {/* Main Studio Grid: Left Controls (7 cols) + Right Live Preview (5 cols) */}
       <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
-        {/* Left Column: Editor Controls */}
         <div className="space-y-6 lg:col-span-7">
-          {/* Card 1: Title & Script */}
           <Card className="border shadow-xs">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
@@ -625,7 +596,6 @@ export default function CreateVideoPage() {
             </CardContent>
           </Card>
 
-          {/* Card 2: Voice & Audio Studio */}
           <Card className="border shadow-xs">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
@@ -637,7 +607,6 @@ export default function CreateVideoPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* Audio Mode Tabs */}
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
@@ -806,7 +775,6 @@ export default function CreateVideoPage() {
             </CardContent>
           </Card>
 
-          {/* Card 3: Visual Background & Animations */}
           <Card className="border shadow-xs">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
@@ -852,7 +820,6 @@ export default function CreateVideoPage() {
             </CardContent>
           </Card>
 
-          {/* Card 4: Aspect Ratio */}
           <Card className="border shadow-xs">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
@@ -894,7 +861,6 @@ export default function CreateVideoPage() {
           </Card>
         </div>
 
-        {/* Right Column: Live Mockup Preview & Action Dock */}
         <div className="space-y-4 lg:sticky lg:top-6 lg:col-span-5">
           <Card className="overflow-hidden border border-neutral-800 bg-neutral-950 text-white shadow-md">
             <CardHeader className="flex flex-row items-center justify-between border-b border-neutral-800 pb-2">
@@ -913,16 +879,13 @@ export default function CreateVideoPage() {
             </CardHeader>
 
             <CardContent className="flex flex-col items-center p-4">
-              {/* Smartphone Simulator */}
               <div className="relative w-full max-w-[280px] overflow-hidden rounded-2xl border-4 border-neutral-800 bg-black shadow-2xl">
-                {/* 9:16 Canvas */}
                 <div
                   className={cn(
                     "relative flex aspect-[9/16] w-full flex-col justify-between bg-gradient-to-b p-4 transition-all duration-300",
                     selectedBg.gradient,
                   )}
                 >
-                  {/* Top Branding Tag */}
                   <div className="flex items-center justify-between text-[10px] text-white/80">
                     <span className="font-semibold tracking-wide">AutoClip</span>
                     <Badge
@@ -933,7 +896,6 @@ export default function CreateVideoPage() {
                     </Badge>
                   </div>
 
-                  {/* Centered Frosted Title Card */}
                   <div className="my-auto rounded-xl border border-white/10 bg-black/60 p-4 text-center shadow-lg backdrop-blur-md">
                     <p className="line-clamp-3 text-sm leading-snug font-bold text-white">
                       {title.trim() || "Your Video Title Here"}
@@ -943,9 +905,7 @@ export default function CreateVideoPage() {
                     </p>
                   </div>
 
-                  {/* Bottom: Visualizer Waveform + Progress Bar */}
                   <div className="space-y-3">
-                    {/* Pulsing Audio Waveform Mockup */}
                     <div className="flex h-7 items-center justify-center gap-1 px-4">
                       {[12, 24, 18, 30, 15, 28, 20, 32, 16, 26, 14, 28, 22].map(
                         (height, i) => (
@@ -958,7 +918,6 @@ export default function CreateVideoPage() {
                       )}
                     </div>
 
-                    {/* Progress Bar Line */}
                     <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/20">
                       <div className="h-full w-2/3 rounded-full bg-sky-400" />
                     </div>
@@ -966,7 +925,6 @@ export default function CreateVideoPage() {
                 </div>
               </div>
 
-              {/* Progress & Result Panel */}
               <div className="mt-4 w-full space-y-3">
                 {isRendering && (
                   <div className="space-y-2 rounded-xl border border-neutral-800 bg-neutral-900 p-3">

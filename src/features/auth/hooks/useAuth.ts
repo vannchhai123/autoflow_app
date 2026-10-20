@@ -41,8 +41,7 @@ export function useCurrentUserEmail(): string {
   useEffect(() => {
     const stored = localStorage.getItem("autoclip.email");
     if (stored && stored !== "demo@autoclip.app") {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setEmail(stored);
+      queueMicrotask(() => setEmail(stored));
       return;
     }
     const token = tokenStorage.getAccess();
@@ -56,14 +55,12 @@ export function useCurrentUserEmail(): string {
           }
           const payload = JSON.parse(atob(base64));
           if (payload.sub && payload.sub !== "demo@autoclip.app") {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            setEmail(payload.sub);
-            localStorage.setItem("autoclip.email", payload.sub);
+            const sub = String(payload.sub);
+            queueMicrotask(() => setEmail(sub));
+            localStorage.setItem("autoclip.email", sub);
           }
         }
-      } catch {
-        // ignore
-      }
+      } catch {}
     }
   }, []);
 

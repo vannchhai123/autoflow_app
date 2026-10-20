@@ -146,7 +146,6 @@ export default function SocialAccountsPage() {
     null,
   );
 
-  // API Credentials Config Dialog
   const [configModalOpen, setConfigModalOpen] = useState(false);
   const [configPlatform, setConfigPlatform] = useState<Platform>("YOUTUBE_SHORTS");
   const [googleClientId, setGoogleClientId] = useState("");
@@ -165,7 +164,6 @@ export default function SocialAccountsPage() {
     : "/api/accounts/oauth2/callback/tiktok";
 
   useEffect(() => {
-    // Check if returning from OAuth callback
     if (typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search);
       const connected = urlParams.get("connected");
@@ -311,7 +309,6 @@ export default function SocialAccountsPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 pb-16">
-      {/* Header */}
       <div className="flex flex-col gap-4 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight md:text-3xl">
@@ -341,7 +338,6 @@ export default function SocialAccountsPage() {
         </div>
       </div>
 
-      {/* Security & Reliability Banner */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Card className="border bg-muted/20 shadow-xs">
           <CardContent className="flex items-start gap-3 p-4">
@@ -382,7 +378,6 @@ export default function SocialAccountsPage() {
         </Card>
       </div>
 
-      {/* Connected Accounts Grid */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold tracking-tight">Active Social Channels</h2>
@@ -540,7 +535,6 @@ export default function SocialAccountsPage() {
         </div>
       </div>
 
-      {/* Disconnect Modal */}
       <Dialog open={disconnectModalOpen} onOpenChange={setDisconnectModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -565,7 +559,6 @@ export default function SocialAccountsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Configure Credentials Dialog */}
       <Dialog open={configModalOpen} onOpenChange={setConfigModalOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
@@ -582,7 +575,6 @@ export default function SocialAccountsPage() {
 
           {configPlatform === "YOUTUBE_SHORTS" ? (
             <div className="space-y-4 py-2">
-              {/* Sandbox Quick Connect Banner */}
               <div className="flex flex-col items-start justify-between gap-3 rounded-lg border border-primary/30 bg-primary/10 p-3.5 sm:flex-row sm:items-center">
                 <div className="space-y-0.5 text-xs">
                   <p className="flex items-center gap-1.5 font-semibold text-primary">
@@ -627,7 +619,6 @@ export default function SocialAccountsPage() {
                 </Button>
               </div>
 
-              {/* Real Google Cloud Instructions */}
               <div className="space-y-2 rounded-lg border bg-muted/40 p-3 text-xs">
                 <p className="flex items-center gap-1.5 font-semibold text-foreground">
                   <Info className="size-4 text-sky-500" /> Connecting your own YouTube
@@ -734,7 +725,6 @@ export default function SocialAccountsPage() {
 
           {configPlatform === "TIKTOK" ? (
             <div className="space-y-4 py-2">
-              {/* Sandbox Quick Connect Banner */}
               <div className="flex flex-col items-start justify-between gap-3 rounded-lg border border-primary/30 bg-primary/10 p-3.5 sm:flex-row sm:items-center">
                 <div className="space-y-0.5 text-xs">
                   <p className="flex items-center gap-1.5 font-semibold text-primary">
@@ -778,7 +768,6 @@ export default function SocialAccountsPage() {
                 </Button>
               </div>
 
-              {/* TikTok Developer Setup Info */}
               <div className="space-y-2 rounded-lg border bg-muted/40 p-3 text-xs">
                 <p className="flex items-center gap-1.5 font-semibold text-foreground">
                   <Info className="size-4 text-sky-500" /> Connecting your own TikTok

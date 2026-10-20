@@ -34,7 +34,7 @@ export const NAV_ITEMS = [
 interface AppSidebarProps {
   collapsed: boolean;
   onToggle: () => void;
-  /** Mobile drawer open state (ignored on lg+). */
+
   mobileOpen: boolean;
   onNavigate: () => void;
 }
@@ -51,7 +51,6 @@ export function AppSidebar({
 
   return (
     <>
-      {/* Mobile backdrop */}
       <div
         onClick={onNavigate}
         className={cn(
@@ -113,7 +112,6 @@ export function AppSidebar({
           })}
         </nav>
 
-        {/* User Account & Actions Footer */}
         {collapsed ? (
           <div className="flex flex-col items-center gap-2 border-t py-3">
             <div

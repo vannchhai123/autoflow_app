@@ -161,7 +161,6 @@ export default function AnalyticsPage() {
   const channels: AnalyticsChannelPerformance[] = summary.channels || [];
   const dailyGrowth = summary.dailyGrowth || [];
 
-  // Dynamic KPI cards based strictly on real database values
   const kpiCards = useMemo(
     () => [
       {
@@ -210,7 +209,6 @@ export default function AnalyticsPage() {
     [summary, channels],
   );
 
-  // Maximum view count for chart normalization
   const maxDayViews = useMemo(() => {
     if (!dailyGrowth || dailyGrowth.length === 0) return 100;
     const max = Math.max(...dailyGrowth.map((d) => d.views || 0));
@@ -219,7 +217,6 @@ export default function AnalyticsPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 pb-16">
-      {/* Header */}
       <div className="flex flex-col gap-4 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight md:text-3xl">
@@ -252,7 +249,6 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      {/* KPI Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {kpiCards.map((metric) => {
           const IconComp = metric.icon;
@@ -290,9 +286,7 @@ export default function AnalyticsPage() {
         })}
       </div>
 
-      {/* Growth Visualization & Platform Share */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        {/* Growth Curves (Real Data Chart) */}
         <Card className="border bg-card shadow-xs lg:col-span-8">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
@@ -379,7 +373,6 @@ export default function AnalyticsPage() {
           </CardContent>
         </Card>
 
-        {/* Platform Share Comparison */}
         <Card className="flex flex-col justify-between border bg-card shadow-xs lg:col-span-4">
           <CardHeader className="pb-3">
             <CardTitle className="text-base font-semibold">
@@ -450,7 +443,6 @@ export default function AnalyticsPage() {
         </Card>
       </div>
 
-      {/* Real Channel Detailed Table */}
       <Card className="border bg-card shadow-xs">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">

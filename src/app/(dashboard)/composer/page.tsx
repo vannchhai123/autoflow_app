@@ -79,10 +79,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
-/* -------------------------------------------------------------------------- */
-/*                                Platform Icons                              */
-/* -------------------------------------------------------------------------- */
-
 function PlatformIcon({
   platform,
   className,
@@ -149,10 +145,6 @@ function PlatformIcon({
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/*                               Main Composer                                */
-/* -------------------------------------------------------------------------- */
-
 interface PlatformState {
   title: string;
   caption: string;
@@ -176,7 +168,7 @@ const DEFAULT_PLATFORM_STATE: PlatformState = {
   hashtags: [],
   tagsInput: "",
   focusKeyword: "",
-  category: "22", // People & Blogs
+  category: "22",
   privacy: "PUBLIC",
   madeForKids: false,
   videoFormat: "SHORTS",
@@ -208,15 +200,12 @@ const DEFAULT_PROJECTS: VideoProjectResponse[] = [];
 export default function ComposerPage() {
   const router = useRouter();
 
-  // Connected platforms from API
   const [connectedPlatforms, setConnectedPlatforms] = useState<Platform[]>([]);
   const [accountsLoading, setAccountsLoading] = useState(true);
 
-  // Selected platforms (restricted strictly to connected accounts)
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>([]);
   const [activeTab, setActiveTab] = useState<Platform>("FACEBOOK");
 
-  // Video assets & selection
   const [projects, setProjects] = useState<VideoProjectResponse[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string>("");
   const [customVideoFile, setCustomVideoFile] = useState<File | null>(null);
@@ -225,7 +214,6 @@ export default function ComposerPage() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Thumbnail asset state
   const [thumbnailUrl, setThumbnailUrl] = useState<string>("");
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
@@ -334,7 +322,6 @@ export default function ComposerPage() {
     if (file) handleFileSelected(file);
   };
 
-  // Per-platform content state - all empty fields by default
   const [platformData, setPlatformData] = useState<Record<Platform, PlatformState>>({
     YOUTUBE_SHORTS: { ...DEFAULT_PLATFORM_STATE },
     TIKTOK: { ...DEFAULT_PLATFORM_STATE, privacy: "PRIVATE" },
@@ -343,12 +330,10 @@ export default function ComposerPage() {
     LINKEDIN: { ...DEFAULT_PLATFORM_STATE },
   });
 
-  // Scheduling & publishing modal
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
   const [scheduledDateTime, setScheduledDateTime] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Load connected accounts (only connected platforms can be clicked/selected)
   useEffect(() => {
     publishingApi
       .listAccounts()
@@ -372,7 +357,6 @@ export default function ComposerPage() {
       });
   }, []);
 
-  // Load existing projects from Spring Boot backend (Video Asset left empty by default)
   useEffect(() => {
     setScheduledDateTime(
       new Date(Date.now() + 24 * 3600 * 1000).toISOString().slice(0, 16),
@@ -382,7 +366,6 @@ export default function ComposerPage() {
       .then((res) => {
         if (res.content && res.content.length > 0) {
           setProjects(res.content);
-          // Video Asset and Video Details left completely empty by default
         }
       })
       .catch(() => {});
@@ -429,11 +412,6 @@ export default function ComposerPage() {
     });
   };
 
-  /* -------------------------------------------------------------------------- */
-  /*                            Checklist Evaluators                            */
-  /* -------------------------------------------------------------------------- */
-
-  // 1. YouTube SEO Checklist (0 - 100 score)
   const youtubeChecklist = useMemo(() => {
     const s = platformData.YOUTUBE_SHORTS;
     const kw = s.focusKeyword.trim().toLowerCase();
@@ -522,7 +500,6 @@ export default function ComposerPage() {
     return { items, score };
   }, [platformData.YOUTUBE_SHORTS, thumbnailUrl]);
 
-  // 2. TikTok Checklist
   const tiktokChecklist = useMemo(() => {
     const s = platformData.TIKTOK;
     const hashtags = s.caption.match(/#[a-zA-Z0-9_]+/g) || [];
@@ -563,7 +540,6 @@ export default function ComposerPage() {
     return items;
   }, [platformData.TIKTOK]);
 
-  // 3. Instagram Reels Checklist
   const instagramChecklist = useMemo(() => {
     const s = platformData.INSTAGRAM_REELS;
     const hashtags = s.caption.match(/#[a-zA-Z0-9_]+/g) || [];
@@ -597,7 +573,6 @@ export default function ComposerPage() {
     return items;
   }, [platformData.INSTAGRAM_REELS]);
 
-  // 4. Facebook Checklist
   const facebookChecklist = useMemo(() => {
     const s = platformData.FACEBOOK;
     const items = [
@@ -624,7 +599,6 @@ export default function ComposerPage() {
     return items;
   }, [platformData.FACEBOOK]);
 
-  // 5. LinkedIn Checklist
   const linkedinChecklist = useMemo(() => {
     const s = platformData.LINKEDIN;
     const hashtags = s.caption.match(/#[a-zA-Z0-9_]+/g) || [];
@@ -650,10 +624,6 @@ export default function ComposerPage() {
     ];
     return items;
   }, [platformData.LINKEDIN]);
-
-  /* -------------------------------------------------------------------------- */
-  /*                               AI Assistant                                 */
-  /* -------------------------------------------------------------------------- */
 
   const handleAiDraft = () => {
     toast.info("Generating AI draft recommendations...", {
@@ -694,10 +664,6 @@ export default function ComposerPage() {
       toast.success(`AI Draft applied for ${PLATFORM_LABELS[activeTab]}!`);
     }, 800);
   };
-
-  /* -------------------------------------------------------------------------- */
-  /*                              Publish Actions                               */
-  /* -------------------------------------------------------------------------- */
 
   const handlePublishNow = async () => {
     setIsSubmitting(true);
@@ -766,7 +732,6 @@ export default function ComposerPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 pb-16">
-      {/* Page Header */}
       <div className="flex flex-col gap-4 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
@@ -822,7 +787,6 @@ export default function ComposerPage() {
         </div>
       </div>
 
-      {/* Video Source & Direct Upload Card */}
       <Card className="overflow-hidden border shadow-xs">
         <CardHeader className="border-b bg-muted/10 pb-3">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -870,7 +834,6 @@ export default function ComposerPage() {
         </CardHeader>
 
         <CardContent className="space-y-4 p-4">
-          {/* Hidden inputs for video and thumbnail */}
           <input
             ref={thumbnailInputRef}
             type="file"
@@ -882,11 +845,9 @@ export default function ComposerPage() {
             }}
           />
 
-          {/* Active Video Status Banner */}
           {selectedProject || customVideoFile ? (
             <div className="flex flex-col items-start justify-between gap-4 rounded-xl border bg-muted/30 p-3.5 xl:flex-row xl:items-center">
               <div className="flex min-w-0 flex-wrap items-center gap-4">
-                {/* Video Info Block */}
                 <div className="flex min-w-0 items-center gap-3">
                   <div
                     className="group relative flex size-14 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-lg border bg-neutral-900"
@@ -964,7 +925,6 @@ export default function ComposerPage() {
                   </div>
                 </div>
 
-                {/* Thumbnail Slot */}
                 <div className="flex items-center gap-2.5 border-border/70 pl-0 xl:border-l xl:pl-4">
                   <div
                     className="group relative flex size-14 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-lg border bg-neutral-900"
@@ -1084,7 +1044,6 @@ export default function ComposerPage() {
               </div>
             </div>
           ) : (
-            // Drag and drop empty state
             <div
               onDragOver={(e) => {
                 e.preventDefault();
@@ -1165,7 +1124,6 @@ export default function ComposerPage() {
             </div>
           )}
 
-          {/* Uploading progress indicator */}
           {isUploading && (
             <div className="space-y-1.5 rounded-lg border bg-muted/20 p-3">
               <div className="flex items-center justify-between text-xs">
@@ -1181,7 +1139,6 @@ export default function ComposerPage() {
         </CardContent>
       </Card>
 
-      {/* Target Account Checkbox Bar */}
       <Card className="border bg-muted/20 shadow-xs">
         <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex shrink-0 items-center gap-2 text-sm font-semibold">
@@ -1224,9 +1181,7 @@ export default function ComposerPage() {
         </CardContent>
       </Card>
 
-      {/* Main Studio Grid: 7 cols Form + 5 cols Preview & Checklists */}
       <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
-        {/* Left: Per-Platform Composer Tabs */}
         <div className="space-y-6 lg:col-span-7">
           <Tabs
             value={activeTab}
@@ -1269,7 +1224,6 @@ export default function ComposerPage() {
               </div>
             )}
 
-            {/* YOUTUBE TAB */}
             <TabsContent value="YOUTUBE_SHORTS" className="space-y-5 pt-4">
               <Card className="border shadow-xs">
                 <CardHeader className="pb-3">
@@ -1286,7 +1240,6 @@ export default function ComposerPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {/* Video Format Selector */}
                   <div className="space-y-2 rounded-xl border bg-muted/20 p-3.5">
                     <div className="flex items-center justify-between">
                       <Label className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
@@ -1350,7 +1303,6 @@ export default function ComposerPage() {
                     </div>
                   </div>
 
-                  {/* Dedicated Custom Thumbnail Section */}
                   <div className="space-y-2.5 rounded-xl border bg-muted/20 p-3.5">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
@@ -1441,7 +1393,6 @@ export default function ComposerPage() {
                     </div>
                   </div>
 
-                  {/* Focus Keyword */}
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
                       <Label
@@ -1465,7 +1416,6 @@ export default function ComposerPage() {
                     />
                   </div>
 
-                  {/* Title */}
                   <div className="space-y-1.5">
                     <Label htmlFor="yt-title">Video Title (Max 100 characters)</Label>
                     <Input
@@ -1477,7 +1427,6 @@ export default function ComposerPage() {
                     />
                   </div>
 
-                  {/* Description */}
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="yt-desc">Description (Chapters &amp; Links)</Label>
@@ -1494,7 +1443,6 @@ export default function ComposerPage() {
                     />
                   </div>
 
-                  {/* Tags */}
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="yt-tags">
@@ -1512,7 +1460,6 @@ export default function ComposerPage() {
                     />
                   </div>
 
-                  {/* YouTube Specific Options */}
                   <div className="grid grid-cols-1 gap-4 border-t pt-3 sm:grid-cols-2">
                     <div className="space-y-1.5">
                       <Label className="text-xs font-medium text-foreground">
@@ -1581,7 +1528,6 @@ export default function ComposerPage() {
                 </CardContent>
               </Card>
 
-              {/* YouTube SEO Checklist */}
               <Card className="border bg-muted/10 shadow-xs">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
@@ -1629,7 +1575,6 @@ export default function ComposerPage() {
               </Card>
             </TabsContent>
 
-            {/* TIKTOK TAB */}
             <TabsContent value="TIKTOK" className="space-y-5 pt-4">
               <Card className="border shadow-xs">
                 <CardHeader className="pb-3">
@@ -1647,7 +1592,6 @@ export default function ComposerPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {/* Audit Warning Notice */}
                   <div className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200">
                     <ShieldAlert className="mt-0.5 size-5 shrink-0 text-amber-400" />
                     <div>
@@ -1663,7 +1607,6 @@ export default function ComposerPage() {
                     </div>
                   </div>
 
-                  {/* Caption */}
                   <div className="space-y-1.5">
                     <Label htmlFor="tt-caption">
                       Caption &amp; Hashtags (Hook First)
@@ -1677,7 +1620,6 @@ export default function ComposerPage() {
                     />
                   </div>
 
-                  {/* Regulatory Switches */}
                   <div className="space-y-3 border-t pt-2">
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
@@ -1716,7 +1658,6 @@ export default function ComposerPage() {
                 </CardContent>
               </Card>
 
-              {/* TikTok Best Practice Checklist */}
               <Card className="border bg-muted/10 shadow-xs">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-sm font-semibold">
@@ -1750,7 +1691,6 @@ export default function ComposerPage() {
               </Card>
             </TabsContent>
 
-            {/* INSTAGRAM TAB */}
             <TabsContent value="INSTAGRAM_REELS" className="space-y-5 pt-4">
               <Card className="border shadow-xs">
                 <CardHeader className="pb-3">
@@ -1767,7 +1707,6 @@ export default function ComposerPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {/* Caption */}
                   <div className="space-y-1.5">
                     <Label htmlFor="ig-caption">
                       Caption &amp; Hashtags (3-10 recommended)
@@ -1780,7 +1719,6 @@ export default function ComposerPage() {
                     />
                   </div>
 
-                  {/* Alt Text */}
                   <div className="space-y-1.5">
                     <Label htmlFor="ig-alt">Accessibility Alt Text</Label>
                     <Input
@@ -1791,7 +1729,6 @@ export default function ComposerPage() {
                     />
                   </div>
 
-                  {/* Share to Feed Toggle */}
                   <div className="flex items-center justify-between border-t pt-2">
                     <div className="space-y-0.5">
                       <Label className="text-sm font-medium">
@@ -1811,7 +1748,6 @@ export default function ComposerPage() {
                 </CardContent>
               </Card>
 
-              {/* Instagram Reels Checklist */}
               <Card className="border bg-muted/10 shadow-xs">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-sm font-semibold">
@@ -1845,7 +1781,6 @@ export default function ComposerPage() {
               </Card>
             </TabsContent>
 
-            {/* FACEBOOK TAB */}
             <TabsContent value="FACEBOOK" className="space-y-5 pt-4">
               <Card className="border shadow-xs">
                 <CardHeader className="pb-3">
@@ -1877,7 +1812,6 @@ export default function ComposerPage() {
                 </CardContent>
               </Card>
 
-              {/* Facebook Best Practice Checklist */}
               <Card className="border bg-muted/10 shadow-xs">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-sm font-semibold">
@@ -1911,7 +1845,6 @@ export default function ComposerPage() {
               </Card>
             </TabsContent>
 
-            {/* LINKEDIN TAB */}
             <TabsContent value="LINKEDIN" className="space-y-5 pt-4">
               <Card className="border shadow-xs">
                 <CardHeader className="pb-3">
@@ -1968,7 +1901,6 @@ export default function ComposerPage() {
                 </CardContent>
               </Card>
 
-              {/* LinkedIn Optimization Checklist */}
               <Card className="border bg-muted/10 shadow-xs">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-sm font-semibold">
@@ -2004,9 +1936,7 @@ export default function ComposerPage() {
           </Tabs>
         </div>
 
-        {/* Right: Live Preview Mockup */}
         <div className="space-y-6 lg:sticky lg:top-6 lg:col-span-5">
-          {/* Smartphone / Player Live Preview Mockup */}
           <Card className="overflow-hidden border border-neutral-800 bg-neutral-950 text-white shadow-md">
             <CardHeader className="flex flex-row items-center justify-between border-b border-neutral-800 pb-2">
               <div className="flex items-center gap-2">
@@ -2029,7 +1959,6 @@ export default function ComposerPage() {
             <CardContent className="flex flex-col items-center p-4">
               {activeTab === "YOUTUBE_SHORTS" &&
               currentPlatformState.videoFormat === "STANDARD_VIDEO" ? (
-                /* 16:9 YouTube Desktop/Landscape Video Preview */
                 <div className="w-full space-y-3">
                   <div className="group relative aspect-video w-full overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900 shadow-xl">
                     {thumbnailUrl ? (
@@ -2055,13 +1984,13 @@ export default function ComposerPage() {
                         </span>
                       </div>
                     )}
-                    {/* Duration badge */}
+
                     <span className="absolute right-2 bottom-2 rounded bg-black/85 px-1.5 py-0.5 font-mono text-[10px] font-medium text-white">
                       {selectedProject?.durationSeconds
                         ? `${Math.floor(selectedProject.durationSeconds / 60)}:${String(selectedProject.durationSeconds % 60).padStart(2, "0")}`
                         : "0:52"}
                     </span>
-                    {/* Play icon overlay on hover */}
+
                     <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 transition-opacity group-hover:opacity-100">
                       <div className="flex size-11 items-center justify-center rounded-full bg-red-600 shadow-lg">
                         <Play className="ml-0.5 size-5 fill-white text-white" />
@@ -2069,7 +1998,6 @@ export default function ComposerPage() {
                     </div>
                   </div>
 
-                  {/* YouTube Video Info Block */}
                   <div className="flex items-start gap-2.5">
                     <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white">
                       CF
@@ -2101,16 +2029,13 @@ export default function ComposerPage() {
                   </div>
                 </div>
               ) : (
-                /* 9:16 Video Canvas */
                 <div className="relative w-full max-w-[270px] overflow-hidden rounded-2xl border-4 border-neutral-800 bg-black shadow-2xl">
                   <div className="relative flex aspect-[9/16] w-full flex-col justify-between bg-gradient-to-b from-neutral-800 via-neutral-900 to-black p-3.5">
-                    {/* Platform Header */}
                     <div className="flex items-center justify-between text-[11px] text-white/90">
                       <span className="font-semibold">{PLATFORM_LABELS[activeTab]}</span>
                       <span className="text-[10px] opacity-75">9:16 HD</span>
                     </div>
 
-                    {/* Centered Graphic placeholder, thumbnail or Video preview */}
                     {videoPreviewUrl ? (
                       <video
                         src={videoPreviewUrl}
@@ -2140,7 +2065,6 @@ export default function ComposerPage() {
                       </div>
                     )}
 
-                    {/* Platform Overlay Chrome */}
                     <div className="z-10 -mx-3.5 -mb-3.5 space-y-2 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-3.5 pt-6">
                       <div className="flex items-center gap-2">
                         <div className="flex size-6 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
@@ -2156,7 +2080,6 @@ export default function ComposerPage() {
                           "Your post caption will appear here..."}
                       </p>
 
-                      {/* Tags */}
                       {activeTab === "YOUTUBE_SHORTS" &&
                         currentPlatformState.focusKeyword && (
                           <Badge
@@ -2175,7 +2098,6 @@ export default function ComposerPage() {
         </div>
       </div>
 
-      {/* Schedule Modal */}
       <Dialog open={scheduleModalOpen} onOpenChange={setScheduleModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>

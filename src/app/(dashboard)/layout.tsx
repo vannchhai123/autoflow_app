@@ -6,7 +6,6 @@ export const metadata: Metadata = {
   title: { default: "Dashboard", template: "%s · AutoClip" },
 };
 
-// Server Component: static chrome; interactivity lives in <DashboardShell />.
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return <DashboardShell>{children}</DashboardShell>;
 }

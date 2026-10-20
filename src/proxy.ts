@@ -10,7 +10,6 @@ export function proxy(request: NextRequest) {
   const token = rawToken ? decodeURIComponent(rawToken) : null;
   const isAuthenticated = Boolean(token && isTokenValid(token));
 
-  // Root path routing
   if (pathname === "/") {
     const destination = request.nextUrl.clone();
     destination.pathname = isAuthenticated ? "/dashboard" : "/login";
@@ -18,7 +17,6 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(destination);
   }
 
-  // Already authenticated user visiting /login -> send to dashboard
   if (pathname === "/login") {
     if (isAuthenticated) {
       const destination = request.nextUrl.clone();
@@ -29,12 +27,10 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Allow public paths
   if (PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`))) {
     return NextResponse.next();
   }
 
-  // Protected routes require authentication
   if (!isAuthenticated) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
@@ -42,7 +38,7 @@ export function proxy(request: NextRequest) {
     loginUrl.searchParams.set("from", `${pathname}${search}`);
 
     const response = NextResponse.redirect(loginUrl);
-    // If an invalid or expired cookie was present, clear it
+
     if (rawToken) {
       response.cookies.delete(ACCESS_TOKEN_KEY);
     }
@@ -54,14 +50,6 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for:
-     * - api (API routes, if any)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - static image/asset extensions
-     */
     "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

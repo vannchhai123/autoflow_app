@@ -5,14 +5,13 @@ export const MIN_ZOOM = 0.25;
 export const MAX_ZOOM = 8;
 
 interface EditorState {
-  /** Playhead position in seconds. */
   currentTime: number;
-  /** Total project duration in seconds. */
+
   duration: number;
   isPlaying: boolean;
   isMuted: boolean;
   playbackRate: number;
-  /** Timeline zoom multiplier (1 = default px-per-second). */
+
   zoom: number;
   selectedSceneId: string | null;
 }

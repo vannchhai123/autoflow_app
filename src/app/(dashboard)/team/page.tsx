@@ -85,13 +85,11 @@ export default function TeamPage() {
   const [members, setMembers] = useState<TeamMember[]>(INITIAL_MEMBERS);
   const [approvals, setApprovals] = useState<PendingApproval[]>(INITIAL_APPROVALS);
 
-  // Invite modal
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteName, setInviteName] = useState("");
   const [inviteRole, setInviteRole] = useState<WorkspaceRole>("EDITOR");
 
-  // Review modal
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [selectedApproval, setSelectedApproval] = useState<PendingApproval | null>(null);
   const [reviewComment, setReviewComment] = useState("");
@@ -169,7 +167,6 @@ export default function TeamPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 pb-16">
-      {/* Header */}
       <div className="flex flex-col gap-4 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight md:text-3xl">
@@ -202,7 +199,6 @@ export default function TeamPage() {
           </TabsTrigger>
         </TabsList>
 
-        {/* Approvals Tab */}
         <TabsContent value="approvals" className="space-y-4">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>
@@ -302,7 +298,6 @@ export default function TeamPage() {
           </div>
         </TabsContent>
 
-        {/* Members Tab */}
         <TabsContent value="members" className="space-y-4">
           <Card className="border shadow-xs">
             <CardHeader className="pb-3">
@@ -346,7 +341,6 @@ export default function TeamPage() {
         </TabsContent>
       </Tabs>
 
-      {/* Invite Member Modal */}
       <Dialog open={inviteModalOpen} onOpenChange={setInviteModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -417,7 +411,6 @@ export default function TeamPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Review Feedback Modal */}
       <Dialog open={reviewModalOpen} onOpenChange={setReviewModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>

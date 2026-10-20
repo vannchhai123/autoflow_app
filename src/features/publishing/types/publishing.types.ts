@@ -1,8 +1,3 @@
-/**
- * ClipFlow Publishing Types & Schema Definitions
- * Supporting: YouTube, TikTok, Instagram, Facebook, and LinkedIn
- */
-
 export const PLATFORMS = [
   "YOUTUBE_SHORTS",
   "TIKTOK",
@@ -40,9 +35,6 @@ export const PLATFORM_COLORS: Record<
   LINKEDIN: { bg: "bg-sky-500/10", text: "text-sky-500", border: "border-sky-500/30" },
 };
 
-/**
- * 8-state Post Lifecycle (ClipFlow PRD Sec 4.10 & 5)
- */
 export type PostStatus =
   | "DRAFT"
   | "PENDING_APPROVAL"

@@ -18,7 +18,6 @@ function makeQueryClient() {
 
 let browserClient: QueryClient | undefined;
 
-/** New client per request on the server, singleton in the browser. */
 export function getQueryClient() {
   if (isServer) return makeQueryClient();
   return (browserClient ??= makeQueryClient());

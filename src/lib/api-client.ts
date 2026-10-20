@@ -64,7 +64,6 @@ const axiosInstance = axios.create({
   timeout: 30_000,
 });
 
-// Inject Bearer token on every request if present
 axiosInstance.interceptors.request.use((config) => {
   const token = tokenStorage.getAccess();
   if (token) config.headers.set("Authorization", `Bearer ${token}`);
@@ -107,7 +106,6 @@ function toApiError(error: unknown): ApiError {
   return { status: 0, message: error instanceof Error ? error.message : "Unknown error" };
 }
 
-// 401 -> try a single token refresh, then replay; otherwise redirect to login.
 axiosInstance.interceptors.response.use(
   (res) => res,
   async (error: AxiosError) => {
@@ -131,7 +129,6 @@ axiosInstance.interceptors.response.use(
   },
 );
 
-/** Typed helpers — resolve to the response body, reject with `ApiError`. */
 export const apiClient = {
   get: <T>(url: string, config?: AxiosRequestConfig) =>
     axiosInstance.get<T>(url, config).then((r) => r.data),

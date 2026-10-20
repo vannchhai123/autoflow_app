@@ -1,9 +1,6 @@
 export const ACCESS_TOKEN_KEY = "autoclip.accessToken";
 export const REFRESH_TOKEN_KEY = "autoclip.refreshToken";
 
-/**
- * Validates whether a token string is a valid, unexpired JWT.
- */
 export function isTokenValid(token: string | null | undefined): boolean {
   if (!token || typeof token !== "string") return false;
   try {
@@ -27,16 +24,10 @@ export function isTokenValid(token: string | null | undefined): boolean {
   }
 }
 
-/**
- * Checks if a token is either missing, invalid, or expired.
- */
 export function isTokenExpired(token: string | null | undefined): boolean {
   return !isTokenValid(token);
 }
 
-/**
- * Ensures redirect URL is a safe internal relative path and not a loop back to login.
- */
 export function sanitizeRedirectUrl(
   url: string | null | undefined,
   fallback = "/dashboard",

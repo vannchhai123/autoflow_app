@@ -62,8 +62,6 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 
-/* ----------------------------- Helpers & Brand Icons ----------------------------- */
-
 function PlatformIcon({
   platform,
   className,
@@ -161,7 +159,6 @@ function formatDate(dateStr?: string): string {
   }
 }
 
-// Priority social platforms per user instructions (Facebook, YouTube, TikTok)
 const PRIORITY_PLATFORMS: { platform: Platform; label: string; color: string }[] = [
   {
     platform: "FACEBOOK",
@@ -191,8 +188,6 @@ const STARTERS = [
   { emoji: "🔥", label: "Viral Hook", prompt: "Write a viral hook for a video about " },
 ];
 
-/* ------------------------------ Components ------------------------------ */
-
 function StatusBadge({ status }: { status: string }) {
   const isReady = status === "COMPLETED" || status === "READY";
   const isRendering = status === "PROCESSING" || status === "RENDERING";
@@ -217,13 +212,10 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-/* --------------------------------- Page --------------------------------- */
-
 export default function DashboardPage() {
   const router = useRouter();
   const [prompt, setPrompt] = useState("");
 
-  // Real backend states
   const [projects, setProjects] = useState<VideoProjectResponse[]>([]);
   const [totalVideosCount, setTotalVideosCount] = useState<number>(0);
   const [loadingProjects, setLoadingProjects] = useState(true);
@@ -246,19 +238,15 @@ export default function DashboardPage() {
   const [loadingAccounts, setLoadingAccounts] = useState(true);
   const [connectingPlatform, setConnectingPlatform] = useState<Platform | null>(null);
 
-  // Video preview modal
   const [previewProject, setPreviewProject] = useState<VideoProjectResponse | null>(null);
 
-  // Project display filter (default to POSTING per user request)
   const [projectFilter, setProjectFilter] = useState<"POSTING" | "READY" | "ALL">(
     "POSTING",
   );
 
-  // Fetch real data on mount
   useEffect(() => {
     let active = true;
 
-    // 1. Fetch real videos from Spring Boot
     videoApi
       .list(0, 50)
       .then((res) => {
@@ -275,7 +263,6 @@ export default function DashboardPage() {
         if (active) setLoadingProjects(false);
       });
 
-    // 2. Fetch real analytics summary
     publishingApi
       .getAnalyticsSummary()
       .then((data) => {
@@ -288,7 +275,6 @@ export default function DashboardPage() {
         console.warn("Could not load real analytics summary:", err);
       });
 
-    // 3. Fetch real scheduled publishing queue
     publishingApi
       .listScheduled()
       .then((tasks) => {
@@ -304,7 +290,6 @@ export default function DashboardPage() {
         if (active) setLoadingQueue(false);
       });
 
-    // 4. Fetch real connected accounts
     publishingApi
       .listAccounts()
       .then((accs) => {
@@ -400,7 +385,6 @@ export default function DashboardPage() {
     }
   };
 
-  // Group scheduled publishing tasks into posting video items
   const postingVideos = useMemo(() => {
     const videoMap = new Map<string, VideoProjectResponse>();
     projects.forEach((p) => videoMap.set(p.id, p));
@@ -486,7 +470,6 @@ export default function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-8">
-      {/* 1. Hero */}
       <section className="space-y-5">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
@@ -530,9 +513,7 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* 2. Key Metrics (100% Real Live Data) */}
       <section aria-label="Key metrics" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {/* Videos Created */}
         <Card size="sm">
           <CardContent className="space-y-3">
             <div className="flex items-center justify-between text-sm text-muted-foreground">
@@ -552,7 +533,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Rendering Now */}
         <Card size="sm">
           <CardContent className="space-y-3">
             <div className="flex items-center justify-between text-sm text-muted-foreground">
@@ -577,7 +557,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Auto-Published */}
         <Card size="sm">
           <CardContent className="space-y-3">
             <div className="flex items-center justify-between text-sm text-muted-foreground">
@@ -595,7 +574,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Connected Channels */}
         <Card size="sm">
           <CardContent className="space-y-3">
             <div className="flex items-center justify-between text-sm text-muted-foreground">
@@ -619,9 +597,7 @@ export default function DashboardPage() {
         </Card>
       </section>
 
-      {/* 3. Content split */}
       <div className="grid gap-6 lg:grid-cols-[minmax(0,13fr)_minmax(0,7fr)]">
-        {/* Left: Recent Projects (Default: Posting Videos) */}
         <section aria-labelledby="recent-projects" className="space-y-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
@@ -765,7 +741,6 @@ export default function DashboardPage() {
                         onClick={() => setPreviewProject(previewProj)}
                         className="flex aspect-[9/16] shrink-0 flex-col justify-between p-2"
                       >
-                        {/* Top bar: Status & Menu */}
                         <div className="z-10 flex items-start justify-between">
                           <div className="flex flex-col items-start gap-1">
                             <Badge
@@ -868,7 +843,6 @@ export default function DashboardPage() {
                           </DropdownMenu>
                         </div>
 
-                        {/* Center Play Button if output exists */}
                         {item.outputUrl && (
                           <button
                             type="button"
@@ -880,7 +854,6 @@ export default function DashboardPage() {
                           </button>
                         )}
 
-                        {/* Bottom duration & platforms indicator */}
                         <div className="z-10 flex items-center justify-between">
                           <div className="flex items-center gap-1">
                             {item.platforms.map((p) => (
@@ -989,8 +962,7 @@ export default function DashboardPage() {
                 })}
               </div>
             )
-          ) : // Ready or All filter view
-          (projectFilter === "READY" ? readyVideos : projects).length === 0 ? (
+          ) : (projectFilter === "READY" ? readyVideos : projects).length === 0 ? (
             <Card className="p-8 text-center">
               <Film className="mx-auto size-12 text-muted-foreground/40" />
               <h3 className="mt-3 text-base font-medium">No videos found</h3>
@@ -1029,7 +1001,6 @@ export default function DashboardPage() {
                       onClick={() => setPreviewProject(project)}
                       className="flex aspect-[9/16] shrink-0 flex-col justify-between p-2"
                     >
-                      {/* Top bar: Status & Menu */}
                       <div className="z-10 flex items-start justify-between">
                         <StatusBadge status={project.status} />
 
@@ -1077,7 +1048,6 @@ export default function DashboardPage() {
                         </DropdownMenu>
                       </div>
 
-                      {/* Center Play Button for Ready Videos */}
                       {isReady && (
                         <button
                           type="button"
@@ -1089,7 +1059,6 @@ export default function DashboardPage() {
                         </button>
                       )}
 
-                      {/* Rendering Spinner */}
                       {isRendering && (
                         <div className="absolute inset-x-3 top-1/2 z-10 -translate-y-1/2 space-y-2 rounded-lg bg-black/60 p-3 text-white backdrop-blur">
                           <div className="flex items-center gap-2 text-xs font-medium">
@@ -1103,7 +1072,6 @@ export default function DashboardPage() {
                         </div>
                       )}
 
-                      {/* Bottom duration indicator */}
                       <div className="z-10 flex justify-end">
                         <span className="rounded bg-black/75 px-1.5 py-0.5 text-xs font-medium text-white tabular-nums">
                           {formatDuration(project.durationSeconds)}
@@ -1178,9 +1146,7 @@ export default function DashboardPage() {
           )}
         </section>
 
-        {/* Right: Publishing Queue + Connected Accounts */}
         <aside className="space-y-6">
-          {/* Real Publishing Queue */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
@@ -1255,7 +1221,6 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          {/* Real Connected Accounts */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
@@ -1273,7 +1238,6 @@ export default function DashboardPage() {
 
                 return (
                   <div key={platform} className="flex items-center gap-3">
-                    {/* Channel avatar or platform icon */}
                     {connectedAcc?.avatarUrl ? (
                       <img
                         src={connectedAcc.avatarUrl}
@@ -1341,7 +1305,6 @@ export default function DashboardPage() {
         </aside>
       </div>
 
-      {/* Video Preview Modal */}
       {previewProject && (
         <Dialog
           open={!!previewProject}

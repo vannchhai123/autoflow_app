@@ -30,7 +30,6 @@ export function HoverVideoPreview({
   const [hasImgError, setHasImgError] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Auto-resolve thumbnail URL if not provided directly
   const resolvedThumbnail =
     thumbnailUrl ||
     (src && src.includes("/storage/videos/")
@@ -39,7 +38,6 @@ export function HoverVideoPreview({
           .replace(/\.mp4(\?.*)?$/i, ".jpg")
       : null);
 
-  // Clean up timer on unmount
   useEffect(() => {
     return () => {
       if (timerRef.current) {
@@ -51,7 +49,6 @@ export function HoverVideoPreview({
   const handleMouseEnter = () => {
     if (!src || hasVideoError) return;
 
-    // Small debounce (120ms) so rapid sweeping does not trigger unneeded plays
     timerRef.current = setTimeout(() => {
       const video = videoRef.current;
       if (video) {
@@ -74,9 +71,7 @@ export function HoverVideoPreview({
       video.pause();
       try {
         video.currentTime = 0.05;
-      } catch {
-        // ignore seek errors on pause
-      }
+      } catch {}
     }
     setIsPlaying(false);
   };
@@ -101,7 +96,6 @@ export function HoverVideoPreview({
         className,
       )}
     >
-      {/* Background Poster Gradient (fallback while media loads or for draft videos) */}
       <div
         className={cn(
           "absolute inset-0 bg-gradient-to-b transition-opacity duration-500",
@@ -112,7 +106,6 @@ export function HoverVideoPreview({
         )}
       />
 
-      {/* Static / Dedicated Thumbnail Image */}
       {showThumbnailImage && (
         <img
           src={resolvedThumbnail!}
@@ -127,7 +120,6 @@ export function HoverVideoPreview({
         />
       )}
 
-      {/* Real Hover Video Demo & Video Frame Fallback */}
       {src && !hasVideoError && (
         <video
           ref={videoRef}
@@ -140,8 +132,7 @@ export function HoverVideoPreview({
           onError={() => setHasVideoError(true)}
           className={cn(
             "pointer-events-none absolute inset-0 h-full w-full object-cover transition-opacity duration-300",
-            // If image is active and loaded, video is only visible while playing.
-            // If no image, video is ALWAYS visible once loaded (serving as the thumbnail + live hover demo)!
+
             showThumbnailImage && isImgLoaded
               ? isPlaying
                 ? "opacity-100"
@@ -153,10 +144,8 @@ export function HoverVideoPreview({
         />
       )}
 
-      {/* Cinematic subtle scrim gradient to guarantee text/badge contrast */}
       <div className="pointer-events-none absolute inset-0 z-1 bg-gradient-to-b from-black/45 via-transparent to-black/60" />
 
-      {/* Children Overlays (Badges, Menus, Duration indicators, Play buttons, etc.) */}
       {children}
     </div>
   );

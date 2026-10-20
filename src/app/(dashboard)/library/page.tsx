@@ -116,7 +116,6 @@ export default function LibraryPage() {
   const [templates, setTemplates] = useState<CaptionTemplate[]>(INITIAL_TEMPLATES);
   const [hashtagSets, setHashtagSets] = useState<HashtagSet[]>(INITIAL_HASHTAGS);
 
-  // Modals
   const [newTemplateOpen, setNewTemplateOpen] = useState(false);
   const [tplName, setTplName] = useState("");
   const [tplContent, setTplContent] = useState("");
@@ -167,7 +166,6 @@ export default function LibraryPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 pb-16">
-      {/* Header */}
       <div className="flex flex-col gap-4 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight md:text-3xl">
@@ -193,7 +191,6 @@ export default function LibraryPage() {
           </TabsTrigger>
         </TabsList>
 
-        {/* Templates Tab */}
         <TabsContent value="templates" className="space-y-4">
           <div className="flex items-center justify-between">
             <p className="text-xs text-muted-foreground">
@@ -254,7 +251,6 @@ export default function LibraryPage() {
           </div>
         </TabsContent>
 
-        {/* Hashtags Tab */}
         <TabsContent value="hashtags" className="space-y-4">
           <div className="flex items-center justify-between">
             <p className="text-xs text-muted-foreground">
@@ -320,7 +316,6 @@ export default function LibraryPage() {
           </div>
         </TabsContent>
 
-        {/* Brand Assets Tab */}
         <TabsContent value="brand" className="space-y-4">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <Card className="border shadow-xs">
@@ -374,7 +369,6 @@ export default function LibraryPage() {
         </TabsContent>
       </Tabs>
 
-      {/* New Template Modal */}
       <Dialog open={newTemplateOpen} onOpenChange={setNewTemplateOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -418,7 +412,6 @@ export default function LibraryPage() {
         </DialogContent>
       </Dialog>
 
-      {/* New Hashtag Set Modal */}
       <Dialog open={newHashtagOpen} onOpenChange={setNewHashtagOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
