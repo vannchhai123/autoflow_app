@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { AlertCircle, Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { tokenStorage } from "@/lib/api-client";
+import { isTokenValid, sanitizeRedirectUrl } from "@/lib/auth-token";
 import { useLogin } from "../hooks/useAuth";
 
 const schema = z.object({
@@ -20,7 +23,18 @@ const inputClass =
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const login = useLogin();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const fromParam = searchParams.get("from");
+  const login = useLogin(fromParam);
+
+  useEffect(() => {
+    const token = tokenStorage.getAccess();
+    if (token && isTokenValid(token)) {
+      router.replace(sanitizeRedirectUrl(fromParam, "/dashboard"));
+    }
+  }, [fromParam, router]);
+
   const {
     register,
     handleSubmit,
@@ -36,6 +50,12 @@ export function LoginForm() {
       <p className="mt-1 text-sm text-muted-foreground">
         Sign in to your account to continue
       </p>
+
+      {fromParam && (
+        <div className="mt-4 rounded-md border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-600 dark:text-amber-400">
+          Please sign in to access that page.
+        </div>
+      )}
 
       <form
         onSubmit={handleSubmit((v) => login.mutate(v))}

@@ -1,10 +1,13 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import { LogOut, Menu } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Loader2, LogOut, Menu } from "lucide-react";
 import { AppSidebar } from "./AppSidebar";
 import { Button } from "@/components/ui/button";
 import { useLogout, useCurrentUserEmail } from "@/features/auth/hooks/useAuth";
+import { tokenStorage } from "@/lib/api-client";
+import { isTokenValid } from "@/lib/auth-token";
 
 const STORAGE_KEY = "autoclip.sidebarCollapsed";
 
@@ -12,13 +15,25 @@ const STORAGE_KEY = "autoclip.sidebarCollapsed";
 export function DashboardShell({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
+  const router = useRouter();
+  const pathname = usePathname();
   const logout = useLogout();
   const userEmail = useCurrentUserEmail();
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setCollapsed(localStorage.getItem(STORAGE_KEY) === "1");
-  }, []);
+
+    const token = tokenStorage.getAccess();
+    if (!token || !isTokenValid(token)) {
+      tokenStorage.clear();
+      setIsAuthenticated(false);
+      const search = typeof window !== "undefined" ? window.location.search : "";
+      const returnUrl = encodeURIComponent(`${pathname}${search}`);
+      router.replace(`/login?from=${returnUrl}`);
+    }
+  }, [pathname, router]);
 
   const toggle = () =>
     setCollapsed((c) => {
@@ -68,7 +83,18 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             </Button>
           </div>
         </header>
-        <main className="flex-1 overflow-y-auto p-4 md:p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto p-4 md:p-6">
+          {isAuthenticated ? (
+            children
+          ) : (
+            <div className="flex h-96 w-full items-center justify-center">
+              <div className="flex flex-col items-center gap-3">
+                <Loader2 className="size-8 animate-spin text-primary" />
+                <p className="text-sm text-muted-foreground">Redirecting to login...</p>
+              </div>
+            </div>
+          )}
+        </main>
       </div>
     </div>
   );

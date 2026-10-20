@@ -4,24 +4,57 @@ import axios, {
   type InternalAxiosRequestConfig,
 } from "axios";
 import type { ApiError } from "@/types/api.types";
+import {
+  ACCESS_TOKEN_KEY,
+  REFRESH_TOKEN_KEY,
+  isTokenExpired,
+  isTokenValid,
+} from "./auth-token";
+
+export { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY, isTokenExpired, isTokenValid };
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
-export const ACCESS_TOKEN_KEY = "autoclip.accessToken";
-export const REFRESH_TOKEN_KEY = "autoclip.refreshToken";
+function syncCookie(token: string) {
+  if (typeof document === "undefined") return;
+  const isSecure = typeof window !== "undefined" && window.location.protocol === "https:";
+  const secureFlag = isSecure ? "; Secure" : "";
+  document.cookie = `${ACCESS_TOKEN_KEY}=${encodeURIComponent(token)}; path=/; max-age=604800; SameSite=Lax${secureFlag}`;
+}
+
+function clearCookie() {
+  if (typeof document === "undefined") return;
+  document.cookie = `${ACCESS_TOKEN_KEY}=; path=/; max-age=0; SameSite=Lax`;
+}
 
 export const tokenStorage = {
-  getAccess: () =>
-    typeof window === "undefined" ? null : localStorage.getItem(ACCESS_TOKEN_KEY),
+  getAccess: () => {
+    if (typeof window === "undefined") return null;
+    const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+    if (
+      token &&
+      typeof document !== "undefined" &&
+      !document.cookie.includes(`${ACCESS_TOKEN_KEY}=`)
+    ) {
+      syncCookie(token);
+    }
+    return token;
+  },
   getRefresh: () =>
     typeof window === "undefined" ? null : localStorage.getItem(REFRESH_TOKEN_KEY),
   set: (access: string, refresh?: string) => {
-    localStorage.setItem(ACCESS_TOKEN_KEY, access);
-    if (refresh) localStorage.setItem(REFRESH_TOKEN_KEY, refresh);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(ACCESS_TOKEN_KEY, access);
+      if (refresh) localStorage.setItem(REFRESH_TOKEN_KEY, refresh);
+    }
+    syncCookie(access);
   },
   clear: () => {
-    localStorage.removeItem(ACCESS_TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(ACCESS_TOKEN_KEY);
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
+    }
+    clearCookie();
   },
 };
 

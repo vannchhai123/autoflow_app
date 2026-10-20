@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { tokenStorage } from "@/lib/api-client";
+import { sanitizeRedirectUrl } from "@/lib/auth-token";
 import type { ApiError } from "@/types/api.types";
 import { authApi, type AuthResponse, type LoginRequest } from "../api/auth-api";
 
-export function useLogin() {
+export function useLogin(redirectTo?: string | null) {
   const router = useRouter();
   return useMutation<AuthResponse, ApiError, LoginRequest>({
     mutationFn: authApi.login,
@@ -16,7 +17,8 @@ export function useLogin() {
       if (typeof window !== "undefined") {
         localStorage.setItem("autoclip.email", variables.email);
       }
-      router.replace("/dashboard");
+      const destination = sanitizeRedirectUrl(redirectTo, "/dashboard");
+      router.replace(destination);
     },
   });
 }
@@ -37,9 +39,9 @@ export function useCurrentUserEmail(): string {
   const [email, setEmail] = useState<string>("");
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
     const stored = localStorage.getItem("autoclip.email");
     if (stored && stored !== "demo@autoclip.app") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setEmail(stored);
       return;
     }
@@ -48,11 +50,15 @@ export function useCurrentUserEmail(): string {
       try {
         const parts = token.split(".");
         if (parts.length === 3) {
-          const payload = JSON.parse(atob(parts[1]));
+          let base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+          while (base64.length % 4) {
+            base64 += "=";
+          }
+          const payload = JSON.parse(atob(base64));
           if (payload.sub && payload.sub !== "demo@autoclip.app") {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setEmail(payload.sub);
             localStorage.setItem("autoclip.email", payload.sub);
-            return;
           }
         }
       } catch {
