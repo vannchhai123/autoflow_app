@@ -13,8 +13,8 @@ import { isTokenValid, sanitizeRedirectUrl } from "@/lib/auth-token";
 import { useLogin } from "../hooks/useAuth";
 
 const schema = z.object({
-  email: z.string().min(1, "Email is required").email("Enter a valid email"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  email: z.string().trim().min(1, "Email is required").email("Enter a valid email"),
+  password: z.string().trim().min(6, "Password must be at least 6 characters"),
 });
 type FormValues = z.infer<typeof schema>;
 

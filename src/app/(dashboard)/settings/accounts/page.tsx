@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { toast } from "sonner";
 import { publishingApi } from "@/features/publishing/api/publishing-api";
 import { API_URL } from "@/lib/api-client";
@@ -13,6 +12,40 @@ import {
   type Platform,
   type SocialAccountDto,
 } from "@/features/publishing/types/publishing.types";
+import {
+  AlertCircle,
+  AlertTriangle,
+  CheckCircle2,
+  Clock,
+  ExternalLink,
+  Info,
+  KeyRound,
+  Link2,
+  Loader2,
+  Plus,
+  RefreshCw,
+  RotateCw,
+  Save,
+  Shield,
+  ShieldAlert,
+  ShieldCheck,
+  Sparkles,
+  Trash2,
+  XCircle,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 
 function formatTokenExpiry(tokenExpiresAt?: string) {
   if (!tokenExpiresAt) return "Auto-refreshed";
@@ -28,47 +61,6 @@ function formatTokenExpiry(tokenExpiresAt?: string) {
     return tokenExpiresAt;
   }
 }
-import {
-  AlertCircle,
-  AlertTriangle,
-  CheckCircle2,
-  Clock,
-  ExternalLink,
-  Info,
-  Link2,
-  Plus,
-  RefreshCw,
-  RotateCw,
-  Share2,
-  Shield,
-  ShieldAlert,
-  ShieldCheck,
-  Trash2,
-  XCircle,
-  KeyRound,
-  Loader2,
-  Save,
-  Sparkles,
-} from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { cn } from "@/lib/utils";
 
 function PlatformIcon({
   platform,
@@ -136,11 +128,9 @@ function PlatformIcon({
   );
 }
 
-const INITIAL_ACCOUNTS: SocialAccountDto[] = [];
-
 export default function SocialAccountsPage() {
   const [accounts, setAccounts] = useState<SocialAccountDto[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [disconnectModalOpen, setDisconnectModalOpen] = useState(false);
   const [accountToDisconnect, setAccountToDisconnect] = useState<SocialAccountDto | null>(
     null,
@@ -152,6 +142,8 @@ export default function SocialAccountsPage() {
   const [googleClientSecret, setGoogleClientSecret] = useState("");
   const [tiktokClientKey, setTiktokClientKey] = useState("");
   const [tiktokClientSecret, setTiktokClientSecret] = useState("");
+  const [facebookAppId, setFacebookAppId] = useState("");
+  const [facebookAppSecret, setFacebookAppSecret] = useState("");
   const [savingCredentials, setSavingCredentials] = useState(false);
   const [connectingDemo, setConnectingDemo] = useState(false);
 
@@ -162,6 +154,9 @@ export default function SocialAccountsPage() {
   const tiktokCallbackUrl = normalizedApiUrl
     ? `${normalizedApiUrl}/accounts/oauth2/callback/tiktok`
     : "/api/accounts/oauth2/callback/tiktok";
+  const facebookCallbackUrl = normalizedApiUrl
+    ? `${normalizedApiUrl}/accounts/oauth2/callback/facebook`
+    : "/api/accounts/oauth2/callback/facebook";
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -185,6 +180,12 @@ export default function SocialAccountsPage() {
             "TikTok developer credentials required. Use the Sandbox channel or enter TikTok app keys.",
           );
           setConfigPlatform("TIKTOK");
+          setConfigModalOpen(true);
+        } else if (error === "missing_credentials_facebook") {
+          toast.info(
+            "Facebook developer credentials required. Use the Sandbox channel or enter Facebook App keys.",
+          );
+          setConfigPlatform("FACEBOOK");
           setConfigModalOpen(true);
         } else {
           toast.error(`Connection failed: ${error}`);
@@ -210,21 +211,21 @@ export default function SocialAccountsPage() {
 
   const handleConnect = async (p: Platform) => {
     try {
-      toast.info(`Redirecting to ${PLATFORM_LABELS[p]} OAuth consent...`, {
-        description:
-          "ClipFlow uses official OAuth 2.0. We never see or store your account password.",
-      });
       const res = await publishingApi.connectAccount(p);
       if (res?.authorizationUrl) {
-        if (res.authorizationUrl.includes("error=missing_credentials")) {
+        if (
+          res.authorizationUrl.includes("error=missing_credentials") ||
+          res.authorizationUrl.startsWith("https://oauth.clipflow.app")
+        ) {
           setConfigPlatform(p);
           setConfigModalOpen(true);
           toast.info(
-            `Please configure API credentials for ${PLATFORM_LABELS[p]} or connect via Sandbox mode.`,
+            `Configure OAuth credentials for ${PLATFORM_LABELS[p]} or connect instantly via Sandbox mode.`,
           );
           return;
         }
         if (res.authorizationUrl.startsWith("http")) {
+          toast.info(`Redirecting to ${PLATFORM_LABELS[p]} OAuth consent...`);
           window.location.href = res.authorizationUrl;
           return;
         }
@@ -235,9 +236,22 @@ export default function SocialAccountsPage() {
         }
       }
     } catch {
-      setTimeout(() => {
-        toast.success(`${PLATFORM_LABELS[p]} connected successfully!`);
-      }, 1200);
+      setConfigPlatform(p);
+      setConfigModalOpen(true);
+    }
+  };
+
+  const handleConnectSandbox = async (platform: Platform) => {
+    try {
+      setConnectingDemo(true);
+      const res = await publishingApi.connectDemoAccount(platform);
+      setAccounts((prev) => [res, ...prev.filter((a) => a.platform !== platform)]);
+      toast.success(`${PLATFORM_LABELS[platform]} Sandbox connected successfully!`);
+      setConfigModalOpen(false);
+    } catch {
+      toast.error("Failed to connect sandbox channel");
+    } finally {
+      setConnectingDemo(false);
     }
   };
 
@@ -274,6 +288,12 @@ export default function SocialAccountsPage() {
     toast.success(`${accountToDisconnect.accountName} disconnected and tokens revoked.`);
     setDisconnectModalOpen(false);
     setAccountToDisconnect(null);
+  };
+
+  const copyRedirectUrl = (url: string) => {
+    const urlToCopy = url.startsWith("http") ? url : `${window.location.origin}${url}`;
+    navigator.clipboard.writeText(urlToCopy);
+    toast.success("Redirect URI copied to clipboard!");
   };
 
   const statusBadge = (status: AccountConnectionStatus) => {
@@ -560,283 +580,306 @@ export default function SocialAccountsPage() {
       </Dialog>
 
       <Dialog open={configModalOpen} onOpenChange={setConfigModalOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <PlatformIcon platform={configPlatform} className="size-5" />
-              Configure {PLATFORM_LABELS[configPlatform]} Credentials
+              <PlatformIcon platform={configPlatform} className="size-5 shrink-0" />
+              <span>Configure {PLATFORM_LABELS[configPlatform]} Credentials</span>
             </DialogTitle>
             <DialogDescription>
-              {configPlatform === "YOUTUBE_SHORTS"
-                ? "Enter your Google Cloud OAuth 2.0 Client ID and Secret to enable YouTube publishing, or connect via Sandbox mode."
-                : `Configure developer API keys for ${PLATFORM_LABELS[configPlatform]}.`}
+              Connect your official OAuth 2.0 developer app or test immediately using a
+              pre-verified Sandbox channel.
             </DialogDescription>
           </DialogHeader>
 
-          {configPlatform === "YOUTUBE_SHORTS" ? (
-            <div className="space-y-4 py-2">
-              <div className="flex flex-col items-start justify-between gap-3 rounded-lg border border-primary/30 bg-primary/10 p-3.5 sm:flex-row sm:items-center">
-                <div className="space-y-0.5 text-xs">
-                  <p className="flex items-center gap-1.5 font-semibold text-primary">
-                    <Sparkles className="size-4 text-primary" /> Test Instantly with
-                    Sandbox Channel
-                  </p>
-                  <p className="text-[11px] text-muted-foreground">
-                    No Google Cloud setup required! Connect the verified test channel
-                    (@AutoClip Shorts Official) with 1 click to test scheduling and
-                    posting right now.
-                  </p>
-                </div>
-                <Button
-                  size="sm"
-                  variant="default"
-                  disabled={connectingDemo}
-                  onClick={async () => {
-                    try {
-                      setConnectingDemo(true);
-                      const res =
-                        await publishingApi.connectDemoAccount("YOUTUBE_SHORTS");
-                      setAccounts((prev) => [
-                        res,
-                        ...prev.filter((a) => a.platform !== "YOUTUBE_SHORTS"),
-                      ]);
-                      toast.success("YouTube Sandbox Channel connected successfully!");
-                      setConfigModalOpen(false);
-                    } catch {
-                      toast.error("Failed to connect demo channel");
-                    } finally {
-                      setConnectingDemo(false);
-                    }
-                  }}
-                  className="shrink-0 cursor-pointer gap-1.5 text-xs font-medium"
-                >
-                  {connectingDemo ? (
-                    <Loader2 className="size-3.5 animate-spin" />
-                  ) : (
-                    <Sparkles className="size-3.5" />
-                  )}
-                  Connect Sandbox
-                </Button>
-              </div>
+          <div className="flex flex-wrap gap-1.5 border-b pb-3">
+            {PLATFORMS.map((p) => (
+              <button
+                key={p}
+                type="button"
+                onClick={() => setConfigPlatform(p)}
+                className={cn(
+                  "inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors",
+                  configPlatform === p
+                    ? "border-primary bg-primary/10 text-foreground"
+                    : "border-transparent bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground",
+                )}
+              >
+                <PlatformIcon platform={p} className="size-3.5" />
+                {PLATFORM_LABELS[p]}
+              </button>
+            ))}
+          </div>
 
-              <div className="space-y-2 rounded-lg border bg-muted/40 p-3 text-xs">
-                <p className="flex items-center gap-1.5 font-semibold text-foreground">
-                  <Info className="size-4 text-sky-500" /> Connecting your own YouTube
-                  Channel:
+          <div className="min-w-0 space-y-4">
+            <div className="flex flex-col items-start justify-between gap-3 rounded-lg border border-primary/30 bg-primary/10 p-3.5 sm:flex-row sm:items-center">
+              <div className="min-w-0 space-y-0.5 text-xs">
+                <p className="flex items-center gap-1.5 font-semibold text-primary">
+                  <Sparkles className="size-4 shrink-0 text-primary" /> Test Instantly
+                  with {PLATFORM_LABELS[configPlatform]} Sandbox
                 </p>
-                <ol className="ml-1 list-inside list-decimal space-y-1 text-muted-foreground">
-                  <li>
-                    Open{" "}
-                    <a
-                      href="https://console.cloud.google.com/apis/credentials"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-0.5 font-medium text-primary underline"
-                    >
-                      Google Cloud Console <ExternalLink className="inline size-3" />
-                    </a>
-                  </li>
-                  <li>
-                    Enable <strong>YouTube Data API v3</strong> in Enabled APIs &amp;
-                    Services
-                  </li>
-                  <li>
-                    Create <strong>OAuth 2.0 Client ID</strong> (Application type:{" "}
-                    <em>Web application</em>)
-                  </li>
-                  <li>Add this Authorized Redirect URI:</li>
-                </ol>
-                <div className="flex items-center gap-1.5 rounded border bg-background px-2.5 py-1.5 font-mono text-[11px] text-foreground select-all">
-                  <span className="flex-1 truncate">{youtubeCallbackUrl}</span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const urlToCopy = youtubeCallbackUrl.startsWith("http")
-                        ? youtubeCallbackUrl
-                        : `${window.location.origin}${youtubeCallbackUrl}`;
-                      navigator.clipboard.writeText(urlToCopy);
-                      toast.success("Redirect URI copied to clipboard!");
-                    }}
-                    className="shrink-0 cursor-pointer font-sans text-xs font-medium text-primary hover:underline"
-                  >
-                    Copy
-                  </button>
-                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  No developer app review required. Connect a verified test channel with 1
+                  click to test scheduling and publishing right now.
+                </p>
               </div>
+              <Button
+                size="sm"
+                variant="default"
+                disabled={connectingDemo}
+                onClick={() => handleConnectSandbox(configPlatform)}
+                className="w-full shrink-0 cursor-pointer gap-1.5 text-xs font-medium sm:w-auto"
+              >
+                {connectingDemo ? (
+                  <Loader2 className="size-3.5 animate-spin" />
+                ) : (
+                  <Sparkles className="size-3.5" />
+                )}
+                Connect Sandbox
+              </Button>
+            </div>
 
-              <div className="space-y-3">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-foreground">
-                    Google Client ID (GOOGLE_CLIENT_ID){" "}
-                    <span className="text-destructive">*</span>
-                  </label>
-                  <Input
-                    placeholder="xxxx-xxxx.apps.googleusercontent.com"
-                    value={googleClientId}
-                    onChange={(e) => setGoogleClientId(e.target.value)}
-                    className={cn(
-                      "font-mono text-xs",
-                      googleClientId.trim().includes("@") &&
-                        "border-destructive focus-visible:ring-destructive",
-                    )}
-                  />
-                  {googleClientId.trim().includes("@") && (
-                    <div className="mt-1.5 flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 p-2.5 text-xs text-destructive">
-                      <AlertCircle className="mt-0.5 size-4 shrink-0" />
-                      <div className="space-y-0.5">
-                        <p className="font-semibold">Email address detected</p>
-                        <p className="text-[11px] leading-relaxed">
-                          Do not enter your Gmail email here. Google OAuth requires a
-                          Client ID from Google Cloud Console ending in{" "}
-                          <code className="rounded bg-destructive/20 px-1 font-mono">
-                            .apps.googleusercontent.com
-                          </code>
-                          .
-                        </p>
+            {configPlatform === "YOUTUBE_SHORTS" && (
+              <>
+                <div className="min-w-0 space-y-2 rounded-lg border bg-muted/40 p-3 text-xs">
+                  <p className="flex items-center gap-1.5 font-semibold text-foreground">
+                    <Info className="size-4 shrink-0 text-sky-500" /> Connecting your own
+                    YouTube Channel:
+                  </p>
+                  <ol className="ml-1 list-inside list-decimal space-y-1 text-muted-foreground">
+                    <li>
+                      Open{" "}
+                      <a
+                        href="https://console.cloud.google.com/apis/credentials"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-0.5 font-medium text-primary underline"
+                      >
+                        Google Cloud Console <ExternalLink className="inline size-3" />
+                      </a>
+                    </li>
+                    <li>
+                      Enable <strong>YouTube Data API v3</strong> in Enabled APIs &amp;
+                      Services
+                    </li>
+                    <li>
+                      Create <strong>OAuth 2.0 Client ID</strong> (Application type:{" "}
+                      <em>Web application</em>)
+                    </li>
+                    <li>Add this Authorized Redirect URI:</li>
+                  </ol>
+                  <div className="flex min-w-0 items-center gap-2 overflow-hidden rounded-md border bg-background px-2.5 py-2 font-mono text-[11px] text-foreground">
+                    <span className="min-w-0 flex-1 truncate select-all">
+                      {youtubeCallbackUrl}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => copyRedirectUrl(youtubeCallbackUrl)}
+                      className="shrink-0 cursor-pointer rounded bg-primary/10 px-2 py-0.5 font-sans text-xs font-medium text-primary hover:bg-primary/20"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                </div>
+
+                <div className="min-w-0 space-y-3">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-foreground">
+                      Google Client ID (GOOGLE_CLIENT_ID){" "}
+                      <span className="text-destructive">*</span>
+                    </label>
+                    <Input
+                      placeholder="xxxx-xxxx.apps.googleusercontent.com"
+                      value={googleClientId}
+                      onChange={(e) => setGoogleClientId(e.target.value)}
+                      className={cn(
+                        "font-mono text-xs",
+                        googleClientId.trim().includes("@") &&
+                          "border-destructive focus-visible:ring-destructive",
+                      )}
+                    />
+                    {googleClientId.trim().includes("@") && (
+                      <div className="mt-1.5 flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 p-2.5 text-xs text-destructive">
+                        <AlertCircle className="mt-0.5 size-4 shrink-0" />
+                        <div className="space-y-0.5">
+                          <p className="font-semibold">Email address detected</p>
+                          <p className="text-[11px] leading-relaxed">
+                            Do not enter your Gmail email here. Google OAuth requires a
+                            Client ID from Google Cloud Console ending in{" "}
+                            <code className="rounded bg-destructive/20 px-1 font-mono">
+                              .apps.googleusercontent.com
+                            </code>
+                            .
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  {!googleClientId.trim().includes("@") &&
-                    googleClientId.trim().length > 0 &&
-                    !googleClientId.trim().endsWith(".apps.googleusercontent.com") && (
-                      <p className="flex items-center gap-1 text-[11px] text-amber-500">
-                        <AlertTriangle className="size-3 text-amber-500" />
-                        Must end with &quot;.apps.googleusercontent.com&quot;
-                      </p>
                     )}
-                </div>
+                    {!googleClientId.trim().includes("@") &&
+                      googleClientId.trim().length > 0 &&
+                      !googleClientId.trim().endsWith(".apps.googleusercontent.com") && (
+                        <p className="flex items-center gap-1 text-[11px] text-amber-500">
+                          <AlertTriangle className="size-3 text-amber-500" />
+                          Must end with &quot;.apps.googleusercontent.com&quot;
+                        </p>
+                      )}
+                  </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-foreground">
-                    Google Client Secret (GOOGLE_CLIENT_SECRET){" "}
-                    <span className="text-destructive">*</span>
-                  </label>
-                  <Input
-                    type="password"
-                    placeholder="GOCSPX-xxxxxxxxxxxxxxxx"
-                    value={googleClientSecret}
-                    onChange={(e) => setGoogleClientSecret(e.target.value)}
-                    className="font-mono text-xs"
-                  />
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-foreground">
+                      Google Client Secret (GOOGLE_CLIENT_SECRET){" "}
+                      <span className="text-destructive">*</span>
+                    </label>
+                    <Input
+                      type="password"
+                      placeholder="GOCSPX-xxxxxxxxxxxxxxxx"
+                      value={googleClientSecret}
+                      onChange={(e) => setGoogleClientSecret(e.target.value)}
+                      className="font-mono text-xs"
+                    />
+                  </div>
                 </div>
-              </div>
-            </div>
-          ) : null}
+              </>
+            )}
 
-          {configPlatform === "TIKTOK" ? (
-            <div className="space-y-4 py-2">
-              <div className="flex flex-col items-start justify-between gap-3 rounded-lg border border-primary/30 bg-primary/10 p-3.5 sm:flex-row sm:items-center">
-                <div className="space-y-0.5 text-xs">
-                  <p className="flex items-center gap-1.5 font-semibold text-primary">
-                    <Sparkles className="size-4 text-primary" /> Test Instantly with
-                    TikTok Sandbox
+            {configPlatform === "TIKTOK" && (
+              <>
+                <div className="min-w-0 space-y-2 rounded-lg border bg-muted/40 p-3 text-xs">
+                  <p className="flex items-center gap-1.5 font-semibold text-foreground">
+                    <Info className="size-4 shrink-0 text-sky-500" /> Connecting your own
+                    TikTok Developer App:
                   </p>
-                  <p className="text-[11px] text-muted-foreground">
-                    No TikTok developer app review required! Connect a verified test
-                    TikTok creator account (@vannchay_creator, 24.5K followers) with 1
-                    click to test scheduling and posting right now.
-                  </p>
-                </div>
-                <Button
-                  size="sm"
-                  variant="default"
-                  disabled={connectingDemo}
-                  onClick={async () => {
-                    try {
-                      setConnectingDemo(true);
-                      const res = await publishingApi.connectDemoAccount("TIKTOK");
-                      setAccounts((prev) => [
-                        res,
-                        ...prev.filter((a) => a.platform !== "TIKTOK"),
-                      ]);
-                      toast.success("TikTok Sandbox Creator connected successfully!");
-                      setConfigModalOpen(false);
-                    } catch {
-                      toast.error("Failed to connect demo channel");
-                    } finally {
-                      setConnectingDemo(false);
-                    }
-                  }}
-                  className="shrink-0 cursor-pointer gap-1.5 text-xs font-medium"
-                >
-                  {connectingDemo ? (
-                    <Loader2 className="size-3.5 animate-spin" />
-                  ) : (
-                    <Sparkles className="size-3.5" />
-                  )}
-                  Connect Sandbox TikTok
-                </Button>
-              </div>
-
-              <div className="space-y-2 rounded-lg border bg-muted/40 p-3 text-xs">
-                <p className="flex items-center gap-1.5 font-semibold text-foreground">
-                  <Info className="size-4 text-sky-500" /> Connecting your own TikTok
-                  Developer App:
-                </p>
-                <ol className="ml-1 list-inside list-decimal space-y-1 text-muted-foreground">
-                  <li>
-                    Open{" "}
-                    <a
-                      href="https://developers.tiktok.com"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-0.5 font-medium text-primary underline"
+                  <ol className="ml-1 list-inside list-decimal space-y-1 text-muted-foreground">
+                    <li>
+                      Open{" "}
+                      <a
+                        href="https://developers.tiktok.com"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-0.5 font-medium text-primary underline"
+                      >
+                        TikTok for Developers <ExternalLink className="inline size-3" />
+                      </a>
+                    </li>
+                    <li>
+                      Create an App and add <strong>Login Kit</strong> and{" "}
+                      <strong>Content Posting API</strong>
+                    </li>
+                    <li>Under Redirect URIs, add:</li>
+                  </ol>
+                  <div className="flex min-w-0 items-center gap-2 overflow-hidden rounded-md border bg-background px-2.5 py-2 font-mono text-[11px] text-foreground">
+                    <span className="min-w-0 flex-1 truncate select-all">
+                      {tiktokCallbackUrl}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => copyRedirectUrl(tiktokCallbackUrl)}
+                      className="shrink-0 cursor-pointer rounded bg-primary/10 px-2 py-0.5 font-sans text-xs font-medium text-primary hover:bg-primary/20"
                     >
-                      TikTok for Developers <ExternalLink className="inline size-3" />
-                    </a>
-                  </li>
-                  <li>
-                    Create an App and add <strong>Login Kit</strong> and{" "}
-                    <strong>Content Posting API</strong>
-                  </li>
-                  <li>Under Redirect URIs, add:</li>
-                </ol>
-                <div className="flex items-center gap-1.5 rounded border bg-background px-2.5 py-1.5 font-mono text-[11px] text-foreground select-all">
-                  <span className="flex-1 truncate">{tiktokCallbackUrl}</span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const urlToCopy = tiktokCallbackUrl.startsWith("http")
-                        ? tiktokCallbackUrl
-                        : `${window.location.origin}${tiktokCallbackUrl}`;
-                      navigator.clipboard.writeText(urlToCopy);
-                      toast.success("Redirect URI copied to clipboard!");
-                    }}
-                    className="shrink-0 cursor-pointer font-sans text-xs font-medium text-primary hover:underline"
-                  >
-                    Copy
-                  </button>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-foreground">
-                    TikTok Client Key <span className="text-destructive">*</span>
-                  </label>
-                  <Input
-                    placeholder="Enter your TikTok App Client Key"
-                    value={tiktokClientKey}
-                    onChange={(e) => setTiktokClientKey(e.target.value)}
-                    className="font-mono text-xs"
-                  />
+                      Copy
+                    </button>
+                  </div>
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-foreground">
-                    TikTok Client Secret <span className="text-destructive">*</span>
-                  </label>
-                  <Input
-                    type="password"
-                    placeholder="Enter your TikTok App Client Secret"
-                    value={tiktokClientSecret}
-                    onChange={(e) => setTiktokClientSecret(e.target.value)}
-                    className="font-mono text-xs"
-                  />
+                <div className="min-w-0 space-y-3">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-foreground">
+                      TikTok Client Key (TIKTOK_CLIENT_KEY){" "}
+                      <span className="text-destructive">*</span>
+                    </label>
+                    <Input
+                      placeholder="Enter your TikTok App Client Key"
+                      value={tiktokClientKey}
+                      onChange={(e) => setTiktokClientKey(e.target.value)}
+                      className="font-mono text-xs"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-foreground">
+                      TikTok Client Secret (TIKTOK_CLIENT_SECRET){" "}
+                      <span className="text-destructive">*</span>
+                    </label>
+                    <Input
+                      type="password"
+                      placeholder="Enter your TikTok App Client Secret"
+                      value={tiktokClientSecret}
+                      onChange={(e) => setTiktokClientSecret(e.target.value)}
+                      className="font-mono text-xs"
+                    />
+                  </div>
                 </div>
-              </div>
-            </div>
-          ) : null}
+              </>
+            )}
+
+            {configPlatform === "FACEBOOK" && (
+              <>
+                <div className="min-w-0 space-y-2 rounded-lg border bg-muted/40 p-3 text-xs">
+                  <p className="flex items-center gap-1.5 font-semibold text-foreground">
+                    <Info className="size-4 shrink-0 text-sky-500" /> Connecting your own
+                    Facebook Page / Creator Account:
+                  </p>
+                  <ol className="ml-1 list-inside list-decimal space-y-1 text-muted-foreground">
+                    <li>
+                      Open{" "}
+                      <a
+                        href="https://developers.facebook.com/apps"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-0.5 font-medium text-primary underline"
+                      >
+                        Meta for Developers <ExternalLink className="inline size-3" />
+                      </a>
+                    </li>
+                    <li>
+                      Enable <strong>Facebook Login</strong> and add this Valid OAuth
+                      Redirect URI:
+                    </li>
+                  </ol>
+                  <div className="flex min-w-0 items-center gap-2 overflow-hidden rounded-md border bg-background px-2.5 py-2 font-mono text-[11px] text-foreground">
+                    <span className="min-w-0 flex-1 truncate select-all">
+                      {facebookCallbackUrl}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => copyRedirectUrl(facebookCallbackUrl)}
+                      className="shrink-0 cursor-pointer rounded bg-primary/10 px-2 py-0.5 font-sans text-xs font-medium text-primary hover:bg-primary/20"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                </div>
+
+                <div className="min-w-0 space-y-3">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-foreground">
+                      Facebook App ID (FACEBOOK_APP_ID){" "}
+                      <span className="text-destructive">*</span>
+                    </label>
+                    <Input
+                      placeholder="Enter your Meta App ID"
+                      value={facebookAppId}
+                      onChange={(e) => setFacebookAppId(e.target.value)}
+                      className="font-mono text-xs"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-foreground">
+                      Facebook App Secret (FACEBOOK_APP_SECRET){" "}
+                      <span className="text-destructive">*</span>
+                    </label>
+                    <Input
+                      type="password"
+                      placeholder="Enter your Meta App Secret"
+                      value={facebookAppSecret}
+                      onChange={(e) => setFacebookAppSecret(e.target.value)}
+                      className="font-mono text-xs"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
 
           <DialogFooter className="items-center gap-2 sm:justify-between">
             <Button variant="ghost" size="sm" onClick={() => setConfigModalOpen(false)}>
@@ -907,6 +950,37 @@ export default function SocialAccountsPage() {
                   <Save className="size-3.5" />
                 )}
                 Save &amp; Connect TikTok
+              </Button>
+            )}
+            {configPlatform === "FACEBOOK" && (
+              <Button
+                size="sm"
+                disabled={savingCredentials || !facebookAppId.trim()}
+                onClick={async () => {
+                  try {
+                    setSavingCredentials(true);
+                    await publishingApi.configureCredentials({
+                      platform: "FACEBOOK",
+                      clientId: facebookAppId.trim(),
+                      clientSecret: facebookAppSecret.trim(),
+                    });
+                    toast.success("Facebook credentials saved to server!");
+                    setConfigModalOpen(false);
+                    handleConnect("FACEBOOK");
+                  } catch {
+                    toast.error("Failed to save credentials");
+                  } finally {
+                    setSavingCredentials(false);
+                  }
+                }}
+                className="cursor-pointer gap-1.5"
+              >
+                {savingCredentials ? (
+                  <Loader2 className="size-3.5 animate-spin" />
+                ) : (
+                  <Save className="size-3.5" />
+                )}
+                Save &amp; Connect Facebook
               </Button>
             )}
           </DialogFooter>
