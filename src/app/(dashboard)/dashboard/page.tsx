@@ -256,6 +256,7 @@ export default function DashboardPage() {
   const [deleteTarget, setDeleteTarget] = useState<{
     id: string;
     title: string;
+    publicPostUrl?: string | null;
     isTask?: boolean;
   } | null>(null);
   const [deletingItem, setDeletingItem] = useState(false);
@@ -305,7 +306,14 @@ export default function DashboardPage() {
       .then((tasks) => {
         if (!active) return;
         if (Array.isArray(tasks)) {
-          setQueue(tasks);
+          setQueue(
+            tasks.filter(
+              (t) =>
+                !deletedIds.has(t.id) &&
+                !(t.videoProjectId && deletedIds.has(t.videoProjectId)) &&
+                !(t.publicPostUrl && deletedIds.has(t.publicPostUrl)),
+            ),
+          );
         }
       })
       .catch((err) => {
@@ -335,7 +343,14 @@ export default function DashboardPage() {
       .then((vids) => {
         if (!active) return;
         if (Array.isArray(vids)) {
-          setChannelVideos(vids);
+          setChannelVideos(
+            vids.filter(
+              (v) =>
+                !deletedIds.has(v.id) &&
+                !deletedIds.has(v.videoId) &&
+                !deletedIds.has(v.publicPostUrl),
+            ),
+          );
         }
       })
       .catch(() => {});
@@ -377,34 +392,72 @@ export default function DashboardPage() {
     }
   };
 
-  const handleDeleteProject = (id: string, title: string) => {
-    setDeleteTarget({ id, title, isTask: false });
+  const handleDeleteProject = (
+    id: string,
+    title: string,
+    publicPostUrl?: string | null,
+  ) => {
+    setDeleteTarget({ id, title, publicPostUrl, isTask: false });
   };
 
   const confirmDeleteAction = async () => {
     if (!deleteTarget) return;
     setDeletingItem(true);
     try {
-      if (deleteTarget.isTask) {
-        await publishingApi.cancelTask(deleteTarget.id);
-        setQueue((prev) => prev.filter((t) => t.id !== deleteTarget.id));
-        toast.success("Post removed from schedule", {
-          description: deleteTarget.title,
-        });
-      } else {
-        setProjects((prev) => prev.filter((p) => p.id !== deleteTarget.id));
-        setTotalVideosCount((prev) => Math.max(0, prev - 1));
-        try {
-          const raw = localStorage.getItem("clipflow_deleted_project_ids");
-          const list: string[] = raw ? JSON.parse(raw) : [];
-          if (!list.includes(deleteTarget.id)) {
-            list.push(deleteTarget.id);
-            localStorage.setItem("clipflow_deleted_project_ids", JSON.stringify(list));
+      const targetId = deleteTarget.id;
+      const targetUrl = deleteTarget.publicPostUrl;
+
+      setProjects((prev) => prev.filter((p) => p.id !== targetId));
+      setQueue((prev) =>
+        prev.filter(
+          (t) =>
+            t.id !== targetId &&
+            t.videoProjectId !== targetId &&
+            (!targetUrl || t.publicPostUrl !== targetUrl),
+        ),
+      );
+      setChannelVideos((prev) =>
+        prev.filter(
+          (v) =>
+            v.id !== targetId &&
+            v.videoId !== targetId &&
+            (!targetUrl || v.publicPostUrl !== targetUrl),
+        ),
+      );
+      setTotalVideosCount((prev) => Math.max(0, prev - 1));
+
+      try {
+        const raw = localStorage.getItem("clipflow_deleted_project_ids");
+        const list: string[] = raw ? JSON.parse(raw) : [];
+        const addKey = (k?: string | null) => {
+          if (k && !list.includes(k)) list.push(k);
+        };
+        addKey(targetId);
+        addKey(targetUrl);
+        if (targetUrl) {
+          const match =
+            targetUrl.match(/[?&]v=([^&]+)/) || targetUrl.match(/\/shorts\/([^?]+)/);
+          if (match?.[1]) {
+            addKey(match[1]);
+            addKey(`yt-${match[1]}`);
+            addKey(`https://www.youtube.com/watch?v=${match[1]}`);
           }
-        } catch {}
-        await videoApi.delete(deleteTarget.id).catch(() => {});
-        toast.success("Project deleted", { description: deleteTarget.title });
+        }
+        localStorage.setItem("clipflow_deleted_project_ids", JSON.stringify(list));
+      } catch {}
+
+      if (deleteTarget.isTask) {
+        await publishingApi.cancelTask(targetId).catch(() => {});
+      } else {
+        await publishingApi.deleteChannelVideo(targetUrl || targetId).catch(() => {});
+        if (!targetId.startsWith("yt-")) {
+          await videoApi.delete(targetId).catch(() => {});
+        }
       }
+
+      toast.success("Video deleted", {
+        description: `"${deleteTarget.title}" removed from studio and channel.`,
+      });
       setDeleteTarget(null);
     } catch {
       toast.error("Failed to remove item");
@@ -1079,26 +1132,23 @@ export default function DashboardPage() {
                                         <Download className="size-4" /> Download MP4
                                       </DropdownMenuItem>
                                     )}
-                                    {!item.id.startsWith("yt-") && (
-                                      <>
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem
-                                          variant="destructive"
-                                          onClick={() =>
-                                            isScheduled
-                                              ? handleCancelTask(item.taskId, item.title)
-                                              : handleDeleteProject(
-                                                  item.videoProjectId,
-                                                  item.title,
-                                                )
-                                          }
-                                          className="cursor-pointer text-destructive focus:text-destructive"
-                                        >
-                                          <Trash2 className="size-4" />{" "}
-                                          {isScheduled ? "Remove Post" : "Delete Video"}
-                                        </DropdownMenuItem>
-                                      </>
-                                    )}
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                      variant="destructive"
+                                      onClick={() =>
+                                        isScheduled
+                                          ? handleCancelTask(item.taskId, item.title)
+                                          : handleDeleteProject(
+                                              item.videoProjectId || item.id,
+                                              item.title,
+                                              item.publicPostUrl,
+                                            )
+                                      }
+                                      className="cursor-pointer text-destructive focus:text-destructive"
+                                    >
+                                      <Trash2 className="size-4" />{" "}
+                                      {isScheduled ? "Remove Post" : "Delete Video"}
+                                    </DropdownMenuItem>
                                   </DropdownMenuContent>
                                 </DropdownMenu>
                               </div>
@@ -1396,26 +1446,23 @@ export default function DashboardPage() {
                                         <Download className="size-4" /> Download MP4
                                       </DropdownMenuItem>
                                     )}
-                                    {!item.id.startsWith("yt-") && (
-                                      <>
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem
-                                          variant="destructive"
-                                          onClick={() =>
-                                            isScheduled
-                                              ? handleCancelTask(item.taskId, item.title)
-                                              : handleDeleteProject(
-                                                  item.videoProjectId,
-                                                  item.title,
-                                                )
-                                          }
-                                          className="cursor-pointer text-destructive focus:text-destructive"
-                                        >
-                                          <Trash2 className="size-4" />{" "}
-                                          {isScheduled ? "Remove Post" : "Delete Video"}
-                                        </DropdownMenuItem>
-                                      </>
-                                    )}
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                      variant="destructive"
+                                      onClick={() =>
+                                        isScheduled
+                                          ? handleCancelTask(item.taskId, item.title)
+                                          : handleDeleteProject(
+                                              item.videoProjectId || item.id,
+                                              item.title,
+                                              item.publicPostUrl,
+                                            )
+                                      }
+                                      className="cursor-pointer text-destructive focus:text-destructive"
+                                    >
+                                      <Trash2 className="size-4" />{" "}
+                                      {isScheduled ? "Remove Post" : "Delete Video"}
+                                    </DropdownMenuItem>
                                   </DropdownMenuContent>
                                 </DropdownMenu>
                               </div>
@@ -1794,21 +1841,20 @@ export default function DashboardPage() {
                   : "9:16 Vertical Short"}
               </span>
               <div className="flex flex-wrap items-center gap-2">
-                {!previewProject.id.startsWith("yt-") && (
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    className="cursor-pointer"
-                    onClick={() => {
-                      const id = previewProject.id;
-                      const title = previewProject.title;
-                      setPreviewProject(null);
-                      handleDeleteProject(id, title);
-                    }}
-                  >
-                    <Trash2 className="mr-1 size-3.5" /> Delete
-                  </Button>
-                )}
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="cursor-pointer"
+                  onClick={() => {
+                    const id = previewProject.id;
+                    const title = previewProject.title;
+                    const pubUrl = previewProject.publicPostUrl;
+                    setPreviewProject(null);
+                    handleDeleteProject(id, title, pubUrl);
+                  }}
+                >
+                  <Trash2 className="mr-1 size-3.5" /> Delete
+                </Button>
                 {previewProject.outputUrl && (
                   <a
                     href={previewProject.outputUrl}

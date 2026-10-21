@@ -65,6 +65,11 @@ export const publishingApi = {
 
   listChannelVideos: () => apiClient.get<PublishedChannelVideo[]>("/accounts/videos"),
 
+  deleteChannelVideo: (videoId: string) =>
+    apiClient.delete<{ deleted: boolean; deletedFromSource: boolean }>(
+      `/accounts/videos/${encodeURIComponent(videoId)}`,
+    ),
+
   connectAccount: (platform: Platform) =>
     apiClient.post<{ authorizationUrl: string }>(`/accounts/connect/${platform}`),
 

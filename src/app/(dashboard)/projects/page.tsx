@@ -2382,7 +2382,12 @@ export default function ProjectsPage() {
           });
         }
 
-        setProjects(combined.filter((item) => !deletedIds.has(item.id)));
+        setProjects(
+          combined.filter(
+            (item) =>
+              !deletedIds.has(item.id) && !(item.liveUrl && deletedIds.has(item.liveUrl)),
+          ),
+        );
       })
       .catch(() => {});
 
@@ -2590,30 +2595,43 @@ export default function ProjectsPage() {
     if (!projectToDelete) return;
     const id = projectToDelete.id;
     const title = projectToDelete.title;
+    const liveUrl = projectToDelete.liveUrl;
     setDeletingProject(true);
     try {
-      setProjects((prev) => prev.filter((p) => p.id !== id));
+      setProjects((prev) =>
+        prev.filter((p) => p.id !== id && (!liveUrl || p.liveUrl !== liveUrl)),
+      );
       setPreviewProject((prev) => (prev?.id === id ? null : prev));
       try {
         const raw = localStorage.getItem("clipflow_deleted_project_ids");
         const list: string[] = raw ? JSON.parse(raw) : [];
-        if (!list.includes(id)) {
-          list.push(id);
-          localStorage.setItem("clipflow_deleted_project_ids", JSON.stringify(list));
+        const addKey = (k?: string) => {
+          if (k && !list.includes(k)) list.push(k);
+        };
+        addKey(id);
+        addKey(liveUrl);
+        if (liveUrl) {
+          const match =
+            liveUrl.match(/[?&]v=([^&]+)/) || liveUrl.match(/\/shorts\/([^?]+)/);
+          if (match?.[1]) {
+            addKey(`yt-${match[1]}`);
+            addKey(`https://www.youtube.com/watch?v=${match[1]}`);
+          }
         }
+        localStorage.setItem("clipflow_deleted_project_ids", JSON.stringify(list));
       } catch {}
+
+      if (id.startsWith("yt-") || liveUrl) {
+        await publishingApi.deleteChannelVideo(liveUrl || id).catch(() => {});
+      }
 
       const isLocalOnly =
         id.startsWith("yt-") || id.startsWith("import-") || id.includes("-copy-");
       if (!isLocalOnly) {
-        try {
-          await videoApi.delete(id);
-        } catch (err) {
-          console.warn("Backend delete warning:", err);
-        }
+        await videoApi.delete(id).catch(() => {});
       }
-      toast.success("Video project deleted", {
-        description: `"${title}" has been removed.`,
+      toast.success("Video deleted", {
+        description: `"${title}" has been removed from studio and source channel.`,
       });
       setProjectToDelete(null);
     } finally {
@@ -3094,7 +3112,7 @@ export default function ProjectsPage() {
                   : "Format: 16:9 Landscape Video"}
             </span>
             <div className="flex flex-wrap items-center gap-2">
-              {previewProject?.id && !previewProject.id.startsWith("yt-") && (
+              {previewProject?.id && (
                 <Button
                   variant="destructive"
                   size="sm"
