@@ -343,10 +343,8 @@ function CloneVoiceDialog({
 export default function CreateVideoPage() {
   const router = useRouter();
 
-  const [title, setTitle] = useState("៣ ជំហានចាប់ផ្ដើមថ្ងៃថ្មីឱ្យមានថាមពល");
-  const [script, setScript] = useState(
-    "តើអ្នកចង់ឱ្យថ្ងៃនេះជាថ្ងៃដ៏ជោគជ័យមែនទេ? ចងចាំ ៣ ចំណុចនេះ៖ ទីមួយ ក្រោកពីគេងញ៉ាំទឹកមួយកែវភ្លាមៗ។ ទីពីរ សរសេរគោលដៅសំខាន់បំផុត ៣ យ៉ាង។ និងទីបី កុំទាន់បើកមើលបណ្ដាញសង្គមក្នុងរយៈពេល ៣០ នាទីដំបូង។ សាកល្បងអនុវត្តទាំងអស់គ្នាណា!",
-  );
+  const [title, setTitle] = useState("");
+  const [script, setScript] = useState("");
   const [aspect, setAspect] = useState<AspectRatio>("9:16");
   const [selectedBg, setSelectedBg] = useState<BackgroundStyle>(BACKGROUND_STYLES[0]);
   const [audioSource, setAudioSource] = useState<"ai" | "custom">("ai");
@@ -380,7 +378,7 @@ export default function CreateVideoPage() {
   }, [script]);
 
   const estimatedSeconds = useMemo(() => {
-    return Math.max(5, Math.round((wordCount / 140) * 60));
+    return wordCount === 0 ? 0 : Math.max(5, Math.round((wordCount / 140) * 60));
   }, [wordCount]);
 
   const combinedVoiceOptions = useMemo(() => {
