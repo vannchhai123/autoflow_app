@@ -21,6 +21,8 @@ import {
   type SocialAccountDto,
 } from "@/features/publishing/types/publishing.types";
 import {
+  AlertTriangle,
+  ArrowRight,
   Calendar,
   CalendarCheck,
   CheckCircle2,
@@ -29,6 +31,7 @@ import {
   ExternalLink,
   Film,
   Loader2,
+  MonitorPlay,
   MoreVertical,
   Pencil,
   Play,
@@ -49,6 +52,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -247,6 +251,14 @@ export default function DashboardPage() {
   const [projectFilter, setProjectFilter] = useState<"POSTING" | "READY" | "ALL">(
     "POSTING",
   );
+  const [showAllShorts, setShowAllShorts] = useState(false);
+  const [showAllLong, setShowAllLong] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{
+    id: string;
+    title: string;
+    isTask?: boolean;
+  } | null>(null);
+  const [deletingItem, setDeletingItem] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -365,14 +377,39 @@ export default function DashboardPage() {
     }
   };
 
-  const handleDeleteProject = async (id: string, title: string) => {
+  const handleDeleteProject = (id: string, title: string) => {
+    setDeleteTarget({ id, title, isTask: false });
+  };
+
+  const confirmDeleteAction = async () => {
+    if (!deleteTarget) return;
+    setDeletingItem(true);
     try {
-      await videoApi.delete(id);
-      setProjects((prev) => prev.filter((p) => p.id !== id));
-      setTotalVideosCount((prev) => Math.max(0, prev - 1));
-      toast.success("Project deleted", { description: title });
+      if (deleteTarget.isTask) {
+        await publishingApi.cancelTask(deleteTarget.id);
+        setQueue((prev) => prev.filter((t) => t.id !== deleteTarget.id));
+        toast.success("Post removed from schedule", {
+          description: deleteTarget.title,
+        });
+      } else {
+        setProjects((prev) => prev.filter((p) => p.id !== deleteTarget.id));
+        setTotalVideosCount((prev) => Math.max(0, prev - 1));
+        try {
+          const raw = localStorage.getItem("clipflow_deleted_project_ids");
+          const list: string[] = raw ? JSON.parse(raw) : [];
+          if (!list.includes(deleteTarget.id)) {
+            list.push(deleteTarget.id);
+            localStorage.setItem("clipflow_deleted_project_ids", JSON.stringify(list));
+          }
+        } catch {}
+        await videoApi.delete(deleteTarget.id).catch(() => {});
+        toast.success("Project deleted", { description: deleteTarget.title });
+      }
+      setDeleteTarget(null);
     } catch {
-      toast.error("Failed to delete project");
+      toast.error("Failed to remove item");
+    } finally {
+      setDeletingItem(false);
     }
   };
 
@@ -398,14 +435,12 @@ export default function DashboardPage() {
     }
   };
 
-  const handleCancelTask = async (taskId: string, title?: string) => {
-    try {
-      await publishingApi.cancelTask(taskId);
-      setQueue((prev) => prev.filter((t) => t.id !== taskId));
-      toast.success("Post removed from schedule", { description: title });
-    } catch {
-      toast.error("Failed to cancel scheduled post");
-    }
+  const handleCancelTask = (taskId: string, title?: string) => {
+    setDeleteTarget({
+      id: taskId,
+      title: title || "Scheduled Post",
+      isTask: true,
+    });
   };
 
   const postingVideos = useMemo(() => {
@@ -522,6 +557,97 @@ export default function DashboardPage() {
   const readyVideos = useMemo(
     () => projects.filter((p) => p.status === "COMPLETED"),
     [projects],
+  );
+
+  const readyDashboardItems = useMemo(
+    () =>
+      readyVideos.map((project) => ({
+        id: project.id,
+        taskId: project.id,
+        videoProjectId: project.id,
+        title: project.title,
+        platforms: ["YOUTUBE_SHORTS"] as Platform[],
+        channelName: null as string | null,
+        status: "READY",
+        scheduledTime: null as string | null,
+        publishedAt: null as string | null,
+        publicPostUrl: null as string | null,
+        caption: project.scriptText || null,
+        outputUrl: project.outputUrl,
+        thumbnailUrl: project.outputUrl
+          ? project.outputUrl
+              .replace("/storage/videos/", "/storage/thumbnails/")
+              .replace(/\.mp4(\?.*)?$/i, ".jpg")
+          : undefined,
+        durationSeconds: project.durationSeconds,
+        aspectRatio: project.aspectRatio,
+        createdAt: project.createdAt,
+        gradient: getProjectGradient(project.id),
+        rawProject: project,
+      })),
+    [readyVideos],
+  );
+
+  const allDashboardItems = useMemo(() => {
+    const combined = [...postingVideos];
+    const existingIds = new Set(postingVideos.map((v) => v.videoProjectId));
+    projects.forEach((project) => {
+      if (existingIds.has(project.id)) return;
+      combined.push({
+        id: project.id,
+        taskId: project.id,
+        videoProjectId: project.id,
+        title: project.title,
+        platforms: ["YOUTUBE_SHORTS"] as Platform[],
+        channelName: null,
+        status:
+          project.status === "COMPLETED"
+            ? "READY"
+            : project.status === "PROCESSING"
+              ? "RENDERING"
+              : project.status,
+        scheduledTime: null,
+        publishedAt: null,
+        publicPostUrl: null,
+        caption: project.scriptText || null,
+        outputUrl: project.outputUrl,
+        thumbnailUrl: project.outputUrl
+          ? project.outputUrl
+              .replace("/storage/videos/", "/storage/thumbnails/")
+              .replace(/\.mp4(\?.*)?$/i, ".jpg")
+          : undefined,
+        durationSeconds: project.durationSeconds,
+        aspectRatio: project.aspectRatio,
+        createdAt: project.createdAt,
+        gradient: getProjectGradient(project.id),
+        rawProject: project,
+      });
+    });
+    return combined;
+  }, [postingVideos, projects]);
+
+  const activeItems = useMemo(() => {
+    if (projectFilter === "POSTING") return postingVideos;
+    if (projectFilter === "READY") return readyDashboardItems;
+    return allDashboardItems;
+  }, [projectFilter, postingVideos, readyDashboardItems, allDashboardItems]);
+
+  const activeShorts = useMemo(
+    () =>
+      activeItems.filter(
+        (item) =>
+          (item.durationSeconds ?? 45) <= 60 || item.aspectRatio === "PORTRAIT_9_16",
+      ),
+    [activeItems],
+  );
+
+  const activeLongVideos = useMemo(
+    () =>
+      activeItems.filter(
+        (item) =>
+          (item.durationSeconds ?? 45) > 60 && item.aspectRatio !== "PORTRAIT_9_16",
+      ),
+    [activeItems],
   );
 
   const renderingCount = projects.filter((p) => p.status === "PROCESSING").length;
@@ -658,7 +784,7 @@ export default function DashboardPage() {
       </section>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,13fr)_minmax(0,7fr)]">
-        <section aria-labelledby="recent-projects" className="space-y-4">
+        <section aria-labelledby="recent-projects" className="space-y-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
               <h2 id="recent-projects" className="text-lg font-semibold">
@@ -671,8 +797,8 @@ export default function DashboardPage() {
                 {projectFilter === "POSTING"
                   ? `${postingVideos.length} Posting`
                   : projectFilter === "READY"
-                    ? `${readyVideos.length} Ready`
-                    : `${projects.length} Total`}
+                    ? `${readyDashboardItems.length} Ready`
+                    : `${allDashboardItems.length} Total`}
               </Badge>
             </div>
 
@@ -700,7 +826,7 @@ export default function DashboardPage() {
                       : "text-muted-foreground hover:text-foreground",
                   )}
                 >
-                  Ready to Post ({readyVideos.length})
+                  Ready to Post ({readyDashboardItems.length})
                 </button>
                 <button
                   type="button"
@@ -712,15 +838,18 @@ export default function DashboardPage() {
                       : "text-muted-foreground hover:text-foreground",
                   )}
                 >
-                  All ({projects.length})
+                  All ({allDashboardItems.length})
                 </button>
               </div>
 
               <Link
                 href="/projects"
-                className="shrink-0 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "sm" }),
+                  "h-8 shrink-0 gap-1.5 text-xs font-medium",
+                )}
               >
-                View All →
+                View All <ArrowRight className="size-3.5" />
               </Link>
             </div>
           </div>
@@ -734,494 +863,712 @@ export default function DashboardPage() {
                 />
               ))}
             </div>
-          ) : projectFilter === "POSTING" ? (
-            postingVideos.length === 0 ? (
-              <Card className="space-y-3 p-8 text-center">
-                <div className="mx-auto grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary">
-                  <Send className="size-6" />
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-base font-semibold">No posting videos yet</h3>
-                  <p className="mx-auto max-w-sm text-xs text-muted-foreground">
-                    You haven&apos;t scheduled or published any videos to Facebook,
-                    YouTube, or TikTok yet. Pick a ready video from your studio to start
-                    posting.
-                  </p>
-                </div>
-                <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
-                  <Link
-                    href="/composer"
-                    className={cn(
-                      buttonVariants({ size: "sm" }),
-                      "cursor-pointer gap-1.5",
-                    )}
-                  >
-                    <Send className="size-3.5" /> Schedule / Post a Video
-                  </Link>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="cursor-pointer"
-                    onClick={() => setProjectFilter("READY")}
-                  >
-                    View Ready Videos ({readyVideos.length})
-                  </Button>
-                </div>
-              </Card>
-            ) : (
-              <div className="grid grid-cols-2 items-stretch gap-4 xl:grid-cols-4">
-                {postingVideos.map((item) => {
-                  const isPublished = item.status === "PUBLISHED";
-                  const isPosting = item.status === "IN_PROGRESS";
-                  const isScheduled = item.status === "PENDING";
-                  const isShort =
-                    (item.durationSeconds ?? 45) <= 60 ||
-                    item.aspectRatio === "PORTRAIT_9_16";
-
-                  const previewProj: VideoProjectResponse = item.rawProject || {
-                    id: item.videoProjectId,
-                    title: item.title,
-                    status: isPublished ? "COMPLETED" : "COMPLETED",
-                    outputUrl: item.outputUrl,
-                    durationSeconds: item.durationSeconds,
-                    aspectRatio: (item.aspectRatio as any) || "PORTRAIT_9_16",
-                    createdAt: item.createdAt || new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                  };
-
-                  return (
-                    <Card
-                      key={item.id}
-                      className="group flex h-full flex-col justify-between gap-0 overflow-hidden py-0 transition hover:shadow-md"
-                    >
-                      <HoverVideoPreview
-                        src={item.outputUrl}
-                        thumbnailUrl={item.thumbnailUrl}
-                        gradient={item.gradient}
-                        onClick={() => setPreviewProject(previewProj)}
-                        className="flex aspect-[9/16] shrink-0 flex-col justify-between p-2"
-                      >
-                        <div className="z-20 flex items-start justify-between">
-                          <div className="flex flex-col items-start gap-1">
-                            <Badge
-                              variant="outline"
-                              className={cn(
-                                "h-5 gap-1 border-white/20 text-[10px] font-semibold shadow-xs backdrop-blur",
-                                isPublished
-                                  ? "bg-violet-500/90 text-white"
-                                  : isPosting
-                                    ? "animate-pulse bg-amber-500/90 text-white"
-                                    : isScheduled
-                                      ? "bg-sky-500/90 text-white"
-                                      : "bg-rose-500/90 text-white",
-                              )}
-                            >
-                              <span
-                                className={cn(
-                                  "size-1.5 rounded-full bg-white",
-                                  isPosting && "animate-ping",
-                                )}
-                              />
-                              {isPublished
-                                ? "Published"
-                                : isPosting
-                                  ? "Posting…"
-                                  : isScheduled
-                                    ? "Scheduled"
-                                    : "Failed"}
-                            </Badge>
-
-                            <Badge className="h-4 gap-1 border-0 bg-cyan-500/90 text-[9px] font-medium text-white shadow-xs">
-                              {isShort ? (
-                                <>
-                                  <Smartphone className="size-2.5" /> Short
-                                </>
-                              ) : (
-                                <>
-                                  <Film className="size-2.5" /> Long
-                                </>
-                              )}
-                            </Badge>
-                          </div>
-
-                          <DropdownMenu>
-                            <DropdownMenuTrigger
-                              aria-label={`Actions for ${item.title}`}
-                              onClick={(e) => e.stopPropagation()}
-                              className="grid size-7 cursor-pointer place-items-center rounded-full bg-white/90 text-neutral-900 shadow-xs backdrop-blur transition hover:bg-white"
-                            >
-                              <MoreVertical className="size-4" />
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-48">
-                              {(item.outputUrl || item.publicPostUrl) && (
-                                <DropdownMenuItem
-                                  onClick={() => setPreviewProject(previewProj)}
-                                  className="cursor-pointer"
-                                >
-                                  <Play className="size-4 text-emerald-500" /> Watch Video
-                                </DropdownMenuItem>
-                              )}
-                              {isPublished && item.publicPostUrl && (
-                                <DropdownMenuItem
-                                  onClick={() => {
-                                    if (item.publicPostUrl)
-                                      window.open(item.publicPostUrl, "_blank");
-                                  }}
-                                  className="cursor-pointer"
-                                >
-                                  <ExternalLink className="size-4 text-primary" /> View
-                                  Live Post
-                                </DropdownMenuItem>
-                              )}
-                              {!item.id.startsWith("yt-") && (
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    router.push(
-                                      `/composer?projectId=${item.videoProjectId}`,
-                                    )
-                                  }
-                                  className="cursor-pointer"
-                                >
-                                  <Pencil className="size-4" /> Edit in Composer
-                                </DropdownMenuItem>
-                              )}
-                              {item.outputUrl && (
-                                <DropdownMenuItem
-                                  onClick={() => window.open(item.outputUrl, "_blank")}
-                                  className="cursor-pointer"
-                                >
-                                  <Download className="size-4" /> Download MP4
-                                </DropdownMenuItem>
-                              )}
-                              {!item.id.startsWith("yt-") && (
-                                <>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem
-                                    variant="destructive"
-                                    onClick={() =>
-                                      handleCancelTask(item.taskId, item.title)
-                                    }
-                                    className="cursor-pointer text-destructive focus:text-destructive"
-                                  >
-                                    <Trash2 className="size-4" /> Remove Post
-                                  </DropdownMenuItem>
-                                </>
-                              )}
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-
-                        {(item.outputUrl || item.publicPostUrl) && (
-                          <button
-                            type="button"
-                            aria-label="Preview video"
-                            onClick={() => setPreviewProject(previewProj)}
-                            className="absolute top-1/2 left-1/2 z-10 grid size-12 -translate-x-1/2 -translate-y-1/2 scale-90 cursor-pointer place-items-center rounded-full bg-white/95 text-neutral-900 opacity-0 shadow-lg transition-all group-hover:scale-100 group-hover:opacity-100 hover:bg-white focus-visible:opacity-100"
-                          >
-                            <Play className="ml-0.5 size-5 fill-current" />
-                          </button>
-                        )}
-
-                        <div className="z-10 flex items-center justify-between">
-                          <div className="flex items-center gap-1">
-                            {item.platforms.map((p) => (
-                              <span
-                                key={p}
-                                className="grid size-5 place-items-center rounded-full bg-white/90 text-neutral-900 shadow-xs"
-                                title={PLATFORM_LABELS[p]}
-                              >
-                                <PlatformIcon platform={p} className="size-3" />
-                              </span>
-                            ))}
-                          </div>
-                          {item.durationSeconds && (
-                            <span className="rounded bg-black/75 px-1.5 py-0.5 text-xs font-medium text-white tabular-nums">
-                              {formatDuration(item.durationSeconds)}
-                            </span>
-                          )}
-                        </div>
-                      </HoverVideoPreview>
-
-                      <CardContent className="flex flex-1 flex-col justify-between gap-2.5 p-3">
-                        <div className="space-y-1">
-                          <div className="flex h-4 items-center gap-1 text-[11px] text-muted-foreground">
-                            {isScheduled ? (
-                              <span className="flex items-center gap-1 truncate font-medium text-sky-600 dark:text-sky-400">
-                                <Clock className="size-3 shrink-0" />
-                                {item.scheduledTime
-                                  ? formatDate(item.scheduledTime)
-                                  : "Scheduled"}
-                              </span>
-                            ) : isPublished ? (
-                              <span className="flex items-center gap-1 truncate font-medium text-violet-600 dark:text-violet-400">
-                                <CheckCircle2 className="size-3 shrink-0" />
-                                {item.publishedAt
-                                  ? formatDate(item.publishedAt)
-                                  : "Published"}
-                              </span>
-                            ) : (
-                              <span className="flex items-center gap-1 font-medium text-amber-600 dark:text-amber-400">
-                                <Loader2 className="size-3 shrink-0 animate-spin" />{" "}
-                                Dispatching…
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex h-11 items-start overflow-hidden">
-                            <h3
-                              onClick={() => setPreviewProject(previewProj)}
-                              className="line-clamp-2 cursor-pointer text-sm leading-snug font-medium transition-colors hover:text-primary"
-                              title={item.title}
-                            >
-                              {item.title}
-                            </h3>
-                          </div>
-                        </div>
-
-                        <div className="mt-auto flex gap-2 pt-2">
-                          {isScheduled ? (
-                            <Button
-                              size="sm"
-                              className="flex-1 cursor-pointer text-xs"
-                              onClick={() => {
-                                const foundTask = queue.find((q) => q.id === item.taskId);
-                                if (foundTask) handlePublishNow(foundTask);
-                              }}
-                            >
-                              <Send className="mr-1 size-3.5" /> Post Now
-                            </Button>
-                          ) : isPublished ? (
-                            <Button
-                              size="sm"
-                              className="flex-1 cursor-pointer text-xs"
-                              onClick={() => setPreviewProject(previewProj)}
-                            >
-                              <Play className="mr-1 size-3.5" /> Watch Video
-                            </Button>
-                          ) : (
-                            <Button
-                              size="sm"
-                              variant="secondary"
-                              className="flex-1 cursor-pointer text-xs"
-                              onClick={() => setPreviewProject(previewProj)}
-                            >
-                              <Play className="mr-1 size-3.5" /> Preview
-                            </Button>
-                          )}
-
-                          {isPublished && item.publicPostUrl ? (
-                            <a
-                              href={item.publicPostUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              title="Open Live Video on Platform"
-                              className={cn(
-                                buttonVariants({ size: "sm", variant: "outline" }),
-                                "cursor-pointer px-2.5 text-xs",
-                              )}
-                            >
-                              <ExternalLink className="size-3.5" />
-                            </a>
-                          ) : (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="cursor-pointer px-2.5 text-xs"
-                              title="Edit in Composer"
-                              onClick={() =>
-                                router.push(`/composer?projectId=${item.videoProjectId}`)
-                              }
-                            >
-                              <Pencil className="size-3.5" />
-                            </Button>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
+          ) : activeItems.length === 0 ? (
+            <Card className="space-y-3 p-8 text-center">
+              <div className="mx-auto grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary">
+                <Film className="size-6" />
               </div>
-            )
-          ) : (projectFilter === "READY" ? readyVideos : projects).length === 0 ? (
-            <Card className="p-8 text-center">
-              <Film className="mx-auto size-12 text-muted-foreground/40" />
-              <h3 className="mt-3 text-base font-medium">No videos found</h3>
-              <p className="mx-auto mt-1 max-w-sm text-xs text-muted-foreground">
-                Generate your first AI video using the prompt bar above or open the
-                creator studio.
-              </p>
-              <div className="mt-4">
-                <Link href="/create" className={cn(buttonVariants({ size: "sm" }))}>
-                  <Plus className="size-4" /> Create First Video
+              <div className="space-y-1">
+                <h3 className="text-base font-semibold">
+                  {projectFilter === "POSTING"
+                    ? "No posting videos yet"
+                    : projectFilter === "READY"
+                      ? "No ready videos waiting to post"
+                      : "No videos found"}
+                </h3>
+                <p className="mx-auto max-w-sm text-xs text-muted-foreground">
+                  {projectFilter === "POSTING"
+                    ? "You haven't scheduled or published any videos yet. Pick a ready video or generate a new AI video to start posting."
+                    : "Generate your first AI video using the prompt bar above or open the creator studio."}
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+                <Link
+                  href="/create"
+                  className={cn(buttonVariants({ size: "sm" }), "cursor-pointer gap-1.5")}
+                >
+                  <Plus className="size-3.5" /> Create Video
+                </Link>
+                <Link
+                  href="/projects"
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "sm" }),
+                    "cursor-pointer gap-1.5",
+                  )}
+                >
+                  Open Projects Studio <ArrowRight className="size-3.5" />
                 </Link>
               </div>
             </Card>
           ) : (
-            <div className="grid grid-cols-2 items-stretch gap-4 xl:grid-cols-4">
-              {(projectFilter === "READY" ? readyVideos : projects).map((project) => {
-                const gradient = getProjectGradient(project.id);
-                const isReady = project.status === "COMPLETED";
-                const isRendering = project.status === "PROCESSING";
-
-                return (
-                  <Card
-                    key={project.id}
-                    className="group flex h-full flex-col justify-between gap-0 overflow-hidden py-0 transition hover:shadow-md"
-                  >
-                    <HoverVideoPreview
-                      src={project.outputUrl}
-                      thumbnailUrl={
-                        project.outputUrl
-                          ? project.outputUrl
-                              .replace("/storage/videos/", "/storage/thumbnails/")
-                              .replace(/\.mp4(\?.*)?$/i, ".jpg")
-                          : undefined
-                      }
-                      gradient={gradient}
-                      onClick={() => setPreviewProject(project)}
-                      className="flex aspect-[9/16] shrink-0 flex-col justify-between p-2"
-                    >
-                      <div className="z-20 flex items-start justify-between">
-                        <StatusBadge status={project.status} />
-
-                        <DropdownMenu>
-                          <DropdownMenuTrigger
-                            aria-label={`Actions for ${project.title}`}
-                            onClick={(e) => e.stopPropagation()}
-                            className="grid size-7 cursor-pointer place-items-center rounded-full bg-white/90 text-neutral-900 shadow-xs backdrop-blur transition hover:bg-white"
-                          >
-                            <MoreVertical className="size-4" />
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48">
-                            <DropdownMenuItem
-                              onClick={() => setPreviewProject(project)}
-                              className="cursor-pointer"
-                            >
-                              <Play className="size-4 text-emerald-500" /> Preview Video
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() =>
-                                router.push(`/composer?projectId=${project.id}`)
-                              }
-                              className="cursor-pointer"
-                            >
-                              <Send className="size-4 text-sky-500" /> Compose &amp; Post
-                            </DropdownMenuItem>
-                            {project.outputUrl && (
-                              <DropdownMenuItem
-                                onClick={() => window.open(project.outputUrl, "_blank")}
-                                className="cursor-pointer"
-                              >
-                                <Download className="size-4" /> Download MP4
-                              </DropdownMenuItem>
-                            )}
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              variant="destructive"
-                              onClick={() =>
-                                handleDeleteProject(project.id, project.title)
-                              }
-                              className="cursor-pointer text-destructive focus:text-destructive"
-                            >
-                              <Trash2 className="size-4" /> Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-
-                      {isReady && (
-                        <button
-                          type="button"
-                          aria-label="Preview video"
-                          onClick={() => setPreviewProject(project)}
-                          className="absolute top-1/2 left-1/2 z-10 grid size-12 -translate-x-1/2 -translate-y-1/2 scale-90 cursor-pointer place-items-center rounded-full bg-white/95 text-neutral-900 opacity-0 shadow-lg transition-all group-hover:scale-100 group-hover:opacity-100 hover:bg-white focus-visible:opacity-100"
-                        >
-                          <Play className="ml-0.5 size-5 fill-current" />
-                        </button>
-                      )}
-
-                      {isRendering && (
-                        <div className="absolute inset-x-3 top-1/2 z-10 -translate-y-1/2 space-y-2 rounded-lg bg-black/60 p-3 text-white backdrop-blur">
-                          <div className="flex items-center gap-2 text-xs font-medium">
-                            <Loader2 className="size-3.5 animate-spin text-amber-400" />{" "}
-                            Rendering…
-                          </div>
-                          <Progress
-                            value={65}
-                            className="gap-0 [&_[data-slot=progress-indicator]]:bg-amber-400 [&_[data-slot=progress-track]]:bg-white/20"
-                          />
-                        </div>
-                      )}
-
-                      <div className="z-10 flex justify-end">
-                        <span className="rounded bg-black/75 px-1.5 py-0.5 text-xs font-medium text-white tabular-nums">
-                          {formatDuration(project.durationSeconds)}
-                        </span>
-                      </div>
-                    </HoverVideoPreview>
-
-                    <CardContent className="flex flex-1 flex-col justify-between gap-2.5 p-3">
-                      <div className="space-y-1">
-                        <div className="flex h-11 items-start overflow-hidden">
-                          <h3
-                            onClick={() => setPreviewProject(project)}
-                            className="line-clamp-2 cursor-pointer text-sm leading-snug font-medium transition-colors hover:text-primary"
-                            title={project.title}
-                          >
-                            {project.title}
+            <div className="space-y-7">
+              {activeShorts.length > 0 && (
+                <div className="space-y-3.5">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-2.5">
+                    <div className="flex items-center gap-2.5">
+                      <span className="grid size-8 place-items-center rounded-lg bg-cyan-500/10 text-cyan-600 dark:text-cyan-400">
+                        <Smartphone className="size-4" />
+                      </span>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-sm font-semibold">
+                            Vertical Shorts &amp; Reels (9:16)
                           </h3>
+                          <Badge
+                            variant="secondary"
+                            className="h-5 text-[11px] tabular-nums"
+                          >
+                            {activeShorts.length}
+                          </Badge>
                         </div>
-                        <p className="flex h-4 items-center text-xs text-muted-foreground">
-                          {formatDate(project.createdAt)}
+                        <p className="text-xs text-muted-foreground">
+                          Portrait 9:16 clips for YouTube Shorts, TikTok, and Reels
                         </p>
                       </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {activeShorts.length > 4 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowAllShorts((prev) => !prev)}
+                          className="h-7 cursor-pointer text-xs"
+                        >
+                          {showAllShorts
+                            ? "Show Less"
+                            : `Show All (${activeShorts.length})`}
+                        </Button>
+                      )}
+                      <Link
+                        href="/projects?format=SHORT"
+                        className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                      >
+                        View All 9:16 <ArrowRight className="size-3" />
+                      </Link>
+                    </div>
+                  </div>
 
-                      <div className="mt-auto pt-2">
-                        {isReady && (
-                          <div className="flex gap-2">
-                            <Link
-                              href={`/composer?projectId=${project.id}`}
-                              className={cn(
-                                buttonVariants({ size: "sm" }),
-                                "flex-1 cursor-pointer text-xs",
-                              )}
-                            >
-                              <Send className="mr-1 size-3.5" /> Post Video
-                            </Link>
-                            {project.outputUrl && (
-                              <a
-                                href={project.outputUrl}
-                                download
-                                target="_blank"
-                                rel="noreferrer"
-                                className={cn(
-                                  buttonVariants({ size: "sm", variant: "outline" }),
-                                  "px-2.5",
-                                )}
-                                title="Download MP4"
-                              >
-                                <Download className="size-3.5" />
-                              </a>
-                            )}
-                          </div>
-                        )}
+                  <div className="grid grid-cols-2 items-stretch gap-4 xl:grid-cols-4">
+                    {(showAllShorts ? activeShorts : activeShorts.slice(0, 4)).map(
+                      (item) => {
+                        const isPublished = item.status === "PUBLISHED";
+                        const isPosting = item.status === "IN_PROGRESS";
+                        const isScheduled = item.status === "PENDING";
+                        const isReady =
+                          item.status === "READY" || item.status === "COMPLETED";
 
-                        {!isReady && !isRendering && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="w-full cursor-pointer text-xs"
-                            onClick={() =>
-                              router.push(`/composer?projectId=${project.id}`)
-                            }
+                        const previewProj: VideoProjectResponse = item.rawProject || {
+                          id: item.videoProjectId,
+                          title: item.title,
+                          status: "COMPLETED",
+                          outputUrl: item.outputUrl,
+                          durationSeconds: item.durationSeconds,
+                          aspectRatio: "PORTRAIT_9_16",
+                          createdAt: item.createdAt || new Date().toISOString(),
+                          updatedAt: new Date().toISOString(),
+                        };
+
+                        return (
+                          <Card
+                            key={item.id}
+                            className="group flex h-full flex-col justify-between gap-0 overflow-hidden py-0 transition hover:shadow-md"
                           >
-                            <Pencil className="mr-1 size-3.5" /> Open Editor
-                          </Button>
-                        )}
+                            <HoverVideoPreview
+                              src={item.outputUrl}
+                              thumbnailUrl={item.thumbnailUrl}
+                              gradient={item.gradient}
+                              onClick={() => setPreviewProject(previewProj)}
+                              className="flex aspect-[9/16] shrink-0 flex-col justify-between p-2"
+                            >
+                              <div className="z-20 flex items-start justify-between">
+                                <div className="flex flex-col items-start gap-1">
+                                  <Badge
+                                    variant="outline"
+                                    className={cn(
+                                      "h-5 gap-1 border-white/20 text-[10px] font-semibold shadow-xs backdrop-blur",
+                                      isPublished
+                                        ? "bg-violet-500/90 text-white"
+                                        : isPosting
+                                          ? "animate-pulse bg-amber-500/90 text-white"
+                                          : isScheduled
+                                            ? "bg-sky-500/90 text-white"
+                                            : isReady
+                                              ? "bg-emerald-500/90 text-white"
+                                              : "bg-rose-500/90 text-white",
+                                    )}
+                                  >
+                                    <span
+                                      className={cn(
+                                        "size-1.5 rounded-full bg-white",
+                                        isPosting && "animate-ping",
+                                      )}
+                                    />
+                                    {isPublished
+                                      ? "Published"
+                                      : isPosting
+                                        ? "Posting…"
+                                        : isScheduled
+                                          ? "Scheduled"
+                                          : isReady
+                                            ? "Ready"
+                                            : "Failed"}
+                                  </Badge>
+
+                                  <Badge className="h-4 gap-1 border-0 bg-cyan-500/90 text-[9px] font-medium text-white shadow-xs">
+                                    <Smartphone className="size-2.5" /> 9:16 Short
+                                  </Badge>
+                                </div>
+
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger
+                                    aria-label={`Actions for ${item.title}`}
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="grid size-7 cursor-pointer place-items-center rounded-full bg-white/90 text-neutral-900 shadow-xs backdrop-blur transition hover:bg-white"
+                                  >
+                                    <MoreVertical className="size-4" />
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end" className="w-48">
+                                    <DropdownMenuItem
+                                      onClick={() => setPreviewProject(previewProj)}
+                                      className="cursor-pointer"
+                                    >
+                                      <Play className="size-4 text-emerald-500" /> Watch
+                                      Video
+                                    </DropdownMenuItem>
+                                    {isPublished && item.publicPostUrl && (
+                                      <DropdownMenuItem
+                                        onClick={() => {
+                                          if (item.publicPostUrl)
+                                            window.open(item.publicPostUrl, "_blank");
+                                        }}
+                                        className="cursor-pointer"
+                                      >
+                                        <ExternalLink className="size-4 text-primary" />{" "}
+                                        View Live Post
+                                      </DropdownMenuItem>
+                                    )}
+                                    {!item.id.startsWith("yt-") && (
+                                      <DropdownMenuItem
+                                        onClick={() =>
+                                          router.push(
+                                            `/composer?projectId=${item.videoProjectId}`,
+                                          )
+                                        }
+                                        className="cursor-pointer"
+                                      >
+                                        <Pencil className="size-4" /> Edit in Composer
+                                      </DropdownMenuItem>
+                                    )}
+                                    {item.outputUrl && (
+                                      <DropdownMenuItem
+                                        onClick={() =>
+                                          window.open(item.outputUrl, "_blank")
+                                        }
+                                        className="cursor-pointer"
+                                      >
+                                        <Download className="size-4" /> Download MP4
+                                      </DropdownMenuItem>
+                                    )}
+                                    {!item.id.startsWith("yt-") && (
+                                      <>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem
+                                          variant="destructive"
+                                          onClick={() =>
+                                            isScheduled
+                                              ? handleCancelTask(item.taskId, item.title)
+                                              : handleDeleteProject(
+                                                  item.videoProjectId,
+                                                  item.title,
+                                                )
+                                          }
+                                          className="cursor-pointer text-destructive focus:text-destructive"
+                                        >
+                                          <Trash2 className="size-4" />{" "}
+                                          {isScheduled ? "Remove Post" : "Delete Video"}
+                                        </DropdownMenuItem>
+                                      </>
+                                    )}
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
+
+                              {(item.outputUrl || item.publicPostUrl) && (
+                                <button
+                                  type="button"
+                                  aria-label="Preview video"
+                                  onClick={() => setPreviewProject(previewProj)}
+                                  className="absolute top-1/2 left-1/2 z-10 grid size-12 -translate-x-1/2 -translate-y-1/2 scale-90 cursor-pointer place-items-center rounded-full bg-white/95 text-neutral-900 opacity-0 shadow-lg transition-all group-hover:scale-100 group-hover:opacity-100 hover:bg-white focus-visible:opacity-100"
+                                >
+                                  <Play className="ml-0.5 size-5 fill-current" />
+                                </button>
+                              )}
+
+                              <div className="z-10 flex items-center justify-between">
+                                <div className="flex items-center gap-1">
+                                  {item.platforms.map((p) => (
+                                    <span
+                                      key={p}
+                                      className="grid size-5 place-items-center rounded-full bg-white/90 text-neutral-900 shadow-xs"
+                                      title={PLATFORM_LABELS[p]}
+                                    >
+                                      <PlatformIcon platform={p} className="size-3" />
+                                    </span>
+                                  ))}
+                                </div>
+                                {item.durationSeconds && (
+                                  <span className="rounded bg-black/75 px-1.5 py-0.5 text-xs font-medium text-white tabular-nums">
+                                    {formatDuration(item.durationSeconds)}
+                                  </span>
+                                )}
+                              </div>
+                            </HoverVideoPreview>
+
+                            <CardContent className="flex flex-1 flex-col justify-between gap-2.5 p-3">
+                              <div className="space-y-1">
+                                <div className="flex h-4 items-center gap-1 text-[11px] text-muted-foreground">
+                                  {isScheduled ? (
+                                    <span className="flex items-center gap-1 truncate font-medium text-sky-600 dark:text-sky-400">
+                                      <Clock className="size-3 shrink-0" />
+                                      {item.scheduledTime
+                                        ? formatDate(item.scheduledTime)
+                                        : "Scheduled"}
+                                    </span>
+                                  ) : isPublished ? (
+                                    <span className="flex items-center gap-1 truncate font-medium text-violet-600 dark:text-violet-400">
+                                      <CheckCircle2 className="size-3 shrink-0" />
+                                      {item.publishedAt
+                                        ? formatDate(item.publishedAt)
+                                        : "Published"}
+                                    </span>
+                                  ) : (
+                                    <span className="truncate">
+                                      {formatDate(item.createdAt)}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex h-11 items-start overflow-hidden">
+                                  <h3
+                                    onClick={() => setPreviewProject(previewProj)}
+                                    className="line-clamp-2 cursor-pointer text-sm leading-snug font-medium transition-colors hover:text-primary"
+                                    title={item.title}
+                                  >
+                                    {item.title}
+                                  </h3>
+                                </div>
+                              </div>
+
+                              <div className="mt-auto flex gap-2 pt-2">
+                                {isScheduled ? (
+                                  <Button
+                                    size="sm"
+                                    className="flex-1 cursor-pointer text-xs"
+                                    onClick={() => {
+                                      const foundTask = queue.find(
+                                        (q) => q.id === item.taskId,
+                                      );
+                                      if (foundTask) handlePublishNow(foundTask);
+                                    }}
+                                  >
+                                    <Send className="mr-1 size-3.5" /> Post Now
+                                  </Button>
+                                ) : isPublished ? (
+                                  <Button
+                                    size="sm"
+                                    className="flex-1 cursor-pointer text-xs"
+                                    onClick={() => setPreviewProject(previewProj)}
+                                  >
+                                    <Play className="mr-1 size-3.5" /> Watch Video
+                                  </Button>
+                                ) : (
+                                  <Button
+                                    size="sm"
+                                    className="flex-1 cursor-pointer text-xs"
+                                    onClick={() =>
+                                      router.push(
+                                        `/composer?projectId=${item.videoProjectId}`,
+                                      )
+                                    }
+                                  >
+                                    <Send className="mr-1 size-3.5" /> Post Video
+                                  </Button>
+                                )}
+
+                                {isPublished && item.publicPostUrl ? (
+                                  <a
+                                    href={item.publicPostUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    title="Open Live Video on Platform"
+                                    className={cn(
+                                      buttonVariants({ size: "sm", variant: "outline" }),
+                                      "cursor-pointer px-2.5 text-xs",
+                                    )}
+                                  >
+                                    <ExternalLink className="size-3.5" />
+                                  </a>
+                                ) : (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="cursor-pointer px-2.5 text-xs"
+                                    title="Watch Preview"
+                                    onClick={() => setPreviewProject(previewProj)}
+                                  >
+                                    <Play className="size-3.5" />
+                                  </Button>
+                                )}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      },
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {activeLongVideos.length > 0 && (
+                <div className="space-y-3.5">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-2.5">
+                    <div className="flex items-center gap-2.5">
+                      <span className="grid size-8 place-items-center rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                        <MonitorPlay className="size-4" />
+                      </span>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-sm font-semibold">
+                            Long-Form Widescreen Videos (16:9)
+                          </h3>
+                          <Badge
+                            variant="secondary"
+                            className="h-5 text-[11px] tabular-nums"
+                          >
+                            {activeLongVideos.length}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Landscape 16:9 videos for YouTube, Facebook Watch, and LinkedIn
+                        </p>
                       </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {activeLongVideos.length > 4 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowAllLong((prev) => !prev)}
+                          className="h-7 cursor-pointer text-xs"
+                        >
+                          {showAllLong
+                            ? "Show Less"
+                            : `Show All (${activeLongVideos.length})`}
+                        </Button>
+                      )}
+                      <Link
+                        href="/projects?format=LONG"
+                        className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                      >
+                        View All 16:9 <ArrowRight className="size-3" />
+                      </Link>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2">
+                    {(showAllLong ? activeLongVideos : activeLongVideos.slice(0, 4)).map(
+                      (item) => {
+                        const isPublished = item.status === "PUBLISHED";
+                        const isPosting = item.status === "IN_PROGRESS";
+                        const isScheduled = item.status === "PENDING";
+                        const isReady =
+                          item.status === "READY" || item.status === "COMPLETED";
+
+                        const previewProj: VideoProjectResponse = item.rawProject || {
+                          id: item.videoProjectId,
+                          title: item.title,
+                          status: "COMPLETED",
+                          outputUrl: item.outputUrl,
+                          durationSeconds: item.durationSeconds,
+                          aspectRatio: "LANDSCAPE_16_9",
+                          createdAt: item.createdAt || new Date().toISOString(),
+                          updatedAt: new Date().toISOString(),
+                        };
+
+                        return (
+                          <Card
+                            key={item.id}
+                            className="group flex h-full flex-col justify-between gap-0 overflow-hidden py-0 transition hover:shadow-md"
+                          >
+                            <HoverVideoPreview
+                              src={item.outputUrl}
+                              thumbnailUrl={item.thumbnailUrl}
+                              gradient={item.gradient}
+                              onClick={() => setPreviewProject(previewProj)}
+                              className="flex aspect-video shrink-0 flex-col justify-between p-3"
+                            >
+                              <div className="z-20 flex items-start justify-between">
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                  <Badge
+                                    variant="outline"
+                                    className={cn(
+                                      "h-5 gap-1 border-white/20 text-[10px] font-semibold shadow-xs backdrop-blur",
+                                      isPublished
+                                        ? "bg-violet-500/90 text-white"
+                                        : isPosting
+                                          ? "animate-pulse bg-amber-500/90 text-white"
+                                          : isScheduled
+                                            ? "bg-sky-500/90 text-white"
+                                            : isReady
+                                              ? "bg-emerald-500/90 text-white"
+                                              : "bg-rose-500/90 text-white",
+                                    )}
+                                  >
+                                    <span
+                                      className={cn(
+                                        "size-1.5 rounded-full bg-white",
+                                        isPosting && "animate-ping",
+                                      )}
+                                    />
+                                    {isPublished
+                                      ? "Published"
+                                      : isPosting
+                                        ? "Posting…"
+                                        : isScheduled
+                                          ? "Scheduled"
+                                          : isReady
+                                            ? "Ready"
+                                            : "Failed"}
+                                  </Badge>
+
+                                  <Badge className="h-5 gap-1 border-0 bg-indigo-600/90 text-[10px] font-medium text-white shadow-xs">
+                                    <MonitorPlay className="size-3" /> 16:9 Widescreen
+                                  </Badge>
+                                </div>
+
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger
+                                    aria-label={`Actions for ${item.title}`}
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="grid size-7 cursor-pointer place-items-center rounded-full bg-white/90 text-neutral-900 shadow-xs backdrop-blur transition hover:bg-white"
+                                  >
+                                    <MoreVertical className="size-4" />
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end" className="w-48">
+                                    <DropdownMenuItem
+                                      onClick={() => setPreviewProject(previewProj)}
+                                      className="cursor-pointer"
+                                    >
+                                      <Play className="size-4 text-emerald-500" /> Watch
+                                      Video
+                                    </DropdownMenuItem>
+                                    {isPublished && item.publicPostUrl && (
+                                      <DropdownMenuItem
+                                        onClick={() => {
+                                          if (item.publicPostUrl)
+                                            window.open(item.publicPostUrl, "_blank");
+                                        }}
+                                        className="cursor-pointer"
+                                      >
+                                        <ExternalLink className="size-4 text-primary" />{" "}
+                                        View Live Post
+                                      </DropdownMenuItem>
+                                    )}
+                                    {!item.id.startsWith("yt-") && (
+                                      <DropdownMenuItem
+                                        onClick={() =>
+                                          router.push(
+                                            `/composer?projectId=${item.videoProjectId}`,
+                                          )
+                                        }
+                                        className="cursor-pointer"
+                                      >
+                                        <Pencil className="size-4" /> Edit in Composer
+                                      </DropdownMenuItem>
+                                    )}
+                                    {item.outputUrl && (
+                                      <DropdownMenuItem
+                                        onClick={() =>
+                                          window.open(item.outputUrl, "_blank")
+                                        }
+                                        className="cursor-pointer"
+                                      >
+                                        <Download className="size-4" /> Download MP4
+                                      </DropdownMenuItem>
+                                    )}
+                                    {!item.id.startsWith("yt-") && (
+                                      <>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem
+                                          variant="destructive"
+                                          onClick={() =>
+                                            isScheduled
+                                              ? handleCancelTask(item.taskId, item.title)
+                                              : handleDeleteProject(
+                                                  item.videoProjectId,
+                                                  item.title,
+                                                )
+                                          }
+                                          className="cursor-pointer text-destructive focus:text-destructive"
+                                        >
+                                          <Trash2 className="size-4" />{" "}
+                                          {isScheduled ? "Remove Post" : "Delete Video"}
+                                        </DropdownMenuItem>
+                                      </>
+                                    )}
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
+
+                              {(item.outputUrl || item.publicPostUrl) && (
+                                <button
+                                  type="button"
+                                  aria-label="Preview video"
+                                  onClick={() => setPreviewProject(previewProj)}
+                                  className="absolute top-1/2 left-1/2 z-10 grid size-12 -translate-x-1/2 -translate-y-1/2 scale-90 cursor-pointer place-items-center rounded-full bg-white/95 text-neutral-900 opacity-0 shadow-lg transition-all group-hover:scale-100 group-hover:opacity-100 hover:bg-white focus-visible:opacity-100"
+                                >
+                                  <Play className="ml-0.5 size-5 fill-current" />
+                                </button>
+                              )}
+
+                              <div className="z-10 flex items-center justify-between">
+                                <div className="flex items-center gap-1">
+                                  {item.platforms.map((p) => (
+                                    <span
+                                      key={p}
+                                      className="grid size-5 place-items-center rounded-full bg-white/90 text-neutral-900 shadow-xs"
+                                      title={PLATFORM_LABELS[p]}
+                                    >
+                                      <PlatformIcon platform={p} className="size-3" />
+                                    </span>
+                                  ))}
+                                </div>
+                                {item.durationSeconds && (
+                                  <span className="rounded bg-black/75 px-1.5 py-0.5 text-xs font-medium text-white tabular-nums">
+                                    {formatDuration(item.durationSeconds)}
+                                  </span>
+                                )}
+                              </div>
+                            </HoverVideoPreview>
+
+                            <CardContent className="flex flex-1 flex-col justify-between gap-2.5 p-3.5">
+                              <div className="space-y-1">
+                                <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
+                                  {isScheduled ? (
+                                    <span className="flex items-center gap-1 truncate font-medium text-sky-600 dark:text-sky-400">
+                                      <Clock className="size-3 shrink-0" />
+                                      {item.scheduledTime
+                                        ? formatDate(item.scheduledTime)
+                                        : "Scheduled"}
+                                    </span>
+                                  ) : isPublished ? (
+                                    <span className="flex items-center gap-1 truncate font-medium text-violet-600 dark:text-violet-400">
+                                      <CheckCircle2 className="size-3 shrink-0" />
+                                      {item.publishedAt
+                                        ? formatDate(item.publishedAt)
+                                        : "Published"}
+                                    </span>
+                                  ) : (
+                                    <span className="truncate">
+                                      {formatDate(item.createdAt)}
+                                    </span>
+                                  )}
+                                  {item.channelName && (
+                                    <span className="truncate font-medium">
+                                      {item.channelName}
+                                    </span>
+                                  )}
+                                </div>
+                                <h3
+                                  onClick={() => setPreviewProject(previewProj)}
+                                  className="line-clamp-1 cursor-pointer text-sm leading-snug font-semibold transition-colors hover:text-primary"
+                                  title={item.title}
+                                >
+                                  {item.title}
+                                </h3>
+                              </div>
+
+                              <div className="mt-auto flex gap-2 pt-1.5">
+                                {isScheduled ? (
+                                  <Button
+                                    size="sm"
+                                    className="flex-1 cursor-pointer text-xs"
+                                    onClick={() => {
+                                      const foundTask = queue.find(
+                                        (q) => q.id === item.taskId,
+                                      );
+                                      if (foundTask) handlePublishNow(foundTask);
+                                    }}
+                                  >
+                                    <Send className="mr-1 size-3.5" /> Post Now
+                                  </Button>
+                                ) : isPublished ? (
+                                  <Button
+                                    size="sm"
+                                    className="flex-1 cursor-pointer text-xs"
+                                    onClick={() => setPreviewProject(previewProj)}
+                                  >
+                                    <Play className="mr-1 size-3.5" /> Watch Video
+                                  </Button>
+                                ) : (
+                                  <Button
+                                    size="sm"
+                                    className="flex-1 cursor-pointer text-xs"
+                                    onClick={() =>
+                                      router.push(
+                                        `/composer?projectId=${item.videoProjectId}`,
+                                      )
+                                    }
+                                  >
+                                    <Send className="mr-1 size-3.5" /> Post Video
+                                  </Button>
+                                )}
+
+                                {isPublished && item.publicPostUrl ? (
+                                  <a
+                                    href={item.publicPostUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    title="Open Live Video on Platform"
+                                    className={cn(
+                                      buttonVariants({ size: "sm", variant: "outline" }),
+                                      "cursor-pointer px-2.5 text-xs",
+                                    )}
+                                  >
+                                    <ExternalLink className="size-3.5" />
+                                  </a>
+                                ) : (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="cursor-pointer px-2.5 text-xs"
+                                    title="Watch Preview"
+                                    onClick={() => setPreviewProject(previewProj)}
+                                  >
+                                    <Play className="size-3.5" />
+                                  </Button>
+                                )}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      },
+                    )}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-center pt-1">
+                <Link
+                  href="/projects"
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "sm" }),
+                    "w-full cursor-pointer gap-2 sm:w-auto",
+                  )}
+                >
+                  View All Projects &amp; Videos ({allDashboardItems.length}){" "}
+                  <ArrowRight className="size-4" />
+                </Link>
+              </div>
             </div>
           )}
         </section>
@@ -1505,6 +1852,50 @@ export default function DashboardPage() {
           </DialogContent>
         </Dialog>
       )}
+
+      <Dialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && !deletingItem && setDeleteTarget(null)}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="mb-2 flex size-10 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+              <AlertTriangle className="size-5" />
+            </div>
+            <DialogTitle className="text-lg">
+              {deleteTarget?.isTask ? "Remove Scheduled Post?" : "Delete Video Project?"}
+            </DialogTitle>
+            <DialogDescription className="pt-1 text-sm leading-relaxed">
+              Are you sure you want to remove{" "}
+              <span className="font-semibold text-foreground">
+                &ldquo;{deleteTarget?.title}&rdquo;
+              </span>
+              ? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-2 gap-2 sm:justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={deletingItem}
+              className="cursor-pointer"
+              onClick={() => setDeleteTarget(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={deletingItem}
+              className="cursor-pointer gap-1.5"
+              onClick={() => void confirmDeleteAction()}
+            >
+              <Trash2 className="size-4" />
+              {deletingItem ? "Removing…" : "Yes, Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -2222,6 +2222,10 @@ export default function ProjectsPage() {
         if (st) {
           setStatus(st as StatusFilter);
         }
+        const fmt = params.get("format");
+        if (fmt === "SHORT" || fmt === "LONG" || fmt === "ALL") {
+          setFormatFilter(fmt);
+        }
       }
       const savedFolders = localStorage.getItem("clipflow_video_folders");
       if (savedFolders) {
