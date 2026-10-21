@@ -600,6 +600,218 @@ function ProjectCard({
   );
 }
 
+function LongFormProjectCard({
+  project,
+  actions,
+  folderName,
+}: {
+  project: Project;
+  actions: ProjectActions;
+  folderName?: string;
+}) {
+  const { status } = project;
+  return (
+    <Card className="group flex h-full flex-col justify-between gap-0 overflow-hidden py-0 transition-shadow hover:shadow-md">
+      <HoverVideoPreview
+        src={project.outputUrl}
+        thumbnailUrl={project.thumbnailUrl}
+        gradient={project.gradient}
+        onClick={() => actions.onPlay?.(project)}
+        className="aspect-video w-full shrink-0"
+      >
+        <div className="absolute inset-x-3 top-2.5 z-20 flex items-start justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <StatusBadge status={status} />
+            <Badge className="h-6 gap-1 border-0 bg-amber-600/90 text-[10px] font-medium text-white shadow-xs">
+              <Film className="size-3" /> 16:9 Widescreen
+            </Badge>
+          </div>
+          <div className="flex items-center gap-1.5">
+            {folderName && (
+              <Badge
+                variant="outline"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  actions.onSelectFolder?.(project.folderId || "all");
+                }}
+                className="h-6 max-w-[120px] cursor-pointer truncate border-white/20 bg-black/60 text-[10px] text-white backdrop-blur hover:bg-black/80"
+                title={`Folder: ${folderName}`}
+              >
+                <Folder className="mr-1 size-2.5 shrink-0 text-primary" />
+                <span className="truncate">{folderName}</span>
+              </Badge>
+            )}
+            <ProjectMenu project={project} actions={actions} />
+          </div>
+        </div>
+
+        {status === "RENDERING" && (
+          <div className="pointer-events-none absolute inset-x-6 top-1/2 z-10 -translate-y-1/2 space-y-2.5 rounded-xl bg-black/60 p-4 text-white backdrop-blur">
+            <div className="flex items-center gap-2 text-xs font-medium">
+              <Loader2 className="size-4 animate-spin" />
+              Rendering 16:9 video... {project.progress}%
+            </div>
+            <Progress
+              value={project.progress ?? null}
+              className="gap-0 [&_[data-slot=progress-indicator]]:bg-white [&_[data-slot=progress-track]]:bg-white/25"
+            />
+          </div>
+        )}
+
+        {(status === "READY" || status === "SCHEDULED" || status === "PUBLISHED") && (
+          <button
+            type="button"
+            aria-label="Preview video"
+            onClick={() => actions.onPlay?.(project)}
+            className="absolute top-1/2 left-1/2 z-10 grid size-12 -translate-x-1/2 -translate-y-1/2 scale-90 cursor-pointer place-items-center rounded-full bg-white/95 text-neutral-900 opacity-0 shadow-lg transition group-hover:scale-100 group-hover:opacity-100 hover:bg-white focus-visible:opacity-100"
+          >
+            <Play className="ml-0.5 size-5 fill-current" />
+          </button>
+        )}
+
+        {status === "DRAFT" && (
+          <div className="pointer-events-none absolute inset-0 z-10 grid place-items-center">
+            <div className="flex items-center gap-2 rounded-xl bg-black/45 px-3 py-2 text-xs text-white/90 backdrop-blur">
+              <FileText className="size-4" />
+              <span>Script ready for review</span>
+            </div>
+          </div>
+        )}
+
+        {status === "FAILED" && (
+          <div className="pointer-events-none absolute inset-0 z-10 grid place-items-center p-3">
+            <div className="flex items-center gap-2 rounded-xl bg-black/65 px-3.5 py-2 text-xs font-medium text-rose-300 backdrop-blur">
+              <X className="size-4 text-rose-400" />
+              <span>Rendering Failed</span>
+            </div>
+          </div>
+        )}
+
+        <div className="pointer-events-none absolute inset-x-3 bottom-2.5 z-10 flex items-center justify-between text-xs font-medium text-white">
+          <span className="rounded bg-black/75 px-2 py-0.5 tabular-nums">
+            {project.viewCount != null
+              ? `${project.viewCount.toLocaleString()} views`
+              : "16:9 • 1080p"}
+          </span>
+          <span className="rounded bg-black/75 px-2 py-0.5 tabular-nums">
+            {project.duration}
+          </span>
+        </div>
+      </HoverVideoPreview>
+
+      <CardContent className="flex flex-1 flex-col justify-between gap-3 p-4">
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between gap-2">
+            <PlatformIcons platforms={project.platforms} />
+            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+              {status === "SCHEDULED" && project.scheduledFor ? (
+                <>
+                  <Calendar className="size-3 shrink-0" />
+                  <span className="truncate">{project.scheduledFor}</span>
+                </>
+              ) : (
+                <>
+                  <Clock className="size-3 shrink-0" />
+                  <span className="truncate">
+                    {project.channelName
+                      ? `${project.channelName} • ${project.updatedAt}`
+                      : project.updatedAt}
+                  </span>
+                </>
+              )}
+            </span>
+          </div>
+
+          <h3
+            onClick={() => actions.onPlay?.(project)}
+            className="line-clamp-1 cursor-pointer text-base leading-snug font-semibold transition-colors hover:text-primary"
+            title={project.title}
+          >
+            {project.title}
+          </h3>
+
+          {project.topic && (
+            <p className="line-clamp-1 text-xs text-muted-foreground">{project.topic}</p>
+          )}
+        </div>
+
+        <div className="mt-auto flex items-center gap-2 border-t pt-3">
+          {status === "READY" && (
+            <>
+              <Button
+                size="sm"
+                className="flex-1 cursor-pointer text-xs"
+                onClick={() => actions.onPublish?.(project)}
+              >
+                <Send className="mr-1 size-3.5" /> Publish Post
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="cursor-pointer text-xs"
+                onClick={() => actions.onPlay?.(project)}
+              >
+                <Play className="mr-1 size-3.5" /> Preview
+              </Button>
+            </>
+          )}
+          {status === "DRAFT" && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-full cursor-pointer text-xs"
+              onClick={() => actions.onPlay?.(project)}
+            >
+              <Pencil className="mr-1 size-3.5" /> View Script
+            </Button>
+          )}
+          {status === "FAILED" && (
+            <Button
+              size="sm"
+              variant="destructive"
+              className="w-full cursor-pointer text-xs"
+              onClick={() => actions.onDelete(project.id)}
+            >
+              <Trash2 className="mr-1 size-3.5" /> Delete Failed Video
+            </Button>
+          )}
+          {status === "SCHEDULED" && (
+            <Button
+              size="sm"
+              variant="secondary"
+              className="w-full cursor-pointer text-xs"
+              onClick={() => actions.onPlay?.(project)}
+            >
+              <Play className="mr-1 size-3.5" /> Preview Scheduled Post
+            </Button>
+          )}
+          {status === "PUBLISHED" && (
+            <>
+              <Button
+                size="sm"
+                className="flex-1 cursor-pointer text-xs"
+                onClick={() => actions.onPlay?.(project)}
+              >
+                <Play className="mr-1 size-3.5" /> Watch Video
+              </Button>
+              {project.liveUrl && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="cursor-pointer gap-1 text-xs"
+                  onClick={() => window.open(project.liveUrl, "_blank")}
+                >
+                  <ExternalLink className="size-3.5" /> Open Live
+                </Button>
+              )}
+            </>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function KanbanCard({
   project,
   actions,
@@ -2404,212 +2616,194 @@ export default function ProjectsPage() {
         </div>
       </header>
 
-      <div className="flex flex-wrap items-center gap-2 border-b pb-3">
-        <button
-          type="button"
-          onClick={() => setContentCategory("ALL")}
-          className={cn(
-            "flex cursor-pointer items-center gap-2 rounded-lg px-3.5 py-1.5 text-sm font-medium transition",
-            contentCategory === "ALL"
-              ? "bg-primary font-semibold text-primary-foreground shadow-xs"
-              : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
-          )}
-        >
-          <Layers className="size-4" />
-          <span>All Content</span>
-          <span
-            className={cn(
-              "py-0.2 rounded-full px-1.5 text-xs",
-              contentCategory === "ALL"
-                ? "bg-primary-foreground/20 text-primary-foreground"
-                : "bg-muted text-muted-foreground",
-            )}
-          >
-            {counts.total}
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setContentCategory("VIDEOS")}
-          className={cn(
-            "flex cursor-pointer items-center gap-2 rounded-lg px-3.5 py-1.5 text-sm font-medium transition",
-            contentCategory === "VIDEOS"
-              ? "bg-primary font-semibold text-primary-foreground shadow-xs"
-              : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
-          )}
-        >
-          <Film className="size-4" />
-          <span>Videos &amp; Clips</span>
-          <span
-            className={cn(
-              "py-0.2 rounded-full px-1.5 text-xs",
-              contentCategory === "VIDEOS"
-                ? "bg-primary-foreground/20 text-primary-foreground"
-                : "bg-muted text-muted-foreground",
-            )}
-          >
-            {counts.videos}
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setContentCategory("POSTS")}
-          className={cn(
-            "flex cursor-pointer items-center gap-2 rounded-lg px-3.5 py-1.5 text-sm font-medium transition",
-            contentCategory === "POSTS"
-              ? "bg-primary font-semibold text-primary-foreground shadow-xs"
-              : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
-          )}
-        >
-          <Send className="size-4" />
-          <span>Social Posts</span>
-          <span
-            className={cn(
-              "py-0.2 rounded-full px-1.5 text-xs",
-              contentCategory === "POSTS"
-                ? "bg-primary-foreground/20 text-primary-foreground"
-                : "bg-muted text-muted-foreground",
-            )}
-          >
-            {counts.posts}
-          </span>
-        </button>
-      </div>
-
-      <div className="space-y-2.5 rounded-xl border bg-card p-3 shadow-xs">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <FolderOpen className="size-4 text-primary" />
-            <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-              Directories &amp; Folders
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={() => setNewFolderOpen(true)}
-            className="flex cursor-pointer items-center gap-1 text-xs font-medium text-primary hover:underline"
-          >
-            <FolderPlus className="size-3.5" /> + New Folder
-          </button>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          {folders.map((f) => {
-            const isSelected = selectedFolder === f.id;
-            const folderCount =
-              f.id === "all"
-                ? projects.length
-                : projects.filter((p) => (p.folderId || "all") === f.id).length;
-            return (
-              <div
-                key={f.id}
-                className={cn(
-                  "group inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition",
-                  isSelected
-                    ? "border-primary bg-primary/10 font-semibold text-primary ring-1 ring-primary/30"
-                    : "border-border bg-background text-muted-foreground hover:bg-muted/60 hover:text-foreground",
-                )}
-                onClick={() => setSelectedFolder(f.id)}
-              >
-                {isSelected ? (
-                  <FolderOpen className={cn("size-3.5", f.color || "text-primary")} />
-                ) : (
-                  <Folder
-                    className={cn("size-3.5", f.color || "text-muted-foreground")}
-                  />
-                )}
-                <span>{f.name}</span>
-                <span
-                  className={cn(
-                    "py-0.2 ml-1 rounded-full px-1.5 text-[10px] tabular-nums",
-                    isSelected
-                      ? "bg-primary font-bold text-primary-foreground"
-                      : "bg-muted text-muted-foreground",
-                  )}
-                >
-                  {folderCount}
-                </span>
-                {f.id !== "all" && !DEFAULT_FOLDERS.some((df) => df.id === f.id) && (
-                  <button
-                    type="button"
-                    title="Delete folder"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteFolder(f.id, f.name);
-                    }}
-                    className="ml-1 p-0.5 opacity-0 transition group-hover:opacity-100 hover:text-destructive"
-                  >
-                    <Trash2 className="size-3" />
-                  </button>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
       <div className="space-y-3">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-          <div className="relative flex-1">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-3">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setContentCategory("ALL")}
+              className={cn(
+                "flex cursor-pointer items-center gap-2 rounded-lg px-3.5 py-1.5 text-sm font-medium transition",
+                contentCategory === "ALL"
+                  ? "bg-primary font-semibold text-primary-foreground shadow-xs"
+                  : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+              )}
+            >
+              <Layers className="size-4" />
+              <span>All Content</span>
+              <span
+                className={cn(
+                  "rounded-full px-1.5 py-0.5 text-xs tabular-nums",
+                  contentCategory === "ALL"
+                    ? "bg-primary-foreground/20 text-primary-foreground"
+                    : "bg-muted text-muted-foreground",
+                )}
+              >
+                {counts.total}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setContentCategory("VIDEOS")}
+              className={cn(
+                "flex cursor-pointer items-center gap-2 rounded-lg px-3.5 py-1.5 text-sm font-medium transition",
+                contentCategory === "VIDEOS"
+                  ? "bg-primary font-semibold text-primary-foreground shadow-xs"
+                  : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+              )}
+            >
+              <Film className="size-4" />
+              <span>Videos &amp; Clips</span>
+              <span
+                className={cn(
+                  "rounded-full px-1.5 py-0.5 text-xs tabular-nums",
+                  contentCategory === "VIDEOS"
+                    ? "bg-primary-foreground/20 text-primary-foreground"
+                    : "bg-muted text-muted-foreground",
+                )}
+              >
+                {counts.videos}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setContentCategory("POSTS")}
+              className={cn(
+                "flex cursor-pointer items-center gap-2 rounded-lg px-3.5 py-1.5 text-sm font-medium transition",
+                contentCategory === "POSTS"
+                  ? "bg-primary font-semibold text-primary-foreground shadow-xs"
+                  : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+              )}
+            >
+              <Send className="size-4" />
+              <span>Social Posts</span>
+              <span
+                className={cn(
+                  "rounded-full px-1.5 py-0.5 text-xs tabular-nums",
+                  contentCategory === "POSTS"
+                    ? "bg-primary-foreground/20 text-primary-foreground"
+                    : "bg-muted text-muted-foreground",
+                )}
+              >
+                {counts.posts}
+              </span>
+            </button>
+          </div>
+
+          <Tabs value={view} onValueChange={(v) => setView(v as ViewMode)}>
+            <TabsList aria-label="View mode" className="h-9">
+              <TabsTrigger value="grid" aria-label="Grid view" className="px-3 text-xs">
+                <LayoutGrid className="size-3.5" />{" "}
+                <span className="hidden sm:inline">Grid</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="kanban"
+                aria-label="Kanban view"
+                className="px-3 text-xs"
+              >
+                <Kanban className="size-3.5" />{" "}
+                <span className="hidden sm:inline">Board</span>
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+
+        <div className="flex flex-col gap-2.5 rounded-xl border bg-card p-2.5 shadow-xs lg:flex-row lg:items-center">
+          <div className="relative min-w-[200px] flex-1">
             <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search by title, topic, or tags..."
               aria-label="Search projects"
-              className="h-9 pl-9"
+              className="h-9 border-0 bg-muted/40 pl-9 shadow-none focus-visible:ring-1"
             />
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center gap-1 rounded-lg border bg-muted/60 p-1">
+            <div className="flex items-center gap-1 rounded-lg border bg-muted/50 p-1">
               <button
                 type="button"
                 onClick={() => setFormatFilter("ALL")}
                 className={cn(
-                  "cursor-pointer rounded-md px-3 py-1 text-xs font-medium transition",
+                  "cursor-pointer rounded-md px-2.5 py-1 text-xs font-medium transition",
                   formatFilter === "ALL"
-                    ? "bg-background text-foreground shadow-xs"
+                    ? "bg-background font-semibold text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                All Formats
+                All ({counts.total})
               </button>
               <button
                 type="button"
                 onClick={() => setFormatFilter("SHORT")}
                 className={cn(
-                  "flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium transition",
+                  "flex cursor-pointer items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium transition",
                   formatFilter === "SHORT"
-                    ? "bg-cyan-500 text-white shadow-xs"
+                    ? "bg-cyan-500 font-semibold text-white shadow-xs"
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                <Smartphone className="size-3.5" /> Shorts (&le;60s) ({counts.shorts})
+                <Smartphone className="size-3" /> 9:16 ({counts.shorts})
               </button>
               <button
                 type="button"
                 onClick={() => setFormatFilter("LONG")}
                 className={cn(
-                  "flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium transition",
+                  "flex cursor-pointer items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium transition",
                   formatFilter === "LONG"
-                    ? "bg-amber-600 text-white shadow-xs"
+                    ? "bg-amber-600 font-semibold text-white shadow-xs"
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                <Film className="size-3.5" /> Long Form (&gt;60s) ({counts.long})
+                <Film className="size-3" /> 16:9 ({counts.long})
               </button>
             </div>
+
+            <Select
+              value={selectedFolder}
+              onValueChange={(v) => setSelectedFolder(v ?? "all")}
+            >
+              <SelectTrigger aria-label="Filter by folder" className="h-9 w-40 text-xs">
+                <Folder className="size-3.5 text-primary" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent alignItemWithTrigger={false}>
+                {folders.map((f) => (
+                  <SelectItem key={f.id} value={f.id}>
+                    {f.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={platform}
+              onValueChange={(v) => setPlatform((v ?? "ALL") as PlatformFilter)}
+              items={PLATFORM_FILTERS}
+            >
+              <SelectTrigger aria-label="Filter by platform" className="h-9 w-36 text-xs">
+                <Share2 className="size-3.5 text-muted-foreground" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent alignItemWithTrigger={false}>
+                {PLATFORM_FILTERS.map((p) => (
+                  <SelectItem key={p.value} value={p.value}>
+                    {p.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
             <Select
               value={status}
               onValueChange={(v) => setStatus((v ?? "ALL") as StatusFilter)}
               items={STATUS_FILTERS}
             >
-              <SelectTrigger aria-label="Filter by status" className="h-9 w-40">
-                <Filter className="text-muted-foreground" />
+              <SelectTrigger aria-label="Filter by status" className="h-9 w-36 text-xs">
+                <Filter className="size-3.5 text-muted-foreground" />
                 <SelectValue />
               </SelectTrigger>
               <SelectContent alignItemWithTrigger={false}>
@@ -2621,93 +2815,158 @@ export default function ProjectsPage() {
               </SelectContent>
             </Select>
 
-            <Tabs
-              value={view}
-              onValueChange={(v) => setView(v as ViewMode)}
-              className="ml-auto"
-            >
-              <TabsList aria-label="View mode" className="h-9">
-                <TabsTrigger value="grid" aria-label="Grid view" className="px-3">
-                  <LayoutGrid className="size-4" />{" "}
-                  <span className="hidden sm:inline">Grid</span>
-                </TabsTrigger>
-                <TabsTrigger value="kanban" aria-label="Kanban view" className="px-3">
-                  <Kanban className="size-4" />{" "}
-                  <span className="hidden sm:inline">Board</span>
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
+            {hasFilters && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={clearFilters}
+                className="h-9 cursor-pointer gap-1 px-2.5 text-xs text-muted-foreground hover:text-foreground"
+              >
+                <X className="size-3.5" /> Reset
+              </Button>
+            )}
           </div>
         </div>
-
-        <div className="flex flex-wrap items-center gap-1.5 pt-1">
-          <span className="mr-1 flex items-center gap-1 text-xs font-medium text-muted-foreground">
-            <Share2 className="size-3.5" /> Platform:
-          </span>
-          {PLATFORM_FILTERS.map((p) => {
-            const isActive = platform === p.value;
-            const meta = p.value !== "ALL" ? PLATFORM_META[p.value] : null;
-            const PIcon = meta?.icon;
-            return (
-              <button
-                key={p.value}
-                type="button"
-                onClick={() => setPlatform(p.value)}
-                className={cn(
-                  "inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition",
-                  isActive
-                    ? "border-foreground bg-foreground font-semibold text-background shadow-xs"
-                    : "border-transparent bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground",
-                )}
-              >
-                {PIcon && <PIcon className="size-3" />}
-                {p.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="flex items-center justify-between text-sm text-muted-foreground">
-        <div className="flex items-center gap-2">
-          <span>
-            {filtered.length} item{filtered.length === 1 ? "" : "s"} found
-          </span>
-          {selectedFolder !== "all" && (
-            <Badge variant="secondary" className="gap-1 text-xs">
-              <Folder className="size-3 text-primary" />
-              Folder: {folders.find((f) => f.id === selectedFolder)?.name}
-            </Badge>
-          )}
-          {formatFilter !== "ALL" && (
-            <Badge variant="secondary" className="text-xs">
-              {formatFilter === "SHORT" ? "⚡ Shorts (≤60s)" : "🎬 Long Form (>60s)"}
-            </Badge>
-          )}
-        </div>
-        {hasFilters && filtered.length > 0 && (
-          <button
-            type="button"
-            onClick={clearFilters}
-            className="cursor-pointer text-xs font-medium text-primary hover:text-foreground hover:underline"
-          >
-            Clear all filters
-          </button>
-        )}
       </div>
 
       {filtered.length === 0 ? (
         <EmptyState onClear={clearFilters} onNew={() => router.push("/create")} />
       ) : view === "grid" ? (
-        <div className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {filtered.map((p) => (
-            <ProjectCard
-              key={p.id}
-              project={p}
-              actions={actions}
-              folderName={folders.find((f) => f.id === p.folderId)?.name}
-            />
-          ))}
+        <div className="space-y-8">
+          {(formatFilter === "ALL" || formatFilter === "SHORT") && (
+            <section aria-label="9:16 Vertical Shorts" className="space-y-3.5">
+              <div className="flex items-center justify-between border-b pb-2.5">
+                <div className="flex items-center gap-2.5">
+                  <span className="grid size-8 place-items-center rounded-lg bg-cyan-500/10 text-cyan-500">
+                    <Smartphone className="size-4" />
+                  </span>
+                  <div>
+                    <h2 className="flex items-center gap-2 text-base font-semibold">
+                      Vertical Shorts &amp; Reels
+                      <Badge
+                        variant="secondary"
+                        className="font-mono text-[11px] tabular-nums"
+                      >
+                        9:16 •{" "}
+                        {
+                          filtered.filter(
+                            (p) =>
+                              p.videoType === "SHORT" &&
+                              p.aspectRatio !== "LANDSCAPE_16_9",
+                          ).length
+                        }
+                      </Badge>
+                    </h2>
+                    <p className="text-xs text-muted-foreground">
+                      Optimized for YouTube Shorts, TikTok, Instagram Reels &amp; Stories
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {filtered.filter(
+                (p) => p.videoType === "SHORT" && p.aspectRatio !== "LANDSCAPE_16_9",
+              ).length > 0 ? (
+                <div className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                  {filtered
+                    .filter(
+                      (p) =>
+                        p.videoType === "SHORT" && p.aspectRatio !== "LANDSCAPE_16_9",
+                    )
+                    .map((p) => (
+                      <ProjectCard
+                        key={p.id}
+                        project={p}
+                        actions={actions}
+                        folderName={folders.find((f) => f.id === p.folderId)?.name}
+                      />
+                    ))}
+                </div>
+              ) : (
+                <div className="flex items-center justify-between rounded-xl border border-dashed bg-muted/15 px-4 py-4">
+                  <p className="text-xs text-muted-foreground">
+                    No 9:16 vertical short videos match the current filter.
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => router.push("/create")}
+                    className="h-8 cursor-pointer gap-1.5 text-xs"
+                  >
+                    <Plus className="size-3.5" /> Create 9:16 Short
+                  </Button>
+                </div>
+              )}
+            </section>
+          )}
+
+          {(formatFilter === "ALL" || formatFilter === "LONG") && (
+            <section aria-label="16:9 Long-Form Videos" className="space-y-3.5">
+              <div className="flex items-center justify-between border-b pb-2.5">
+                <div className="flex items-center gap-2.5">
+                  <span className="grid size-8 place-items-center rounded-lg bg-amber-500/10 text-amber-500">
+                    <Film className="size-4" />
+                  </span>
+                  <div>
+                    <h2 className="flex items-center gap-2 text-base font-semibold">
+                      Long-Form Widescreen Videos
+                      <Badge
+                        variant="secondary"
+                        className="font-mono text-[11px] tabular-nums"
+                      >
+                        16:9 •{" "}
+                        {
+                          filtered.filter(
+                            (p) =>
+                              p.videoType === "LONG" ||
+                              p.aspectRatio === "LANDSCAPE_16_9",
+                          ).length
+                        }
+                      </Badge>
+                    </h2>
+                    <p className="text-xs text-muted-foreground">
+                      Horizontal widescreen videos for YouTube, Facebook Watch &amp;
+                      LinkedIn
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {filtered.filter(
+                (p) => p.videoType === "LONG" || p.aspectRatio === "LANDSCAPE_16_9",
+              ).length > 0 ? (
+                <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {filtered
+                    .filter(
+                      (p) => p.videoType === "LONG" || p.aspectRatio === "LANDSCAPE_16_9",
+                    )
+                    .map((p) => (
+                      <LongFormProjectCard
+                        key={p.id}
+                        project={p}
+                        actions={actions}
+                        folderName={folders.find((f) => f.id === p.folderId)?.name}
+                      />
+                    ))}
+                </div>
+              ) : (
+                <div className="flex items-center justify-between rounded-xl border border-dashed bg-muted/15 px-4 py-4">
+                  <p className="text-xs text-muted-foreground">
+                    No 16:9 widescreen videos yet. Create a landscape video in the studio!
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => router.push("/create")}
+                    className="h-8 cursor-pointer gap-1.5 text-xs"
+                  >
+                    <Plus className="size-3.5" /> Create 16:9 Video
+                  </Button>
+                </div>
+              )}
+            </section>
+          )}
         </div>
       ) : (
         <KanbanBoard projects={filtered} actions={actions} folders={folders} />
