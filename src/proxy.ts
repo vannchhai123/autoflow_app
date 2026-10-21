@@ -6,6 +6,14 @@ const PUBLIC_PATHS = ["/login", "/privacy", "/terms"];
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
+  const tiktokMatch = pathname.match(/tiktok([A-Za-z0-9_-]+)\.txt$/);
+  if (tiktokMatch) {
+    return new NextResponse(`tiktok-developers-site-verification=${tiktokMatch[1]}`, {
+      status: 200,
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    });
+  }
+
   const rawToken = request.cookies.get(ACCESS_TOKEN_KEY)?.value;
   const token = rawToken ? decodeURIComponent(rawToken) : null;
   const isAuthenticated = Boolean(token && isTokenValid(token));
@@ -54,6 +62,6 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api|storage|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp4|mp3|wav|txt)$).*)",
+    "/((?!api|storage|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp4|mp3|wav)$).*)",
   ],
 };
