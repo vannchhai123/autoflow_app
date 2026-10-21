@@ -17,6 +17,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: { default: "AutoClip", template: "%s · AutoClip" },
   description: "AI-powered video creation and social auto-publishing.",
+  other: {
+    "tiktok-developers-site-verification": "AB14Sz4wisXlu13NGnuLHkK1kiYfOMrw",
+  },
 };
 
 export default function RootLayout({

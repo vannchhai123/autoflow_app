@@ -27,7 +27,11 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`))) {
+  if (
+    pathname.endsWith(".txt") ||
+    pathname.includes("tiktok") ||
+    PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`))
+  ) {
     return NextResponse.next();
   }
 
@@ -50,6 +54,6 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api|storage|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp4|mp3|wav)$).*)",
+    "/((?!api|storage|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp4|mp3|wav|txt)$).*)",
   ],
 };
