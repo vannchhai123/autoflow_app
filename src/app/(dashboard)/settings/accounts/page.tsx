@@ -784,7 +784,7 @@ export default function SocialAccountsPage() {
                     <li>
                       Open{" "}
                       <a
-                        href="https://developers.tiktok.com"
+                        href="https://developers.tiktok.com/apps"
                         target="_blank"
                         rel="noreferrer"
                         className="inline-flex items-center gap-0.5 font-medium text-primary underline"
@@ -793,10 +793,15 @@ export default function SocialAccountsPage() {
                       </a>
                     </li>
                     <li>
-                      Create an App and add <strong>Login Kit</strong> and{" "}
-                      <strong>Content Posting API</strong>
+                      Create an App (or Sandbox), enable <strong>Web</strong> platform, and
+                      add <strong>Login Kit</strong> + <strong>Content Posting API</strong>
                     </li>
-                    <li>Under Redirect URIs, add:</li>
+                    <li>
+                      Enable scopes: <code className="rounded bg-muted px-1">user.info.basic</code>,{" "}
+                      <code className="rounded bg-muted px-1">video.publish</code>,{" "}
+                      <code className="rounded bg-muted px-1">video.upload</code>
+                    </li>
+                    <li>Under Login Kit Redirect URI, add:</li>
                   </ol>
                   <div className="flex min-w-0 items-center gap-2 overflow-hidden rounded-md border bg-background px-2.5 py-2 font-mono text-[11px] text-foreground">
                     <span className="min-w-0 flex-1 truncate select-all">
@@ -819,7 +824,7 @@ export default function SocialAccountsPage() {
                       <span className="text-destructive">*</span>
                     </label>
                     <Input
-                      placeholder="Enter your TikTok App Client Key"
+                      placeholder="awxxxxxxxxxxxxxxxx"
                       value={tiktokClientKey}
                       onChange={(e) => setTiktokClientKey(e.target.value)}
                       className="font-mono text-xs"
@@ -956,7 +961,11 @@ export default function SocialAccountsPage() {
             {configPlatform === "TIKTOK" && (
               <Button
                 size="sm"
-                disabled={savingCredentials || !tiktokClientKey.trim()}
+                disabled={
+                  savingCredentials ||
+                  !tiktokClientKey.trim() ||
+                  !tiktokClientSecret.trim()
+                }
                 onClick={async () => {
                   try {
                     setSavingCredentials(true);
