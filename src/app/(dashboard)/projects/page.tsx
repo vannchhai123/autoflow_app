@@ -123,6 +123,10 @@ interface Project {
   progress?: number;
   scheduledFor?: string;
   liveUrl?: string;
+  embedUrl?: string;
+  viewCount?: number;
+  likeCount?: number;
+  channelName?: string;
   outputUrl?: string;
   thumbnailUrl?: string;
   updatedAt: string;
@@ -305,8 +309,17 @@ function ProjectMenu({
           className="cursor-pointer"
           onClick={() => actions.onPlay?.(project)}
         >
-          <Play className="size-4" /> Preview Video
+          <Play className="size-4" />{" "}
+          {project.status === "PUBLISHED" ? "Watch Published Video" : "Preview Video"}
         </DropdownMenuItem>
+        {project.liveUrl && (
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onClick={() => window.open(project.liveUrl, "_blank")}
+          >
+            <ExternalLink className="size-4 text-emerald-500" /> Open Live Post
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem
           className="cursor-pointer"
           onClick={() => actions.onMoveToFolder?.(project)}
@@ -459,11 +472,13 @@ function ProjectCard({
 
         <div className="pointer-events-none absolute inset-x-2 bottom-2 z-10 flex items-center justify-between text-xs font-medium text-white">
           <span className="rounded bg-black/70 px-1.5 py-0.5 tabular-nums">
-            {project.aspectRatio === "PORTRAIT_9_16"
-              ? "9:16"
-              : project.aspectRatio === "LANDSCAPE_16_9"
-                ? "16:9"
-                : "1080p"}
+            {project.viewCount != null
+              ? `${project.viewCount.toLocaleString()} views`
+              : project.aspectRatio === "PORTRAIT_9_16"
+                ? "9:16"
+                : project.aspectRatio === "LANDSCAPE_16_9"
+                  ? "16:9"
+                  : "1080p"}
           </span>
           <span className="rounded bg-black/70 px-1.5 py-0.5 tabular-nums">
             {project.duration}
@@ -497,7 +512,11 @@ function ProjectCard({
             ) : (
               <>
                 <Clock className="size-3 shrink-0" />{" "}
-                <span className="truncate">{project.updatedAt}</span>
+                <span className="truncate">
+                  {project.channelName
+                    ? `${project.channelName} • ${project.updatedAt}`
+                    : project.updatedAt}
+                </span>
               </>
             )}
           </p>
@@ -543,15 +562,37 @@ function ProjectCard({
               <Trash2 className="mr-1 size-3.5" /> Delete Failed Video
             </Button>
           )}
-          {(status === "SCHEDULED" || status === "PUBLISHED") && (
+          {status === "SCHEDULED" && (
             <Button
               size="sm"
               variant="secondary"
               className="w-full cursor-pointer text-xs"
               onClick={() => actions.onPlay?.(project)}
             >
-              <Play className="mr-1 size-3.5" /> Preview Post
+              <Play className="mr-1 size-3.5" /> Preview Scheduled Post
             </Button>
+          )}
+          {status === "PUBLISHED" && (
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                className="flex-1 cursor-pointer text-xs"
+                onClick={() => actions.onPlay?.(project)}
+              >
+                <Play className="mr-1 size-3.5" /> Watch Video
+              </Button>
+              {project.liveUrl && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="cursor-pointer px-2.5 text-xs"
+                  title="Open Live Video on Platform"
+                  onClick={() => window.open(project.liveUrl, "_blank")}
+                >
+                  <ExternalLink className="size-3.5" />
+                </Button>
+              )}
+            </div>
           )}
         </div>
       </CardContent>
@@ -1956,6 +1997,17 @@ export default function ProjectsPage() {
     let savedFolderMap: Record<string, string> = {};
 
     try {
+      if (typeof window !== "undefined") {
+        const params = new URLSearchParams(window.location.search);
+        const cat = params.get("category");
+        if (cat === "POSTS" || cat === "VIDEOS" || cat === "ALL") {
+          setContentCategory(cat);
+        }
+        const st = params.get("status");
+        if (st) {
+          setStatus(st as StatusFilter);
+        }
+      }
       const savedFolders = localStorage.getItem("clipflow_video_folders");
       if (savedFolders) {
         setFolders(JSON.parse(savedFolders));
@@ -1967,20 +2019,27 @@ export default function ProjectsPage() {
       }
     } catch {}
 
-    Promise.allSettled([videoApi.list(0, 50), publishingApi.listScheduled()])
-      .then(([resVideos, resScheduled]) => {
+    Promise.allSettled([
+      videoApi.list(0, 50),
+      publishingApi.listScheduled(),
+      publishingApi.listChannelVideos(),
+    ])
+      .then(([resVideos, resScheduled, resChannelVideos]) => {
         if (!active) return;
 
         interface ScheduledTaskItem {
           videoProjectId?: string;
           platform?: Platform;
           scheduledTime?: string;
+          publicPostUrl?: string;
           status?: string;
         }
         let scheduledTasks: ScheduledTaskItem[] = [];
         if (resScheduled.status === "fulfilled" && Array.isArray(resScheduled.value)) {
           scheduledTasks = resScheduled.value as ScheduledTaskItem[];
         }
+
+        const combined: Project[] = [];
 
         if (
           resVideos.status === "fulfilled" &&
@@ -2028,6 +2087,7 @@ export default function ProjectsPage() {
               folderId: savedFolderMap[p.id] || "all",
               resolution: "1080p",
               platforms,
+              liveUrl: matchingTask?.publicPostUrl || undefined,
               scheduledFor: matchingTask?.scheduledTime
                 ? new Date(matchingTask.scheduledTime).toLocaleString([], {
                     month: "short",
@@ -2050,8 +2110,52 @@ export default function ProjectsPage() {
             };
           });
 
-          setProjects(fromBackend);
+          combined.push(...fromBackend);
         }
+
+        if (
+          resChannelVideos.status === "fulfilled" &&
+          Array.isArray(resChannelVideos.value)
+        ) {
+          resChannelVideos.value.forEach((cv) => {
+            if (combined.some((existing) => existing.liveUrl === cv.publicPostUrl)) {
+              return;
+            }
+            const durSec = cv.durationSeconds ?? 45;
+            const isShort = durSec <= 60;
+            combined.push({
+              id: cv.id,
+              title: cv.title,
+              topic: cv.description
+                ? cv.description.slice(0, 60)
+                : "Published on YouTube",
+              tags: [isShort ? "9:16" : "16:9", "YouTube"],
+              status: "PUBLISHED",
+              duration: formatDuration(durSec),
+              durationSeconds: durSec,
+              videoType: isShort ? "SHORT" : "LONG",
+              aspectRatio: isShort ? "PORTRAIT_9_16" : "LANDSCAPE_16_9",
+              folderId: savedFolderMap[cv.id] || "all",
+              resolution: "1080p",
+              platforms: [cv.platform || "YOUTUBE_SHORTS"],
+              liveUrl: cv.publicPostUrl,
+              embedUrl: cv.embedUrl,
+              viewCount: cv.viewCount,
+              likeCount: cv.likeCount,
+              channelName: cv.channelName,
+              thumbnailUrl: cv.thumbnailUrl,
+              updatedAt: cv.publishedAt
+                ? new Date(cv.publishedAt).toLocaleDateString([], {
+                    month: "short",
+                    day: "numeric",
+                  })
+                : "Published",
+              gradient: randomGradient(),
+            });
+          });
+        }
+
+        setProjects(combined);
       })
       .catch(() => {});
 
@@ -2664,6 +2768,14 @@ export default function ProjectsPage() {
                 autoPlay
                 className="h-full w-full object-contain"
               />
+            ) : previewProject?.embedUrl ? (
+              <iframe
+                src={`${previewProject.embedUrl}?autoplay=1`}
+                title={previewProject.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="h-full w-full border-0"
+              />
             ) : (
               <div className="p-8 text-center text-sm text-neutral-400">
                 No video stream available
@@ -2672,12 +2784,14 @@ export default function ProjectsPage() {
           </div>
           <div className="flex flex-wrap items-center justify-between gap-2 border-t border-neutral-800 pt-3">
             <span className="text-xs text-neutral-400">
-              {previewProject?.aspectRatio === "PORTRAIT_9_16"
-                ? "Format: 9:16 Vertical Short"
-                : "Format: 16:9 Landscape Video"}
+              {previewProject?.viewCount != null
+                ? `${previewProject.viewCount.toLocaleString()} views • ${previewProject.channelName || "Published"}`
+                : previewProject?.aspectRatio === "PORTRAIT_9_16"
+                  ? "Format: 9:16 Vertical Short"
+                  : "Format: 16:9 Landscape Video"}
             </span>
             <div className="flex flex-wrap items-center gap-2">
-              {previewProject?.id && (
+              {previewProject?.id && !previewProject.id.startsWith("yt-") && (
                 <Button
                   variant="destructive"
                   size="sm"
@@ -2705,15 +2819,28 @@ export default function ProjectsPage() {
                   <Download className="mr-1 size-3.5" /> Download MP4
                 </Button>
               )}
-              {previewProject?.id && previewProject?.status !== "FAILED" && (
+              {previewProject?.liveUrl && (
                 <Button
                   size="sm"
-                  className="cursor-pointer"
-                  onClick={() => router.push(`/composer?projectId=${previewProject.id}`)}
+                  className="cursor-pointer bg-red-600 text-white hover:bg-red-700"
+                  onClick={() => window.open(previewProject.liveUrl, "_blank")}
                 >
-                  <Send className="mr-1 size-3.5" /> Publish Post
+                  <ExternalLink className="mr-1 size-3.5" /> Watch on YouTube
                 </Button>
               )}
+              {previewProject?.id &&
+                !previewProject.id.startsWith("yt-") &&
+                previewProject?.status !== "FAILED" && (
+                  <Button
+                    size="sm"
+                    className="cursor-pointer"
+                    onClick={() =>
+                      router.push(`/composer?projectId=${previewProject.id}`)
+                    }
+                  >
+                    <Send className="mr-1 size-3.5" /> Publish Post
+                  </Button>
+                )}
             </div>
           </div>
         </DialogContent>

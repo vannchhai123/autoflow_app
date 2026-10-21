@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { toast } from "sonner";
 import { publishingApi } from "@/features/publishing/api/publishing-api";
 import { API_URL } from "@/lib/api-client";
@@ -23,6 +24,7 @@ import {
   Link2,
   Loader2,
   Plus,
+  Play,
   RefreshCw,
   RotateCw,
   Save,
@@ -537,36 +539,45 @@ export default function SocialAccountsPage() {
                   )}
 
                   {connected && (
-                    <div className="flex items-center gap-2 border-t pt-2">
-                      {connected.status === "NEEDS_RECONNECT" ? (
-                        <Button
-                          size="sm"
-                          onClick={() => handleReconnect(connected)}
-                          className="h-8 flex-1 bg-amber-600 text-xs text-white hover:bg-amber-700"
-                        >
-                          <RefreshCw className="mr-1 size-3" /> Reconnect Now
-                        </Button>
-                      ) : (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleReconnect(connected)}
-                          className="h-8 flex-1 text-xs"
-                        >
-                          <RefreshCw className="mr-1 size-3" /> Refresh Token
-                        </Button>
-                      )}
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => {
-                          setAccountToDisconnect(connected);
-                          setDisconnectModalOpen(true);
-                        }}
-                        className="size-8 p-0 text-muted-foreground hover:text-destructive"
+                    <div className="space-y-2 border-t pt-2">
+                      <Link
+                        href="/projects?category=POSTS"
+                        className="flex h-8 w-full items-center justify-center gap-1.5 rounded-lg bg-primary/10 px-3 text-xs font-medium text-primary transition hover:bg-primary/20"
                       >
-                        <Trash2 className="size-3.5" />
-                      </Button>
+                        <Play className="size-3 fill-current" /> Watch Posted Videos (
+                        {(connected.videosCount ?? 0).toLocaleString()})
+                      </Link>
+                      <div className="flex items-center gap-2">
+                        {connected.status === "NEEDS_RECONNECT" ? (
+                          <Button
+                            size="sm"
+                            onClick={() => handleReconnect(connected)}
+                            className="h-8 flex-1 bg-amber-600 text-xs text-white hover:bg-amber-700"
+                          >
+                            <RefreshCw className="mr-1 size-3" /> Reconnect Now
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleReconnect(connected)}
+                            className="h-8 flex-1 text-xs"
+                          >
+                            <RefreshCw className="mr-1 size-3" /> Refresh Token
+                          </Button>
+                        )}
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => {
+                            setAccountToDisconnect(connected);
+                            setDisconnectModalOpen(true);
+                          }}
+                          className="size-8 p-0 text-muted-foreground hover:text-destructive"
+                        >
+                          <Trash2 className="size-3.5" />
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </CardContent>

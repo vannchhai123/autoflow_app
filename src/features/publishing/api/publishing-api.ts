@@ -42,8 +42,28 @@ export interface AnalyticsSummaryResponse {
   dailyGrowth?: AnalyticsDailyGrowth[];
 }
 
+export interface PublishedChannelVideo {
+  id: string;
+  videoId: string;
+  title: string;
+  description?: string;
+  thumbnailUrl?: string;
+  publicPostUrl: string;
+  embedUrl?: string;
+  publishedAt?: string;
+  durationSeconds?: number;
+  viewCount?: number;
+  likeCount?: number;
+  commentCount?: number;
+  platform: Platform;
+  channelName?: string;
+  status: string;
+}
+
 export const publishingApi = {
   listAccounts: () => apiClient.get<SocialAccountDto[]>("/accounts"),
+
+  listChannelVideos: () => apiClient.get<PublishedChannelVideo[]>("/accounts/videos"),
 
   connectAccount: (platform: Platform) =>
     apiClient.post<{ authorizationUrl: string }>(`/accounts/connect/${platform}`),

@@ -11,6 +11,7 @@ import {
 import {
   publishingApi,
   type AnalyticsSummaryResponse,
+  type PublishedChannelVideo,
 } from "@/features/publishing/api/publishing-api";
 import {
   PLATFORM_LABELS,
@@ -232,13 +233,16 @@ export default function DashboardPage() {
   });
 
   const [queue, setQueue] = useState<PublishingTask[]>([]);
+  const [channelVideos, setChannelVideos] = useState<PublishedChannelVideo[]>([]);
   const [loadingQueue, setLoadingQueue] = useState(true);
 
   const [accounts, setAccounts] = useState<SocialAccountDto[]>([]);
   const [loadingAccounts, setLoadingAccounts] = useState(true);
   const [connectingPlatform, setConnectingPlatform] = useState<Platform | null>(null);
 
-  const [previewProject, setPreviewProject] = useState<VideoProjectResponse | null>(null);
+  const [previewProject, setPreviewProject] = useState<
+    (VideoProjectResponse & { embedUrl?: string; publicPostUrl?: string }) | null
+  >(null);
 
   const [projectFilter, setProjectFilter] = useState<"POSTING" | "READY" | "ALL">(
     "POSTING",
@@ -304,6 +308,16 @@ export default function DashboardPage() {
       .finally(() => {
         if (active) setLoadingAccounts(false);
       });
+
+    publishingApi
+      .listChannelVideos()
+      .then((vids) => {
+        if (!active) return;
+        if (Array.isArray(vids)) {
+          setChannelVideos(vids);
+        }
+      })
+      .catch(() => {});
 
     return () => {
       active = false;
@@ -456,8 +470,45 @@ export default function DashboardPage() {
       }
     });
 
+    channelVideos.forEach((cv) => {
+      if (list.some((it) => it.publicPostUrl === cv.publicPostUrl)) {
+        return;
+      }
+      const durSec = cv.durationSeconds ?? 45;
+      const isShort = durSec <= 60;
+      const aspect = isShort ? "PORTRAIT_9_16" : "LANDSCAPE_16_9";
+      list.push({
+        id: cv.id,
+        taskId: cv.id,
+        videoProjectId: cv.id,
+        title: cv.title,
+        platforms: [cv.platform || "YOUTUBE_SHORTS"],
+        channelName: cv.channelName,
+        status: "PUBLISHED",
+        publishedAt: cv.publishedAt,
+        publicPostUrl: cv.publicPostUrl,
+        caption: cv.description,
+        thumbnailUrl: cv.thumbnailUrl,
+        durationSeconds: durSec,
+        aspectRatio: aspect,
+        createdAt: cv.publishedAt,
+        gradient: getProjectGradient(cv.id),
+        rawProject: {
+          id: cv.id,
+          title: cv.title,
+          status: "COMPLETED",
+          durationSeconds: durSec,
+          aspectRatio: aspect as any,
+          createdAt: cv.publishedAt || new Date().toISOString(),
+          updatedAt: cv.publishedAt || new Date().toISOString(),
+          embedUrl: cv.embedUrl,
+          publicPostUrl: cv.publicPostUrl,
+        } as any,
+      });
+    });
+
     return list;
-  }, [projects, queue]);
+  }, [projects, queue, channelVideos]);
 
   const readyVideos = useMemo(
     () => projects.filter((p) => p.status === "COMPLETED"),
@@ -793,13 +844,12 @@ export default function DashboardPage() {
                               <MoreVertical className="size-4" />
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-48">
-                              {item.outputUrl && (
+                              {(item.outputUrl || item.publicPostUrl) && (
                                 <DropdownMenuItem
                                   onClick={() => setPreviewProject(previewProj)}
                                   className="cursor-pointer"
                                 >
-                                  <Play className="size-4 text-emerald-500" /> Preview
-                                  Video
+                                  <Play className="size-4 text-emerald-500" /> Watch Video
                                 </DropdownMenuItem>
                               )}
                               {isPublished && item.publicPostUrl && (
@@ -814,16 +864,18 @@ export default function DashboardPage() {
                                   Live Post
                                 </DropdownMenuItem>
                               )}
-                              <DropdownMenuItem
-                                onClick={() =>
-                                  router.push(
-                                    `/composer?projectId=${item.videoProjectId}`,
-                                  )
-                                }
-                                className="cursor-pointer"
-                              >
-                                <Pencil className="size-4" /> Edit in Composer
-                              </DropdownMenuItem>
+                              {!item.id.startsWith("yt-") && (
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    router.push(
+                                      `/composer?projectId=${item.videoProjectId}`,
+                                    )
+                                  }
+                                  className="cursor-pointer"
+                                >
+                                  <Pencil className="size-4" /> Edit in Composer
+                                </DropdownMenuItem>
+                              )}
                               {item.outputUrl && (
                                 <DropdownMenuItem
                                   onClick={() => window.open(item.outputUrl, "_blank")}
@@ -832,19 +884,25 @@ export default function DashboardPage() {
                                   <Download className="size-4" /> Download MP4
                                 </DropdownMenuItem>
                               )}
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                variant="destructive"
-                                onClick={() => handleCancelTask(item.taskId, item.title)}
-                                className="cursor-pointer text-destructive focus:text-destructive"
-                              >
-                                <Trash2 className="size-4" /> Remove Post
-                              </DropdownMenuItem>
+                              {!item.id.startsWith("yt-") && (
+                                <>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    variant="destructive"
+                                    onClick={() =>
+                                      handleCancelTask(item.taskId, item.title)
+                                    }
+                                    className="cursor-pointer text-destructive focus:text-destructive"
+                                  >
+                                    <Trash2 className="size-4" /> Remove Post
+                                  </DropdownMenuItem>
+                                </>
+                              )}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
 
-                        {item.outputUrl && (
+                        {(item.outputUrl || item.publicPostUrl) && (
                           <button
                             type="button"
                             aria-label="Preview video"
@@ -922,18 +980,14 @@ export default function DashboardPage() {
                             >
                               <Send className="mr-1 size-3.5" /> Post Now
                             </Button>
-                          ) : isPublished && item.publicPostUrl ? (
-                            <a
-                              href={item.publicPostUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className={cn(
-                                buttonVariants({ size: "sm" }),
-                                "flex-1 cursor-pointer gap-1 text-xs",
-                              )}
+                          ) : isPublished ? (
+                            <Button
+                              size="sm"
+                              className="flex-1 cursor-pointer text-xs"
+                              onClick={() => setPreviewProject(previewProj)}
                             >
-                              <ExternalLink className="size-3.5" /> View Post
-                            </a>
+                              <Play className="mr-1 size-3.5" /> Watch Video
+                            </Button>
                           ) : (
                             <Button
                               size="sm"
@@ -945,17 +999,32 @@ export default function DashboardPage() {
                             </Button>
                           )}
 
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="cursor-pointer px-2.5 text-xs"
-                            title="Edit in Composer"
-                            onClick={() =>
-                              router.push(`/composer?projectId=${item.videoProjectId}`)
-                            }
-                          >
-                            <Pencil className="size-3.5" />
-                          </Button>
+                          {isPublished && item.publicPostUrl ? (
+                            <a
+                              href={item.publicPostUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              title="Open Live Video on Platform"
+                              className={cn(
+                                buttonVariants({ size: "sm", variant: "outline" }),
+                                "cursor-pointer px-2.5 text-xs",
+                              )}
+                            >
+                              <ExternalLink className="size-3.5" />
+                            </a>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="cursor-pointer px-2.5 text-xs"
+                              title="Edit in Composer"
+                              onClick={() =>
+                                router.push(`/composer?projectId=${item.videoProjectId}`)
+                              }
+                            >
+                              <Pencil className="size-3.5" />
+                            </Button>
+                          )}
                         </div>
                       </CardContent>
                     </Card>
@@ -1345,6 +1414,14 @@ export default function DashboardPage() {
                   autoPlay
                   className="size-full object-contain"
                 />
+              ) : previewProject.embedUrl ? (
+                <iframe
+                  src={`${previewProject.embedUrl}?autoplay=1`}
+                  title={previewProject.title}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="size-full border-0"
+                />
               ) : (
                 <div className="p-6 text-center text-neutral-400">
                   <Film className="mx-auto mb-2 size-10 opacity-50" />
@@ -1360,19 +1437,21 @@ export default function DashboardPage() {
                   : "9:16 Vertical Short"}
               </span>
               <div className="flex flex-wrap items-center gap-2">
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  className="cursor-pointer"
-                  onClick={() => {
-                    const id = previewProject.id;
-                    const title = previewProject.title;
-                    setPreviewProject(null);
-                    handleDeleteProject(id, title);
-                  }}
-                >
-                  <Trash2 className="mr-1 size-3.5" /> Delete
-                </Button>
+                {!previewProject.id.startsWith("yt-") && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="cursor-pointer"
+                    onClick={() => {
+                      const id = previewProject.id;
+                      const title = previewProject.title;
+                      setPreviewProject(null);
+                      handleDeleteProject(id, title);
+                    }}
+                  >
+                    <Trash2 className="mr-1 size-3.5" /> Delete
+                  </Button>
+                )}
                 {previewProject.outputUrl && (
                   <a
                     href={previewProject.outputUrl}
@@ -1387,16 +1466,31 @@ export default function DashboardPage() {
                     <Download className="mr-1 size-3.5" /> Download MP4
                   </a>
                 )}
-                <Button
-                  size="sm"
-                  className="cursor-pointer"
-                  onClick={() => {
-                    setPreviewProject(null);
-                    router.push(`/composer?projectId=${previewProject.id}`);
-                  }}
-                >
-                  <Send className="mr-1 size-3.5" /> Compose Post
-                </Button>
+                {previewProject.publicPostUrl && (
+                  <a
+                    href={previewProject.publicPostUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={cn(
+                      buttonVariants({ size: "sm" }),
+                      "bg-red-600 text-white hover:bg-red-700",
+                    )}
+                  >
+                    <ExternalLink className="mr-1 size-3.5" /> Watch on YouTube
+                  </a>
+                )}
+                {!previewProject.id.startsWith("yt-") && (
+                  <Button
+                    size="sm"
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setPreviewProject(null);
+                      router.push(`/composer?projectId=${previewProject.id}`);
+                    }}
+                  >
+                    <Send className="mr-1 size-3.5" /> Compose Post
+                  </Button>
+                )}
               </div>
             </div>
           </DialogContent>
