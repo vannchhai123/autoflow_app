@@ -824,11 +824,18 @@ export default function SocialAccountsPage() {
                       <span className="text-destructive">*</span>
                     </label>
                     <Input
-                      placeholder="awxxxxxxxxxxxxxxxx"
+                      placeholder="sbawxxxxxxxxxxxxxxxx (Sandbox) or awxxxxxxxxxxxxxxxx (Live)"
                       value={tiktokClientKey}
                       onChange={(e) => setTiktokClientKey(e.target.value)}
                       className="font-mono text-xs"
                     />
+                    <p className="text-[11px] text-amber-500">
+                      💡 If your app is not approved by TikTok yet, switch your TikTok app
+                      to <strong>Sandbox</strong> mode, add your TikTok account under{" "}
+                      <strong>Target Users</strong>, and use your{" "}
+                      <strong>Sandbox Client Key</strong> (starts with{" "}
+                      <code className="rounded bg-amber-500/10 px-1">sbaw...</code>).
+                    </p>
                   </div>
 
                   <div className="space-y-1.5">
