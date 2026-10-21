@@ -655,43 +655,69 @@ export default function DashboardPage() {
   const connectedAccountsCount = accounts.filter((a) => a.status === "CONNECTED").length;
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8">
-      <section className="space-y-5">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
-            Welcome back, Creator 👋
-          </h1>
-          <p className="mt-1 text-muted-foreground">
-            Ready to create your next viral clip?
-          </p>
+    <div className="mx-auto max-w-7xl space-y-6 pb-8">
+      <section className="rounded-2xl border bg-card p-5 shadow-xs sm:p-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
+              Welcome back, Creator 👋
+            </h1>
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              Generate AI shorts, manage your widescreen videos, and publish across
+              channels.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              href="/composer"
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "cursor-pointer gap-1.5",
+              )}
+            >
+              <Send className="size-3.5" /> Schedule Post
+            </Link>
+            <Link
+              href="/projects"
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "cursor-pointer gap-1.5",
+              )}
+            >
+              <Film className="size-3.5" /> All Videos ({allDashboardItems.length})
+            </Link>
+          </div>
         </div>
 
         <form
           onSubmit={handleGenerate}
-          className="flex flex-col gap-2 rounded-2xl border bg-card p-2 shadow-xs sm:flex-row"
+          className="mt-4 flex flex-col gap-2 rounded-xl border bg-muted/30 p-1.5 sm:flex-row"
         >
           <div className="relative flex-1">
-            <Sparkles className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Sparkles className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-primary" />
             <Input
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="Enter a topic, script idea, or paste an article URL..."
               aria-label="Video prompt"
-              className="h-11 border-0 bg-transparent pl-9 shadow-none focus-visible:ring-0"
+              className="h-10 border-0 bg-transparent pl-9 shadow-none focus-visible:ring-0"
             />
           </div>
-          <Button type="submit" size="lg" className="h-11 cursor-pointer px-5">
+          <Button type="submit" className="h-10 cursor-pointer gap-1.5 px-5">
             Generate Video <Zap className="size-4" />
           </Button>
         </form>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="mt-3 flex flex-wrap items-center gap-1.5">
+          <span className="mr-1 text-xs font-medium text-muted-foreground">
+            Quick ideas:
+          </span>
           {STARTERS.map((s) => (
             <button
               key={s.label}
               type="button"
               onClick={() => setPrompt(s.prompt)}
-              className="cursor-pointer rounded-full border bg-background px-3 py-1.5 text-sm transition hover:border-foreground/30 hover:bg-muted"
+              className="cursor-pointer rounded-full border bg-background px-2.5 py-1 text-xs font-medium transition hover:border-primary/40 hover:bg-muted"
             >
               {s.emoji} {s.label}
             </button>
@@ -700,110 +726,101 @@ export default function DashboardPage() {
       </section>
 
       <section aria-label="Key metrics" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Card size="sm">
-          <CardContent className="space-y-3">
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
-              Videos Created
-              <Film className="size-4 text-primary" />
-            </div>
-            <div>
-              <div className="text-2xl font-semibold tabular-nums">
-                {loadingProjects ? "…" : totalVideosCount}
+        <Card size="sm" className="border bg-card shadow-xs">
+          <CardContent className="flex items-center justify-between gap-3 p-4">
+            <div className="min-w-0">
+              <p className="text-xs font-medium text-muted-foreground">Total Videos</p>
+              <div className="mt-1 text-2xl font-semibold tabular-nums">
+                {loadingProjects
+                  ? "…"
+                  : Math.max(totalVideosCount, allDashboardItems.length)}
               </div>
-              <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                {readyCount > 0
-                  ? `${readyCount} ready to publish`
-                  : "All rendered videos"}
+              <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
+                {activeShorts.length} shorts • {activeLongVideos.length} long-form
               </p>
             </div>
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+              <Film className="size-5" />
+            </span>
           </CardContent>
         </Card>
 
-        <Card size="sm">
-          <CardContent className="space-y-3">
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
-              Rendering Now
-              {renderingCount > 0 ? (
-                <span className="relative flex size-2.5">
-                  <span className="absolute inline-flex size-full animate-ping rounded-full bg-amber-500 opacity-75" />
-                  <span className="relative inline-flex size-2.5 rounded-full bg-amber-500" />
-                </span>
-              ) : (
-                <Loader2 className="size-4 text-muted-foreground" />
-              )}
-            </div>
-            <div>
-              <div className="text-2xl font-semibold tabular-nums">
+        <Card size="sm" className="border bg-card shadow-xs">
+          <CardContent className="flex items-center justify-between gap-3 p-4">
+            <div className="min-w-0">
+              <p className="text-xs font-medium text-muted-foreground">Rendering Queue</p>
+              <div className="mt-1 text-2xl font-semibold tabular-nums">
                 {renderingCount} Active
               </div>
-              <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                {renderingCount > 0 ? "Processing in background" : "Pipeline is idle"}
+              <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
+                {renderingCount > 0 ? "Processing in background" : "Engine is idle"}
               </p>
             </div>
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-amber-500/10 text-amber-500">
+              <Loader2 className={cn("size-5", renderingCount > 0 && "animate-spin")} />
+            </span>
           </CardContent>
         </Card>
 
-        <Card size="sm">
-          <CardContent className="space-y-3">
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
-              Auto-Published
-              <Send className="size-4 text-emerald-500" />
-            </div>
-            <div>
-              <div className="text-2xl font-semibold tabular-nums">
-                {summary.publishedPosts ?? 0} Posts
+        <Card size="sm" className="border bg-card shadow-xs">
+          <CardContent className="flex items-center justify-between gap-3 p-4">
+            <div className="min-w-0">
+              <p className="text-xs font-medium text-muted-foreground">Published Posts</p>
+              <div className="mt-1 text-2xl font-semibold tabular-nums">
+                {Math.max(summary.publishedPosts ?? 0, postingVideos.length)}
               </div>
-              <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                Across active channels
+              <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
+                {(summary.totalViews ?? 0).toLocaleString()} total channel views
               </p>
             </div>
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-emerald-500/10 text-emerald-500">
+              <Send className="size-5" />
+            </span>
           </CardContent>
         </Card>
 
-        <Card size="sm">
-          <CardContent className="space-y-3">
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
-              Connected Channels
-              <Share2 className="size-4 text-sky-500" />
-            </div>
-            <div>
-              <div className="text-2xl font-semibold tabular-nums">
+        <Card size="sm" className="border bg-card shadow-xs">
+          <CardContent className="flex items-center justify-between gap-3 p-4">
+            <div className="min-w-0">
+              <p className="text-xs font-medium text-muted-foreground">
+                Connected Channels
+              </p>
+              <div className="mt-1 text-2xl font-semibold tabular-nums">
                 {loadingAccounts ? "…" : `${connectedAccountsCount} Active`}
               </div>
-              <p className="mt-0.5 truncate text-xs text-muted-foreground">
+              <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
                 {connectedAccountsCount > 0
                   ? accounts
                       .filter((a) => a.status === "CONNECTED")
                       .map((a) => PLATFORM_LABELS[a.platform] || a.platform)
                       .join(", ")
-                  : "Facebook, YouTube, TikTok"}
+                  : "Connect YouTube, TikTok, FB"}
               </p>
             </div>
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-sky-500/10 text-sky-500">
+              <Share2 className="size-5" />
+            </span>
           </CardContent>
         </Card>
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,13fr)_minmax(0,7fr)]">
-        <section aria-labelledby="recent-projects" className="space-y-5">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-2">
-              <h2 id="recent-projects" className="text-lg font-semibold">
+      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <section aria-labelledby="recent-projects" className="space-y-4">
+          <div className="flex flex-col gap-3 rounded-xl border bg-card p-3 shadow-xs sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2.5 pl-1">
+              <h2 id="recent-projects" className="text-base font-semibold">
                 Recent Projects
               </h2>
               <Badge
-                variant="outline"
-                className="border-primary/20 bg-primary/10 text-xs text-primary"
+                variant="secondary"
+                className="h-5 px-2 text-xs font-medium tabular-nums"
               >
-                {projectFilter === "POSTING"
-                  ? `${postingVideos.length} Posting`
-                  : projectFilter === "READY"
-                    ? `${readyDashboardItems.length} Ready`
-                    : `${allDashboardItems.length} Total`}
+                {activeItems.length}
               </Badge>
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <div className="flex items-center gap-1 rounded-lg border bg-muted/60 p-1">
+              <div className="flex items-center gap-1 rounded-lg border bg-muted/50 p-1">
                 <button
                   type="button"
                   onClick={() => setProjectFilter("POSTING")}
@@ -814,7 +831,7 @@ export default function DashboardPage() {
                       : "text-muted-foreground hover:text-foreground",
                   )}
                 >
-                  <Send className="size-3" /> Posting Videos ({postingVideos.length})
+                  Published ({postingVideos.length})
                 </button>
                 <button
                   type="button"
@@ -826,7 +843,7 @@ export default function DashboardPage() {
                       : "text-muted-foreground hover:text-foreground",
                   )}
                 >
-                  Ready to Post ({readyDashboardItems.length})
+                  Studio Ready ({readyDashboardItems.length})
                 </button>
                 <button
                   type="button"
@@ -846,7 +863,7 @@ export default function DashboardPage() {
                 href="/projects"
                 className={cn(
                   buttonVariants({ variant: "outline", size: "sm" }),
-                  "h-8 shrink-0 gap-1.5 text-xs font-medium",
+                  "h-8 shrink-0 gap-1 text-xs font-medium",
                 )}
               >
                 View All <ArrowRight className="size-3.5" />
@@ -901,30 +918,23 @@ export default function DashboardPage() {
               </div>
             </Card>
           ) : (
-            <div className="space-y-7">
+            <div className="space-y-4">
               {activeShorts.length > 0 && (
-                <div className="space-y-3.5">
+                <div className="space-y-3 rounded-2xl border bg-card p-4 shadow-xs">
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-2.5">
-                    <div className="flex items-center gap-2.5">
-                      <span className="grid size-8 place-items-center rounded-lg bg-cyan-500/10 text-cyan-600 dark:text-cyan-400">
-                        <Smartphone className="size-4" />
+                    <div className="flex items-center gap-2">
+                      <span className="grid size-7 place-items-center rounded-lg bg-cyan-500/10 text-cyan-600 dark:text-cyan-400">
+                        <Smartphone className="size-3.5" />
                       </span>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="text-sm font-semibold">
-                            Vertical Shorts &amp; Reels (9:16)
-                          </h3>
-                          <Badge
-                            variant="secondary"
-                            className="h-5 text-[11px] tabular-nums"
-                          >
-                            {activeShorts.length}
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          Portrait 9:16 clips for YouTube Shorts, TikTok, and Reels
-                        </p>
-                      </div>
+                      <h3 className="text-sm font-semibold">
+                        Vertical Shorts &amp; Reels (9:16)
+                      </h3>
+                      <Badge
+                        variant="secondary"
+                        className="h-5 px-1.5 text-[11px] tabular-nums"
+                      >
+                        {activeShorts.length}
+                      </Badge>
                     </div>
                     <div className="flex items-center gap-2">
                       {activeShorts.length > 5 && (
@@ -932,7 +942,7 @@ export default function DashboardPage() {
                           variant="ghost"
                           size="sm"
                           onClick={() => setShowAllShorts((prev) => !prev)}
-                          className="h-7 cursor-pointer text-xs"
+                          className="h-7 cursor-pointer px-2 text-xs"
                         >
                           {showAllShorts
                             ? "Show Less"
@@ -1227,28 +1237,21 @@ export default function DashboardPage() {
               )}
 
               {activeLongVideos.length > 0 && (
-                <div className="space-y-3.5">
+                <div className="space-y-3 rounded-2xl border bg-card p-4 shadow-xs">
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-2.5">
-                    <div className="flex items-center gap-2.5">
-                      <span className="grid size-8 place-items-center rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
-                        <MonitorPlay className="size-4" />
+                    <div className="flex items-center gap-2">
+                      <span className="grid size-7 place-items-center rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                        <MonitorPlay className="size-3.5" />
                       </span>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="text-sm font-semibold">
-                            Long-Form Widescreen Videos (16:9)
-                          </h3>
-                          <Badge
-                            variant="secondary"
-                            className="h-5 text-[11px] tabular-nums"
-                          >
-                            {activeLongVideos.length}
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          Landscape 16:9 videos for YouTube, Facebook Watch, and LinkedIn
-                        </p>
-                      </div>
+                      <h3 className="text-sm font-semibold">
+                        Long-Form Widescreen Videos (16:9)
+                      </h3>
+                      <Badge
+                        variant="secondary"
+                        className="h-5 px-1.5 text-[11px] tabular-nums"
+                      >
+                        {activeLongVideos.length}
+                      </Badge>
                     </div>
                     <div className="flex items-center gap-2">
                       {activeLongVideos.length > 3 && (
@@ -1256,7 +1259,7 @@ export default function DashboardPage() {
                           variant="ghost"
                           size="sm"
                           onClick={() => setShowAllLong((prev) => !prev)}
-                          className="h-7 cursor-pointer text-xs"
+                          className="h-7 cursor-pointer px-2 text-xs"
                         >
                           {showAllLong
                             ? "Show Less"
