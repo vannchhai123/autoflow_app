@@ -2203,6 +2203,8 @@ export default function ProjectsPage() {
   const [newFolderOpen, setNewFolderOpen] = useState(false);
   const [projectToMove, setProjectToMove] = useState<Project | null>(null);
   const [previewProject, setPreviewProject] = useState<Project | null>(null);
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+  const [deletingProject, setDeletingProject] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -2571,7 +2573,20 @@ export default function ProjectsPage() {
       });
       toast.success("Project duplicated as draft");
     },
-    onDelete: async (id) => {
+    onDelete: (id) => {
+      const target = projects.find((p) => p.id === id);
+      if (target) {
+        setProjectToDelete(target);
+      }
+    },
+  };
+
+  const confirmDeleteProject = async () => {
+    if (!projectToDelete) return;
+    const id = projectToDelete.id;
+    const title = projectToDelete.title;
+    setDeletingProject(true);
+    try {
       setProjects((prev) => prev.filter((p) => p.id !== id));
       setPreviewProject((prev) => (prev?.id === id ? null : prev));
       try {
@@ -2592,8 +2607,13 @@ export default function ProjectsPage() {
           console.warn("Backend delete warning:", err);
         }
       }
-      toast.success("Project deleted successfully");
-    },
+      toast.success("Video project deleted", {
+        description: `"${title}" has been removed.`,
+      });
+      setProjectToDelete(null);
+    } finally {
+      setDeletingProject(false);
+    }
   };
 
   return (
@@ -3074,10 +3094,10 @@ export default function ProjectsPage() {
                   variant="destructive"
                   size="sm"
                   className="cursor-pointer"
-                  onClick={async () => {
-                    const idToDelete = previewProject.id;
+                  onClick={() => {
+                    const target = previewProject;
                     setPreviewProject(null);
-                    await actions.onDelete(idToDelete);
+                    setProjectToDelete(target);
                   }}
                 >
                   <Trash2 className="mr-1 size-3.5" /> Delete
@@ -3121,6 +3141,49 @@ export default function ProjectsPage() {
                 )}
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={!!projectToDelete}
+        onOpenChange={(open) => !open && !deletingProject && setProjectToDelete(null)}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="mb-2 flex size-10 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+              <AlertTriangle className="size-5" />
+            </div>
+            <DialogTitle className="text-lg">Delete Video Project?</DialogTitle>
+            <DialogDescription className="pt-1 text-sm leading-relaxed">
+              Are you sure you want to delete{" "}
+              <span className="font-semibold text-foreground">
+                &ldquo;{projectToDelete?.title}&rdquo;
+              </span>
+              ? This action cannot be undone and will permanently remove the video and its
+              render history.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-2 gap-2 sm:justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={deletingProject}
+              className="cursor-pointer"
+              onClick={() => setProjectToDelete(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={deletingProject}
+              className="cursor-pointer gap-1.5"
+              onClick={() => void confirmDeleteProject()}
+            >
+              <Trash2 className="size-4" />
+              {deletingProject ? "Deleting…" : "Yes, Delete Video"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
