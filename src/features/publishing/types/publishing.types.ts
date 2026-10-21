@@ -61,6 +61,8 @@ export interface SocialAccountDto {
   accountType?: "PERSONAL" | "BUSINESS" | "CREATOR" | "COMPANY_PAGE";
   connectedAt: string;
   followersCount?: number;
+  viewsCount?: number;
+  videosCount?: number;
 }
 
 export interface YouTubeOptions {

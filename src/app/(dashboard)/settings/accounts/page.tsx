@@ -450,7 +450,7 @@ export default function SocialAccountsPage() {
                 <CardContent className="space-y-3 pb-4">
                   {connected ? (
                     <div className="space-y-2 text-xs">
-                      <div className="space-y-1 rounded-lg bg-muted/30 p-2.5">
+                      <div className="space-y-2 rounded-lg bg-muted/30 p-2.5">
                         <div className="flex items-center justify-between">
                           <span className="font-semibold text-foreground">
                             {connected.accountName}
@@ -459,11 +459,32 @@ export default function SocialAccountsPage() {
                             {connected.accountType}
                           </Badge>
                         </div>
-                        {connected.followersCount && (
-                          <p className="text-[11px] text-muted-foreground">
-                            {connected.followersCount.toLocaleString()} Followers
-                          </p>
-                        )}
+                        <div className="grid grid-cols-3 gap-2 border-t border-border/50 pt-2 text-center">
+                          <div>
+                            <p className="font-mono text-xs font-semibold text-foreground">
+                              {(connected.followersCount ?? 0).toLocaleString()}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground">
+                              {platform === "YOUTUBE_SHORTS"
+                                ? "Subscribers"
+                                : "Followers"}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="font-mono text-xs font-semibold text-foreground">
+                              {(connected.videosCount ?? 0).toLocaleString()}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground">Videos</p>
+                          </div>
+                          <div>
+                            <p className="font-mono text-xs font-semibold text-foreground">
+                              {(connected.viewsCount ?? 0).toLocaleString()}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground">
+                              Total Views
+                            </p>
+                          </div>
+                        </div>
                       </div>
 
                       <div className="flex items-center justify-between pt-1 text-[11px] text-muted-foreground">
