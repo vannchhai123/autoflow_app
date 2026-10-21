@@ -474,7 +474,7 @@ export default function AnalyticsPage() {
                   <tr className="border-b text-muted-foreground">
                     <th className="pb-3 font-semibold">Channel</th>
                     <th className="pb-3 font-semibold">Platform</th>
-                    <th className="pb-3 font-semibold">Audience / Followers</th>
+                    <th className="pb-3 font-semibold">Subscribers / Followers</th>
                     <th className="pb-3 font-semibold">Published Posts</th>
                     <th className="pb-3 font-semibold">Total Views</th>
                     <th className="pb-3 font-semibold">Status</th>
