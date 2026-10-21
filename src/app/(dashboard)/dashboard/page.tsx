@@ -741,7 +741,7 @@ export default function DashboardPage() {
                         onClick={() => setPreviewProject(previewProj)}
                         className="flex aspect-[9/16] shrink-0 flex-col justify-between p-2"
                       >
-                        <div className="z-10 flex items-start justify-between">
+                        <div className="z-20 flex items-start justify-between">
                           <div className="flex flex-col items-start gap-1">
                             <Badge
                               variant="outline"
@@ -787,6 +787,7 @@ export default function DashboardPage() {
                           <DropdownMenu>
                             <DropdownMenuTrigger
                               aria-label={`Actions for ${item.title}`}
+                              onClick={(e) => e.stopPropagation()}
                               className="grid size-7 cursor-pointer place-items-center rounded-full bg-white/90 text-neutral-900 shadow-xs backdrop-blur transition hover:bg-white"
                             >
                               <MoreVertical className="size-4" />
@@ -1001,12 +1002,13 @@ export default function DashboardPage() {
                       onClick={() => setPreviewProject(project)}
                       className="flex aspect-[9/16] shrink-0 flex-col justify-between p-2"
                     >
-                      <div className="z-10 flex items-start justify-between">
+                      <div className="z-20 flex items-start justify-between">
                         <StatusBadge status={project.status} />
 
                         <DropdownMenu>
                           <DropdownMenuTrigger
                             aria-label={`Actions for ${project.title}`}
+                            onClick={(e) => e.stopPropagation()}
                             className="grid size-7 cursor-pointer place-items-center rounded-full bg-white/90 text-neutral-900 shadow-xs backdrop-blur transition hover:bg-white"
                           >
                             <MoreVertical className="size-4" />
@@ -1330,7 +1332,7 @@ export default function DashboardPage() {
 
             <div
               className={cn(
-                "relative mx-auto my-2 flex max-h-[65vh] w-full items-center justify-center overflow-hidden rounded-xl bg-black",
+                "relative mx-auto my-1 flex max-h-[55vh] w-full items-center justify-center overflow-hidden rounded-xl bg-black",
                 previewProject.aspectRatio === "LANDSCAPE_16_9"
                   ? "aspect-video"
                   : "aspect-[9/16]",
@@ -1351,13 +1353,26 @@ export default function DashboardPage() {
               )}
             </div>
 
-            <div className="flex items-center justify-between gap-2 pt-2">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-neutral-800 pt-3">
               <span className="text-xs text-neutral-400">
                 {previewProject.aspectRatio === "LANDSCAPE_16_9"
                   ? "16:9 Landscape Video"
                   : "9:16 Vertical Short"}
               </span>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="cursor-pointer"
+                  onClick={() => {
+                    const id = previewProject.id;
+                    const title = previewProject.title;
+                    setPreviewProject(null);
+                    handleDeleteProject(id, title);
+                  }}
+                >
+                  <Trash2 className="mr-1 size-3.5" /> Delete
+                </Button>
                 {previewProject.outputUrl && (
                   <a
                     href={previewProject.outputUrl}
@@ -1366,7 +1381,7 @@ export default function DashboardPage() {
                     rel="noreferrer"
                     className={cn(
                       buttonVariants({ variant: "outline", size: "sm" }),
-                      "border-neutral-700 text-white hover:bg-neutral-800",
+                      "border-neutral-700 bg-neutral-900 text-white hover:bg-neutral-800 hover:text-white",
                     )}
                   >
                     <Download className="mr-1 size-3.5" /> Download MP4
@@ -1374,6 +1389,7 @@ export default function DashboardPage() {
                 )}
                 <Button
                   size="sm"
+                  className="cursor-pointer"
                   onClick={() => {
                     setPreviewProject(null);
                     router.push(`/composer?projectId=${previewProject.id}`);

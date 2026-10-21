@@ -284,38 +284,55 @@ function ProjectMenu({
   actions: ProjectActions;
   className?: string;
 }) {
-  const canDownload = project.status !== "DRAFT" && project.status !== "RENDERING";
+  const canDownload =
+    Boolean(project.outputUrl) &&
+    project.status !== "DRAFT" &&
+    project.status !== "RENDERING";
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         aria-label={`Actions for ${project.title}`}
+        onClick={(e) => e.stopPropagation()}
         className={cn(
-          "grid size-7 place-items-center rounded-full bg-white/90 text-neutral-900 backdrop-blur transition hover:bg-white focus-visible:ring-2 focus-visible:ring-ring",
+          "grid size-7 cursor-pointer place-items-center rounded-full bg-white/90 text-neutral-900 shadow-xs backdrop-blur transition hover:bg-white focus-visible:ring-2 focus-visible:ring-ring",
           className,
         )}
       >
         <MoreVertical className="size-4" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-52">
-        <DropdownMenuItem onClick={() => actions.onPlay?.(project)}>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={() => actions.onPlay?.(project)}
+        >
           <Play className="size-4" /> Preview Video
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => actions.onMoveToFolder?.(project)}>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={() => actions.onMoveToFolder?.(project)}
+        >
           <FolderPlus className="size-4 text-primary" /> Move to Folder...
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => actions.onPublish?.(project)}>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={() => actions.onPublish?.(project)}
+        >
           <Send className="size-4 text-sky-500" /> Compose &amp; Publish
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => actions.onDuplicate(project.id)}>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={() => actions.onDuplicate(project.id)}
+        >
           <Copy className="size-4" /> Duplicate
         </DropdownMenuItem>
         <DropdownMenuItem
           disabled={!canDownload}
+          className="cursor-pointer"
           onClick={() => {
             if (project.outputUrl) {
               window.open(project.outputUrl, "_blank");
             } else {
-              toast.success("Download started");
+              toast.error("No video file available to download");
             }
           }}
         >
@@ -324,6 +341,7 @@ function ProjectMenu({
         <DropdownMenuSeparator />
         <DropdownMenuItem
           variant="destructive"
+          className="cursor-pointer text-destructive focus:text-destructive"
           onClick={() => actions.onDelete(project.id)}
         >
           <Trash2 className="size-4" /> Delete
@@ -352,7 +370,7 @@ function ProjectCard({
         onClick={() => actions.onPlay?.(project)}
         className="aspect-[9/16] shrink-0"
       >
-        <div className="absolute inset-x-2 top-2 z-10 flex items-start justify-between gap-1.5">
+        <div className="absolute inset-x-2 top-2 z-20 flex items-start justify-between gap-1.5">
           <div className="flex flex-col items-start gap-1">
             <StatusBadge status={status} />
             {videoType === "SHORT" ? (
@@ -385,7 +403,7 @@ function ProjectCard({
         </div>
 
         {status === "RENDERING" && (
-          <div className="absolute inset-x-4 top-1/2 z-10 -translate-y-1/2 space-y-3 rounded-xl bg-black/55 p-4 text-white backdrop-blur">
+          <div className="pointer-events-none absolute inset-x-4 top-1/2 z-10 -translate-y-1/2 space-y-3 rounded-xl bg-black/55 p-4 text-white backdrop-blur">
             <div className="flex items-center gap-2 text-sm font-medium">
               <Loader2 className="size-4 animate-spin" />
               Rendering video... {project.progress}%
@@ -409,7 +427,7 @@ function ProjectCard({
         )}
 
         {status === "DRAFT" && (
-          <div className="absolute inset-0 z-10 grid place-items-center">
+          <div className="pointer-events-none absolute inset-0 z-10 grid place-items-center">
             <div className="flex flex-col items-center gap-3 text-white/90">
               <span className="grid size-14 place-items-center rounded-2xl bg-white/15 backdrop-blur">
                 <FileText className="size-7" />
@@ -420,7 +438,7 @@ function ProjectCard({
         )}
 
         {status === "FAILED" && (
-          <div className="absolute inset-0 z-10 grid place-items-center p-4">
+          <div className="pointer-events-none absolute inset-0 z-10 grid place-items-center p-4">
             <div className="flex flex-col items-center gap-2 rounded-xl bg-black/60 p-4 text-center text-rose-300 backdrop-blur">
               <span className="grid size-12 place-items-center rounded-full bg-rose-500/20 text-rose-400">
                 <X className="size-6" />
@@ -431,7 +449,7 @@ function ProjectCard({
         )}
 
         {status === "PUBLISHED" && (
-          <div className="absolute inset-x-0 top-1/2 z-10 flex -translate-y-1/2 justify-center">
+          <div className="pointer-events-none absolute inset-x-0 top-1/2 z-10 flex -translate-y-1/2 justify-center">
             <PlatformIcons
               platforms={project.platforms}
               className="gap-2 [&_svg]:size-4 [&>span]:size-8"
@@ -439,7 +457,7 @@ function ProjectCard({
           </div>
         )}
 
-        <div className="absolute inset-x-2 bottom-2 z-10 flex items-center justify-between text-xs font-medium text-white">
+        <div className="pointer-events-none absolute inset-x-2 bottom-2 z-10 flex items-center justify-between text-xs font-medium text-white">
           <span className="rounded bg-black/70 px-1.5 py-0.5 tabular-nums">
             {project.aspectRatio === "PORTRAIT_9_16"
               ? "9:16"
@@ -490,7 +508,7 @@ function ProjectCard({
             <div className="flex gap-2">
               <Button
                 size="sm"
-                className="flex-1 text-xs"
+                className="flex-1 cursor-pointer text-xs"
                 onClick={() => actions.onPublish?.(project)}
               >
                 <Send className="mr-1 size-3.5" /> Publish Post
@@ -498,7 +516,7 @@ function ProjectCard({
               <Button
                 size="sm"
                 variant="outline"
-                className="text-xs"
+                className="cursor-pointer text-xs"
                 onClick={() => actions.onPlay?.(project)}
               >
                 <Play className="mr-1 size-3.5" /> Preview
@@ -509,17 +527,27 @@ function ProjectCard({
             <Button
               size="sm"
               variant="outline"
-              className="w-full text-xs"
+              className="w-full cursor-pointer text-xs"
               onClick={() => actions.onPlay?.(project)}
             >
               <Pencil className="mr-1 size-3.5" /> View Script
+            </Button>
+          )}
+          {status === "FAILED" && (
+            <Button
+              size="sm"
+              variant="destructive"
+              className="w-full cursor-pointer text-xs"
+              onClick={() => actions.onDelete(project.id)}
+            >
+              <Trash2 className="mr-1 size-3.5" /> Delete Failed Video
             </Button>
           )}
           {(status === "SCHEDULED" || status === "PUBLISHED") && (
             <Button
               size="sm"
               variant="secondary"
-              className="w-full text-xs"
+              className="w-full cursor-pointer text-xs"
               onClick={() => actions.onPlay?.(project)}
             >
               <Play className="mr-1 size-3.5" /> Preview Post
@@ -2614,7 +2642,7 @@ export default function ProjectsPage() {
           )}
         >
           <DialogHeader>
-            <DialogTitle className="truncate text-base font-medium">
+            <DialogTitle className="truncate pr-6 text-base font-medium text-white">
               {previewProject?.title}
             </DialogTitle>
             <DialogDescription className="text-xs text-neutral-400">
@@ -2623,7 +2651,7 @@ export default function ProjectsPage() {
           </DialogHeader>
           <div
             className={cn(
-              "relative mx-auto my-2 flex max-h-[70vh] w-full items-center justify-center overflow-hidden rounded-xl bg-black",
+              "relative mx-auto my-1 flex max-h-[55vh] w-full items-center justify-center overflow-hidden rounded-xl bg-black",
               previewProject?.aspectRatio === "LANDSCAPE_16_9"
                 ? "aspect-video"
                 : "aspect-[9/16]",
@@ -2637,40 +2665,57 @@ export default function ProjectsPage() {
                 className="h-full w-full object-contain"
               />
             ) : (
-              <div className="p-8 text-center text-sm text-neutral-500">
+              <div className="p-8 text-center text-sm text-neutral-400">
                 No video stream available
               </div>
             )}
           </div>
-          <DialogFooter className="mt-2 items-center gap-2 sm:justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-neutral-800 pt-3">
             <span className="text-xs text-neutral-400">
               {previewProject?.aspectRatio === "PORTRAIT_9_16"
                 ? "Format: 9:16 Vertical Short"
                 : "Format: 16:9 Landscape Video"}
             </span>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-neutral-700 text-white hover:bg-neutral-800"
-                onClick={() => {
-                  if (previewProject?.outputUrl) {
-                    window.open(previewProject.outputUrl, "_blank");
-                  }
-                }}
-              >
-                <Download className="mr-1 size-3.5" /> Download MP4
-              </Button>
+            <div className="flex flex-wrap items-center gap-2">
               {previewProject?.id && (
                 <Button
+                  variant="destructive"
                   size="sm"
+                  className="cursor-pointer"
+                  onClick={async () => {
+                    const idToDelete = previewProject.id;
+                    setPreviewProject(null);
+                    await actions.onDelete(idToDelete);
+                  }}
+                >
+                  <Trash2 className="mr-1 size-3.5" /> Delete
+                </Button>
+              )}
+              {previewProject?.outputUrl && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="cursor-pointer border-neutral-700 bg-neutral-900 text-white hover:bg-neutral-800 hover:text-white"
+                  onClick={() => {
+                    if (previewProject?.outputUrl) {
+                      window.open(previewProject.outputUrl, "_blank");
+                    }
+                  }}
+                >
+                  <Download className="mr-1 size-3.5" /> Download MP4
+                </Button>
+              )}
+              {previewProject?.id && previewProject?.status !== "FAILED" && (
+                <Button
+                  size="sm"
+                  className="cursor-pointer"
                   onClick={() => router.push(`/composer?projectId=${previewProject.id}`)}
                 >
                   <Send className="mr-1 size-3.5" /> Publish Post
                 </Button>
               )}
             </div>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
