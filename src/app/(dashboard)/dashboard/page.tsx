@@ -927,7 +927,7 @@ export default function DashboardPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      {activeShorts.length > 4 && (
+                      {activeShorts.length > 5 && (
                         <Button
                           variant="ghost"
                           size="sm"
@@ -948,8 +948,8 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 items-stretch gap-4 xl:grid-cols-4">
-                    {(showAllShorts ? activeShorts : activeShorts.slice(0, 4)).map(
+                  <div className="grid grid-cols-2 items-stretch gap-3 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5">
+                    {(showAllShorts ? activeShorts : activeShorts.slice(0, 5)).map(
                       (item) => {
                         const isPublished = item.status === "PUBLISHED";
                         const isPosting = item.status === "IN_PROGRESS";
@@ -978,14 +978,14 @@ export default function DashboardPage() {
                               thumbnailUrl={item.thumbnailUrl}
                               gradient={item.gradient}
                               onClick={() => setPreviewProject(previewProj)}
-                              className="flex aspect-[9/16] shrink-0 flex-col justify-between p-2"
+                              className="flex aspect-[9/16] shrink-0 flex-col justify-between p-1.5"
                             >
                               <div className="z-20 flex items-start justify-between">
                                 <div className="flex flex-col items-start gap-1">
                                   <Badge
                                     variant="outline"
                                     className={cn(
-                                      "h-5 gap-1 border-white/20 text-[10px] font-semibold shadow-xs backdrop-blur",
+                                      "h-4.5 gap-1 border-white/20 px-1.5 text-[9px] font-semibold shadow-xs backdrop-blur",
                                       isPublished
                                         ? "bg-violet-500/90 text-white"
                                         : isPosting
@@ -1014,8 +1014,8 @@ export default function DashboardPage() {
                                             : "Failed"}
                                   </Badge>
 
-                                  <Badge className="h-4 gap-1 border-0 bg-cyan-500/90 text-[9px] font-medium text-white shadow-xs">
-                                    <Smartphone className="size-2.5" /> 9:16 Short
+                                  <Badge className="h-4 gap-0.5 border-0 bg-cyan-500/90 px-1.5 text-[8px] font-medium text-white shadow-xs">
+                                    <Smartphone className="size-2.5" /> 9:16
                                   </Badge>
                                 </div>
 
@@ -1023,9 +1023,9 @@ export default function DashboardPage() {
                                   <DropdownMenuTrigger
                                     aria-label={`Actions for ${item.title}`}
                                     onClick={(e) => e.stopPropagation()}
-                                    className="grid size-7 cursor-pointer place-items-center rounded-full bg-white/90 text-neutral-900 shadow-xs backdrop-blur transition hover:bg-white"
+                                    className="grid size-6 cursor-pointer place-items-center rounded-full bg-white/90 text-neutral-900 shadow-xs backdrop-blur transition hover:bg-white"
                                   >
-                                    <MoreVertical className="size-4" />
+                                    <MoreVertical className="size-3.5" />
                                   </DropdownMenuTrigger>
                                   <DropdownMenuContent align="end" className="w-48">
                                     <DropdownMenuItem
@@ -1098,9 +1098,9 @@ export default function DashboardPage() {
                                   type="button"
                                   aria-label="Preview video"
                                   onClick={() => setPreviewProject(previewProj)}
-                                  className="absolute top-1/2 left-1/2 z-10 grid size-12 -translate-x-1/2 -translate-y-1/2 scale-90 cursor-pointer place-items-center rounded-full bg-white/95 text-neutral-900 opacity-0 shadow-lg transition-all group-hover:scale-100 group-hover:opacity-100 hover:bg-white focus-visible:opacity-100"
+                                  className="absolute top-1/2 left-1/2 z-10 grid size-9 -translate-x-1/2 -translate-y-1/2 scale-90 cursor-pointer place-items-center rounded-full bg-white/95 text-neutral-900 opacity-0 shadow-lg transition-all group-hover:scale-100 group-hover:opacity-100 hover:bg-white focus-visible:opacity-100"
                                 >
-                                  <Play className="ml-0.5 size-5 fill-current" />
+                                  <Play className="ml-0.5 size-4 fill-current" />
                                 </button>
                               )}
 
@@ -1109,34 +1109,34 @@ export default function DashboardPage() {
                                   {item.platforms.map((p) => (
                                     <span
                                       key={p}
-                                      className="grid size-5 place-items-center rounded-full bg-white/90 text-neutral-900 shadow-xs"
+                                      className="grid size-4.5 place-items-center rounded-full bg-white/90 text-neutral-900 shadow-xs"
                                       title={PLATFORM_LABELS[p]}
                                     >
-                                      <PlatformIcon platform={p} className="size-3" />
+                                      <PlatformIcon platform={p} className="size-2.5" />
                                     </span>
                                   ))}
                                 </div>
                                 {item.durationSeconds && (
-                                  <span className="rounded bg-black/75 px-1.5 py-0.5 text-xs font-medium text-white tabular-nums">
+                                  <span className="rounded bg-black/75 px-1 py-0.5 text-[10px] font-medium text-white tabular-nums">
                                     {formatDuration(item.durationSeconds)}
                                   </span>
                                 )}
                               </div>
                             </HoverVideoPreview>
 
-                            <CardContent className="flex flex-1 flex-col justify-between gap-2.5 p-3">
-                              <div className="space-y-1">
-                                <div className="flex h-4 items-center gap-1 text-[11px] text-muted-foreground">
+                            <CardContent className="flex flex-1 flex-col justify-between gap-1.5 p-2.5">
+                              <div className="space-y-0.5">
+                                <div className="flex h-3.5 items-center gap-1 text-[10px] text-muted-foreground">
                                   {isScheduled ? (
                                     <span className="flex items-center gap-1 truncate font-medium text-sky-600 dark:text-sky-400">
-                                      <Clock className="size-3 shrink-0" />
+                                      <Clock className="size-2.5 shrink-0" />
                                       {item.scheduledTime
                                         ? formatDate(item.scheduledTime)
                                         : "Scheduled"}
                                     </span>
                                   ) : isPublished ? (
                                     <span className="flex items-center gap-1 truncate font-medium text-violet-600 dark:text-violet-400">
-                                      <CheckCircle2 className="size-3 shrink-0" />
+                                      <CheckCircle2 className="size-2.5 shrink-0" />
                                       {item.publishedAt
                                         ? formatDate(item.publishedAt)
                                         : "Published"}
@@ -1147,22 +1147,20 @@ export default function DashboardPage() {
                                     </span>
                                   )}
                                 </div>
-                                <div className="flex h-11 items-start overflow-hidden">
-                                  <h3
-                                    onClick={() => setPreviewProject(previewProj)}
-                                    className="line-clamp-2 cursor-pointer text-sm leading-snug font-medium transition-colors hover:text-primary"
-                                    title={item.title}
-                                  >
-                                    {item.title}
-                                  </h3>
-                                </div>
+                                <h3
+                                  onClick={() => setPreviewProject(previewProj)}
+                                  className="line-clamp-1 cursor-pointer text-xs leading-snug font-medium transition-colors hover:text-primary"
+                                  title={item.title}
+                                >
+                                  {item.title}
+                                </h3>
                               </div>
 
-                              <div className="mt-auto flex gap-2 pt-2">
+                              <div className="mt-auto flex gap-1.5 pt-1">
                                 {isScheduled ? (
                                   <Button
                                     size="sm"
-                                    className="flex-1 cursor-pointer text-xs"
+                                    className="h-7 flex-1 cursor-pointer px-2 text-[11px]"
                                     onClick={() => {
                                       const foundTask = queue.find(
                                         (q) => q.id === item.taskId,
@@ -1170,27 +1168,27 @@ export default function DashboardPage() {
                                       if (foundTask) handlePublishNow(foundTask);
                                     }}
                                   >
-                                    <Send className="mr-1 size-3.5" /> Post Now
+                                    <Send className="mr-1 size-3" /> Post Now
                                   </Button>
                                 ) : isPublished ? (
                                   <Button
                                     size="sm"
-                                    className="flex-1 cursor-pointer text-xs"
+                                    className="h-7 flex-1 cursor-pointer px-2 text-[11px]"
                                     onClick={() => setPreviewProject(previewProj)}
                                   >
-                                    <Play className="mr-1 size-3.5" /> Watch Video
+                                    <Play className="mr-1 size-3" /> Watch
                                   </Button>
                                 ) : (
                                   <Button
                                     size="sm"
-                                    className="flex-1 cursor-pointer text-xs"
+                                    className="h-7 flex-1 cursor-pointer px-2 text-[11px]"
                                     onClick={() =>
                                       router.push(
                                         `/composer?projectId=${item.videoProjectId}`,
                                       )
                                     }
                                   >
-                                    <Send className="mr-1 size-3.5" /> Post Video
+                                    <Send className="mr-1 size-3" /> Post
                                   </Button>
                                 )}
 
@@ -1202,20 +1200,20 @@ export default function DashboardPage() {
                                     title="Open Live Video on Platform"
                                     className={cn(
                                       buttonVariants({ size: "sm", variant: "outline" }),
-                                      "cursor-pointer px-2.5 text-xs",
+                                      "h-7 cursor-pointer px-2 text-[11px]",
                                     )}
                                   >
-                                    <ExternalLink className="size-3.5" />
+                                    <ExternalLink className="size-3" />
                                   </a>
                                 ) : (
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    className="cursor-pointer px-2.5 text-xs"
+                                    className="h-7 cursor-pointer px-2 text-[11px]"
                                     title="Watch Preview"
                                     onClick={() => setPreviewProject(previewProj)}
                                   >
-                                    <Play className="size-3.5" />
+                                    <Play className="size-3" />
                                   </Button>
                                 )}
                               </div>
@@ -1253,7 +1251,7 @@ export default function DashboardPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      {activeLongVideos.length > 4 && (
+                      {activeLongVideos.length > 3 && (
                         <Button
                           variant="ghost"
                           size="sm"
@@ -1274,8 +1272,8 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2">
-                    {(showAllLong ? activeLongVideos : activeLongVideos.slice(0, 4)).map(
+                  <div className="grid grid-cols-1 items-stretch gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                    {(showAllLong ? activeLongVideos : activeLongVideos.slice(0, 3)).map(
                       (item) => {
                         const isPublished = item.status === "PUBLISHED";
                         const isPosting = item.status === "IN_PROGRESS";
@@ -1304,14 +1302,14 @@ export default function DashboardPage() {
                               thumbnailUrl={item.thumbnailUrl}
                               gradient={item.gradient}
                               onClick={() => setPreviewProject(previewProj)}
-                              className="flex aspect-video shrink-0 flex-col justify-between p-3"
+                              className="flex aspect-video shrink-0 flex-col justify-between p-2"
                             >
                               <div className="z-20 flex items-start justify-between">
-                                <div className="flex flex-wrap items-center gap-1.5">
+                                <div className="flex flex-wrap items-center gap-1">
                                   <Badge
                                     variant="outline"
                                     className={cn(
-                                      "h-5 gap-1 border-white/20 text-[10px] font-semibold shadow-xs backdrop-blur",
+                                      "h-4.5 gap-1 border-white/20 px-1.5 text-[9px] font-semibold shadow-xs backdrop-blur",
                                       isPublished
                                         ? "bg-violet-500/90 text-white"
                                         : isPosting
@@ -1340,8 +1338,8 @@ export default function DashboardPage() {
                                             : "Failed"}
                                   </Badge>
 
-                                  <Badge className="h-5 gap-1 border-0 bg-indigo-600/90 text-[10px] font-medium text-white shadow-xs">
-                                    <MonitorPlay className="size-3" /> 16:9 Widescreen
+                                  <Badge className="h-4.5 gap-1 border-0 bg-indigo-600/90 px-1.5 text-[9px] font-medium text-white shadow-xs">
+                                    <MonitorPlay className="size-2.5" /> 16:9
                                   </Badge>
                                 </div>
 
@@ -1349,9 +1347,9 @@ export default function DashboardPage() {
                                   <DropdownMenuTrigger
                                     aria-label={`Actions for ${item.title}`}
                                     onClick={(e) => e.stopPropagation()}
-                                    className="grid size-7 cursor-pointer place-items-center rounded-full bg-white/90 text-neutral-900 shadow-xs backdrop-blur transition hover:bg-white"
+                                    className="grid size-6 cursor-pointer place-items-center rounded-full bg-white/90 text-neutral-900 shadow-xs backdrop-blur transition hover:bg-white"
                                   >
-                                    <MoreVertical className="size-4" />
+                                    <MoreVertical className="size-3.5" />
                                   </DropdownMenuTrigger>
                                   <DropdownMenuContent align="end" className="w-48">
                                     <DropdownMenuItem
@@ -1424,9 +1422,9 @@ export default function DashboardPage() {
                                   type="button"
                                   aria-label="Preview video"
                                   onClick={() => setPreviewProject(previewProj)}
-                                  className="absolute top-1/2 left-1/2 z-10 grid size-12 -translate-x-1/2 -translate-y-1/2 scale-90 cursor-pointer place-items-center rounded-full bg-white/95 text-neutral-900 opacity-0 shadow-lg transition-all group-hover:scale-100 group-hover:opacity-100 hover:bg-white focus-visible:opacity-100"
+                                  className="absolute top-1/2 left-1/2 z-10 grid size-9 -translate-x-1/2 -translate-y-1/2 scale-90 cursor-pointer place-items-center rounded-full bg-white/95 text-neutral-900 opacity-0 shadow-lg transition-all group-hover:scale-100 group-hover:opacity-100 hover:bg-white focus-visible:opacity-100"
                                 >
-                                  <Play className="ml-0.5 size-5 fill-current" />
+                                  <Play className="ml-0.5 size-4 fill-current" />
                                 </button>
                               )}
 
@@ -1435,34 +1433,34 @@ export default function DashboardPage() {
                                   {item.platforms.map((p) => (
                                     <span
                                       key={p}
-                                      className="grid size-5 place-items-center rounded-full bg-white/90 text-neutral-900 shadow-xs"
+                                      className="grid size-4.5 place-items-center rounded-full bg-white/90 text-neutral-900 shadow-xs"
                                       title={PLATFORM_LABELS[p]}
                                     >
-                                      <PlatformIcon platform={p} className="size-3" />
+                                      <PlatformIcon platform={p} className="size-2.5" />
                                     </span>
                                   ))}
                                 </div>
                                 {item.durationSeconds && (
-                                  <span className="rounded bg-black/75 px-1.5 py-0.5 text-xs font-medium text-white tabular-nums">
+                                  <span className="rounded bg-black/75 px-1.5 py-0.5 text-[10px] font-medium text-white tabular-nums">
                                     {formatDuration(item.durationSeconds)}
                                   </span>
                                 )}
                               </div>
                             </HoverVideoPreview>
 
-                            <CardContent className="flex flex-1 flex-col justify-between gap-2.5 p-3.5">
-                              <div className="space-y-1">
-                                <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
+                            <CardContent className="flex flex-1 flex-col justify-between gap-1.5 p-2.5">
+                              <div className="space-y-0.5">
+                                <div className="flex items-center justify-between gap-1.5 text-[10px] text-muted-foreground">
                                   {isScheduled ? (
                                     <span className="flex items-center gap-1 truncate font-medium text-sky-600 dark:text-sky-400">
-                                      <Clock className="size-3 shrink-0" />
+                                      <Clock className="size-2.5 shrink-0" />
                                       {item.scheduledTime
                                         ? formatDate(item.scheduledTime)
                                         : "Scheduled"}
                                     </span>
                                   ) : isPublished ? (
                                     <span className="flex items-center gap-1 truncate font-medium text-violet-600 dark:text-violet-400">
-                                      <CheckCircle2 className="size-3 shrink-0" />
+                                      <CheckCircle2 className="size-2.5 shrink-0" />
                                       {item.publishedAt
                                         ? formatDate(item.publishedAt)
                                         : "Published"}
@@ -1480,18 +1478,18 @@ export default function DashboardPage() {
                                 </div>
                                 <h3
                                   onClick={() => setPreviewProject(previewProj)}
-                                  className="line-clamp-1 cursor-pointer text-sm leading-snug font-semibold transition-colors hover:text-primary"
+                                  className="line-clamp-1 cursor-pointer text-xs leading-snug font-semibold transition-colors hover:text-primary"
                                   title={item.title}
                                 >
                                   {item.title}
                                 </h3>
                               </div>
 
-                              <div className="mt-auto flex gap-2 pt-1.5">
+                              <div className="mt-auto flex gap-1.5 pt-1">
                                 {isScheduled ? (
                                   <Button
                                     size="sm"
-                                    className="flex-1 cursor-pointer text-xs"
+                                    className="h-7 flex-1 cursor-pointer px-2 text-[11px]"
                                     onClick={() => {
                                       const foundTask = queue.find(
                                         (q) => q.id === item.taskId,
@@ -1499,27 +1497,27 @@ export default function DashboardPage() {
                                       if (foundTask) handlePublishNow(foundTask);
                                     }}
                                   >
-                                    <Send className="mr-1 size-3.5" /> Post Now
+                                    <Send className="mr-1 size-3" /> Post Now
                                   </Button>
                                 ) : isPublished ? (
                                   <Button
                                     size="sm"
-                                    className="flex-1 cursor-pointer text-xs"
+                                    className="h-7 flex-1 cursor-pointer px-2 text-[11px]"
                                     onClick={() => setPreviewProject(previewProj)}
                                   >
-                                    <Play className="mr-1 size-3.5" /> Watch Video
+                                    <Play className="mr-1 size-3" /> Watch Video
                                   </Button>
                                 ) : (
                                   <Button
                                     size="sm"
-                                    className="flex-1 cursor-pointer text-xs"
+                                    className="h-7 flex-1 cursor-pointer px-2 text-[11px]"
                                     onClick={() =>
                                       router.push(
                                         `/composer?projectId=${item.videoProjectId}`,
                                       )
                                     }
                                   >
-                                    <Send className="mr-1 size-3.5" /> Post Video
+                                    <Send className="mr-1 size-3" /> Post Video
                                   </Button>
                                 )}
 
@@ -1531,20 +1529,20 @@ export default function DashboardPage() {
                                     title="Open Live Video on Platform"
                                     className={cn(
                                       buttonVariants({ size: "sm", variant: "outline" }),
-                                      "cursor-pointer px-2.5 text-xs",
+                                      "h-7 cursor-pointer px-2 text-[11px]",
                                     )}
                                   >
-                                    <ExternalLink className="size-3.5" />
+                                    <ExternalLink className="size-3" />
                                   </a>
                                 ) : (
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    className="cursor-pointer px-2.5 text-xs"
+                                    className="h-7 cursor-pointer px-2 text-[11px]"
                                     title="Watch Preview"
                                     onClick={() => setPreviewProject(previewProj)}
                                   >
-                                    <Play className="size-3.5" />
+                                    <Play className="size-3" />
                                   </Button>
                                 )}
                               </div>
