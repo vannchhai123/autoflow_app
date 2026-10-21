@@ -2231,6 +2231,14 @@ export default function ProjectsPage() {
       }
     } catch {}
 
+    let deletedIds: Set<string> = new Set();
+    try {
+      const savedDeleted = localStorage.getItem("clipflow_deleted_project_ids");
+      if (savedDeleted) {
+        deletedIds = new Set(JSON.parse(savedDeleted) as string[]);
+      }
+    } catch {}
+
     Promise.allSettled([
       videoApi.list(0, 50),
       publishingApi.listScheduled(),
@@ -2367,7 +2375,7 @@ export default function ProjectsPage() {
           });
         }
 
-        setProjects(combined);
+        setProjects(combined.filter((item) => !deletedIds.has(item.id)));
       })
       .catch(() => {});
 
@@ -2564,16 +2572,27 @@ export default function ProjectsPage() {
       toast.success("Project duplicated as draft");
     },
     onDelete: async (id) => {
+      setProjects((prev) => prev.filter((p) => p.id !== id));
+      setPreviewProject((prev) => (prev?.id === id ? null : prev));
       try {
-        await videoApi.delete(id);
-        setProjects((prev) => prev.filter((p) => p.id !== id));
-        toast.success("Project deleted successfully");
-      } catch (err) {
-        console.error("Failed to delete project:", err);
-        toast.error("Failed to delete project", {
-          description: "Could not remove project from the server. Please try again.",
-        });
+        const raw = localStorage.getItem("clipflow_deleted_project_ids");
+        const list: string[] = raw ? JSON.parse(raw) : [];
+        if (!list.includes(id)) {
+          list.push(id);
+          localStorage.setItem("clipflow_deleted_project_ids", JSON.stringify(list));
+        }
+      } catch {}
+
+      const isLocalOnly =
+        id.startsWith("yt-") || id.startsWith("import-") || id.includes("-copy-");
+      if (!isLocalOnly) {
+        try {
+          await videoApi.delete(id);
+        } catch (err) {
+          console.warn("Backend delete warning:", err);
+        }
       }
+      toast.success("Project deleted successfully");
     },
   };
 

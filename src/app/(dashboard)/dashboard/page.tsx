@@ -251,13 +251,22 @@ export default function DashboardPage() {
   useEffect(() => {
     let active = true;
 
+    let deletedIds: Set<string> = new Set();
+    try {
+      const savedDeleted = localStorage.getItem("clipflow_deleted_project_ids");
+      if (savedDeleted) {
+        deletedIds = new Set(JSON.parse(savedDeleted) as string[]);
+      }
+    } catch {}
+
     videoApi
       .list(0, 50)
       .then((res) => {
         if (!active) return;
         if (res && Array.isArray(res.content)) {
-          setProjects(res.content);
-          setTotalVideosCount(res.totalElements ?? res.content.length);
+          const visible = res.content.filter((p) => !deletedIds.has(p.id));
+          setProjects(visible);
+          setTotalVideosCount(visible.length);
         }
       })
       .catch((err) => {
