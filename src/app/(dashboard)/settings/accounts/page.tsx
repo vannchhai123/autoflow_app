@@ -146,7 +146,7 @@ export default function SocialAccountsPage() {
   const [tiktokClientSecret, setTiktokClientSecret] = useState("");
   const [facebookAppId, setFacebookAppId] = useState("");
   const [facebookAppSecret, setFacebookAppSecret] = useState("");
-  const [tiktokScope, setTiktokScope] = useState("user.info.basic,video.publish");
+  const [tiktokScope, setTiktokScope] = useState("user.info.basic");
   const [savingCredentials, setSavingCredentials] = useState(false);
   const [connectingDemo, setConnectingDemo] = useState(false);
 
@@ -237,8 +237,16 @@ export default function SocialAccountsPage() {
           return;
         }
         if (res.authorizationUrl.startsWith("http")) {
+          let redirectUrl = res.authorizationUrl;
+          if (p === "TIKTOK" && scopeToUse) {
+            try {
+              const parsed = new URL(redirectUrl);
+              parsed.searchParams.set("scope", scopeToUse);
+              redirectUrl = parsed.toString();
+            } catch {}
+          }
           toast.info(`Redirecting to ${PLATFORM_LABELS[p]} OAuth consent...`);
-          window.location.href = res.authorizationUrl;
+          window.location.href = redirectUrl;
           return;
         }
         toast.success(`${PLATFORM_LABELS[p]} connected successfully!`);
@@ -871,11 +879,11 @@ export default function SocialAccountsPage() {
                       onChange={(e) => setTiktokScope(e.target.value)}
                       className="w-full rounded-md border bg-background px-2.5 py-1.5 text-xs text-foreground focus:outline-hidden focus:ring-2 focus:ring-ring"
                     >
-                      <option value="user.info.basic,video.publish">
-                        Direct Video Posting (user.info.basic, video.publish) - Recommended
-                      </option>
                       <option value="user.info.basic">
-                        Basic Login Only (user.info.basic) - Use if Content Posting API not added yet
+                        Basic Login Only (user.info.basic) - Recommended for Sandbox
+                      </option>
+                      <option value="user.info.basic,video.publish">
+                        Direct Video Posting (user.info.basic, video.publish) - Requires Content Posting API
                       </option>
                       <option value="user.info.basic,video.publish,video.upload">
                         Direct Post + Inbox Drafts (user.info.basic, video.publish, video.upload)
