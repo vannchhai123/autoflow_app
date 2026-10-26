@@ -70,8 +70,10 @@ export const publishingApi = {
       `/accounts/videos/${encodeURIComponent(videoId)}`,
     ),
 
-  connectAccount: (platform: Platform) =>
-    apiClient.post<{ authorizationUrl: string }>(`/accounts/connect/${platform}`),
+  connectAccount: (platform: Platform, scope?: string) =>
+    apiClient.post<{ authorizationUrl: string }>(
+      `/accounts/connect/${platform}${scope ? `?scope=${encodeURIComponent(scope)}` : ""}`,
+    ),
 
   reconnectAccount: (id: string) =>
     apiClient.post<SocialAccountDto>(`/accounts/${id}/reconnect`),
@@ -95,8 +97,9 @@ export const publishingApi = {
     platform: string;
     clientId: string;
     clientSecret: string;
+    scope?: string;
   }) =>
-    apiClient.post<{ success: boolean; configured: boolean }>(
+    apiClient.post<{ success: boolean; configured: boolean; scope?: string }>(
       "/accounts/config/credentials",
       body,
     ),

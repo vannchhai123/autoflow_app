@@ -146,6 +146,7 @@ export default function SocialAccountsPage() {
   const [tiktokClientSecret, setTiktokClientSecret] = useState("");
   const [facebookAppId, setFacebookAppId] = useState("");
   const [facebookAppSecret, setFacebookAppSecret] = useState("");
+  const [tiktokScope, setTiktokScope] = useState("user.info.basic,video.publish");
   const [savingCredentials, setSavingCredentials] = useState(false);
   const [connectingDemo, setConnectingDemo] = useState(false);
 
@@ -189,6 +190,14 @@ export default function SocialAccountsPage() {
           );
           setConfigPlatform("FACEBOOK");
           setConfigModalOpen(true);
+        } else if (error.toLowerCase().includes("scope")) {
+          toast.error("TikTok Scope Permission Mismatch", {
+            description:
+              "TikTok rejected the requested scopes. If your app only has Login Kit, switch to 'Basic Login Only (user.info.basic)' below, or add Content Posting API in TikTok for Developers.",
+            duration: 8000,
+          });
+          setConfigPlatform("TIKTOK");
+          setConfigModalOpen(true);
         } else {
           toast.error(`Connection failed: ${error}`);
         }
@@ -211,9 +220,10 @@ export default function SocialAccountsPage() {
       });
   }, []);
 
-  const handleConnect = async (p: Platform) => {
+  const handleConnect = async (p: Platform, scopeOverride?: string) => {
     try {
-      const res = await publishingApi.connectAccount(p);
+      const scopeToUse = p === "TIKTOK" ? (scopeOverride || tiktokScope) : undefined;
+      const res = await publishingApi.connectAccount(p, scopeToUse);
       if (res?.authorizationUrl) {
         if (
           res.authorizationUrl.includes("error=missing_credentials") ||
@@ -851,6 +861,30 @@ export default function SocialAccountsPage() {
                       className="font-mono text-xs"
                     />
                   </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-foreground">
+                      Requested Scopes / Permissions
+                    </label>
+                    <select
+                      value={tiktokScope}
+                      onChange={(e) => setTiktokScope(e.target.value)}
+                      className="w-full rounded-md border bg-background px-2.5 py-1.5 text-xs text-foreground focus:outline-hidden focus:ring-2 focus:ring-ring"
+                    >
+                      <option value="user.info.basic,video.publish">
+                        Direct Video Posting (user.info.basic, video.publish) - Recommended
+                      </option>
+                      <option value="user.info.basic">
+                        Basic Login Only (user.info.basic) - Use if Content Posting API not added yet
+                      </option>
+                      <option value="user.info.basic,video.publish,video.upload">
+                        Direct Post + Inbox Drafts (user.info.basic, video.publish, video.upload)
+                      </option>
+                    </select>
+                    <p className="text-[11px] text-muted-foreground">
+                      ⚠️ If TikTok shows <strong>&quot;correct the following: scope&quot;</strong>, switch to <strong>Basic Login Only (user.info.basic)</strong> or add <strong>Content Posting API</strong> product in your TikTok Developer portal.
+                    </p>
+                  </div>
                 </div>
               </>
             )}
@@ -980,10 +1014,11 @@ export default function SocialAccountsPage() {
                       platform: "TIKTOK",
                       clientId: tiktokClientKey.trim(),
                       clientSecret: tiktokClientSecret.trim(),
+                      scope: tiktokScope,
                     });
                     toast.success("TikTok credentials saved to server!");
                     setConfigModalOpen(false);
-                    handleConnect("TIKTOK");
+                    handleConnect("TIKTOK", tiktokScope);
                   } catch {
                     toast.error("Failed to save credentials");
                   } finally {
